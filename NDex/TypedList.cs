@@ -7,6 +7,34 @@ using NDex.Properties;
 namespace NDex
 {
     /// <summary>
+    /// Provides extension methods for creating typed lists.
+    /// </summary>
+    public static class TypedList
+    {
+        /// <summary>
+        /// Wraps the given array with a type-safe interface.
+        /// </summary>
+        /// <typeparam name="T">The type of the items in the array.</typeparam>
+        /// <param name="array">The array to wrap.</param>
+        /// <returns>A TypedList wrapping the array.</returns>
+        public static TypedList<Array, T> Typed<T>(this Array array)
+        {
+            return new TypedList<Array, T>(array);
+        }
+
+        /// <summary>
+        /// Wraps the given list with a type-safe interface.
+        /// </summary>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to wrap.</param>
+        /// <returns>A TypedList wrapping the list.</returns>
+        public static TypedList<ArrayList, T> Typed<T>(this ArrayList list)
+        {
+            return new TypedList<ArrayList, T>(list);
+        }
+    }
+
+    /// <summary>
     /// Provides a typed interface for a non-generic list.
     /// </summary>
     /// <typeparam name="TList">The type of the non-generic list to wrap.</typeparam>

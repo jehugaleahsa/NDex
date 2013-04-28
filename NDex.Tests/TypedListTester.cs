@@ -12,6 +12,32 @@ namespace NDex.Test
     [TestClass]
     public class TypedListTester
     {
+        #region Typed
+
+        /// <summary>
+        /// We can make a typed interface around an array.
+        /// </summary>
+        [TestMethod]
+        public void TestTyped_Array_WrapsArray()
+        {
+            Array array = Array.CreateInstance(typeof(int), 10);
+            var typed = array.Typed<int>();
+            Assert.AreSame(array, typed.List, "The array was not wrapped.");
+        }
+
+        /// <summary>
+        /// We can make a typed interface around an ArrayList.
+        /// </summary>
+        [TestMethod]
+        public void TestTyped_ArrayList_WrapsList()
+        {
+            ArrayList list = new ArrayList();
+            var typed = list.Typed<int>();
+            Assert.AreSame(list, typed.List, "The list was not wrapped.");
+        }
+
+        #endregion
+
         #region Ctor
 
         /// <summary>

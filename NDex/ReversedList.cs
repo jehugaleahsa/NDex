@@ -116,6 +116,24 @@ namespace NDex
             return reversed<TList, T>(sublist.List, sublist.Offset, sublist.Count);
         }
 
+        /// <summary>
+        /// Wraps a sublist in a ReversedList.
+        /// </summary>
+        /// <typeparam name="TList">The type of the sublist's underlying list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="sublist">The sublist to reverse.</param>
+        /// <returns>A sublist, wrapping a reversed list over the original sublist.</returns>
+        /// <exception cref="System.ArgumentNullException">The sublist is null.</exception>
+        public static Sublist<ReversedList<TList, T>, T> Reversed<TList, T>(this Sublist<TList, T> sublist)
+            where TList : IList<T>
+        {
+            if (sublist == null)
+            {
+                throw new ArgumentNullException("sublist");
+            }
+            return reversed<TList, T>(sublist.List, sublist.Offset, sublist.Count);
+        }
+
         private static Sublist<ReversedList<TList, T>, T> reversed<TList, T>(TList list, int offset, int count)
             where TList : IList<T>
         {
@@ -137,7 +155,7 @@ namespace NDex
         {
             if (sublist == null)
             {
-                throw new ArgumentNullException("list");
+                throw new ArgumentNullException("sublist");
             }
             return reversed<TList, T>(sublist.List, sublist.Offset, sublist.Count);
         }
@@ -154,7 +172,7 @@ namespace NDex
         {
             if (sublist == null)
             {
-                throw new ArgumentNullException("list");
+                throw new ArgumentNullException("sublist");
             }
             return reversed<TList, T>(sublist.List, sublist.Offset, sublist.Count);
         }
@@ -171,7 +189,24 @@ namespace NDex
         {
             if (sublist == null)
             {
-                throw new ArgumentNullException("list");
+                throw new ArgumentNullException("sublist");
+            }
+            return reversed<TList, T>(sublist.List, sublist.Offset, sublist.Count);
+        }
+
+        /// <summary>
+        /// Unwraps a reversed sublist.
+        /// </summary>
+        /// <typeparam name="TList">The type of the underlying list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="sublist">The list to unwrap.</param>
+        /// <returns>The underlying list.</returns>
+        public static Sublist<TList, T> Reversed<TList, T>(this Sublist<ReversedList<TList, T>, T> sublist)
+            where TList : IList<T>
+        {
+            if (sublist == null)
+            {
+                throw new ArgumentNullException("sublist");
             }
             return reversed<TList, T>(sublist.List, sublist.Offset, sublist.Count);
         }

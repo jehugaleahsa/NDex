@@ -424,6 +424,92 @@ namespace NDex
             return new Sublist<Collection<T>, T>(collection, offset, count);
         }
 
+        /// <summary>
+        /// Wraps the given typed list such that the entirety of the collection is visible.
+        /// </summary>
+        /// <typeparam name="TList">The type of the non-generic list wrapped by the typed list.</typeparam>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <param name="list">The typed list to wrap.</param>
+        /// <returns>A Sublist wrapping the given list.</returns>
+        public static IExpandableSublist<TypedList<TList, T>, T> ToSublist<TList, T>(this TypedList<TList, T> list)
+            where TList : IList
+        {
+            return new Sublist<TypedList<TList, T>, T>(list);
+        }
+
+        /// <summary>
+        /// Wraps the given collection such that the first item starts at the given offset and contains the remaining items.
+        /// </summary>
+        /// <typeparam name="TList">The type of the non-generic list wrapped by the typed list.</typeparam>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <param name="list">The typed list to wrap.</param>
+        /// <param name="offset">The starting index into the collection to create the view.</param>
+        /// <returns>A Sublist wrapping the given list.</returns>
+        public static IExpandableSublist<TypedList<TList, T>, T> ToSublist<TList, T>(this TypedList<TList, T> list, int offset)
+            where TList : IList
+        {
+            return new Sublist<TypedList<TList, T>, T>(list, offset);
+        }
+
+        /// <summary>
+        /// Wraps the given typed list such that the first item starts at the given offset and contains the number of items
+        /// specified by the count.
+        /// </summary>
+        /// <typeparam name="TList">The type of the non-generic list wrapped by the typed list.</typeparam>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <param name="list">The typed list to wrap.</param>
+        /// <param name="offset">The starting index into the collection to create the view.</param>
+        /// <param name="count">The number of items to include in the view.</param>
+        /// <returns>A Sublist wrapping the given list.</returns>
+        public static IExpandableSublist<TypedList<TList, T>, T> ToSublist<TList, T>(this TypedList<TList, T> list, int offset, int count)
+            where TList : IList
+        {
+            return new Sublist<TypedList<TList, T>, T>(list, offset, count);
+        }
+
+        /// <summary>
+        /// Wraps the given read-only list such that the entirety of the list is visible.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list wrapped by the read-only list.</typeparam>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <param name="list">The typed list to wrap.</param>
+        /// <returns>A Sublist wrapping the given list.</returns>
+        public static IReadOnlySublist<ReadOnlyList<TList, T>, T> ToSublist<TList, T>(this ReadOnlyList<TList, T> list)
+            where TList : IList<T>
+        {
+            return new Sublist<ReadOnlyList<TList, T>, T>(list);
+        }
+
+        /// <summary>
+        /// Wraps the given read-only list such that the first item starts at the given offset and contains the remaining items.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list wrapped by the read-only list.</typeparam>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <param name="list">The typed list to wrap.</param>
+        /// <param name="offset">The starting index into the list to create the view.</param>
+        /// <returns>A Sublist wrapping the given list.</returns>
+        public static IReadOnlySublist<ReadOnlyList<TList, T>, T> ToSublist<TList, T>(this ReadOnlyList<TList, T> list, int offset)
+            where TList : IList<T>
+        {
+            return new Sublist<ReadOnlyList<TList, T>, T>(list, offset);
+        }
+
+        /// <summary>
+        /// Wraps the given read-only list such that the first item starts at the given offset and contains the number of items
+        /// specified by the count.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list wrapped by the read-only list.</typeparam>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <param name="list">The typed list to wrap.</param>
+        /// <param name="offset">The starting index into the list to create the view.</param>
+        /// <param name="count">The number of items to include in the view.</param>
+        /// <returns>A Sublist wrapping the given list.</returns>
+        public static IReadOnlySublist<ReadOnlyList<TList, T>, T> ToSublist<TList, T>(this ReadOnlyList<TList, T> list, int offset, int count)
+            where TList : IList<T>
+        {
+            return new Sublist<ReadOnlyList<TList, T>, T>(list, offset, count);
+        }
+
         #endregion
 
         #region Add

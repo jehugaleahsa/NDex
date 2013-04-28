@@ -15,15 +15,136 @@ namespace NDex.Test
         #region Extensions
 
         /// <summary>
-        /// If we call ReadOnly on a Collection, it should return a ReadOnlyList wrapping
-        /// the collection.
+        /// If we call ReadOnly on an array, it should return a ReadOnlyList wrapping it.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_Array_Wraps()
+        {
+            var array = new int[0];
+            var readOnly = array.ReadOnly();
+            Assert.AreSame(array, readOnly.List, "The underlying list was not set.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a list, it should return a ReadOnlyList wrapping it.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_List_Wraps()
+        {
+            var list = new List<int>();
+            var readOnly = list.ReadOnly();
+            Assert.AreSame(list, readOnly.List, "The underlying list was not set.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a Collection, it should return a ReadOnlyList wrapping it.
         /// </summary>
         [TestMethod]
         public void TestReadOnly_Collection_WrapsCollection()
         {
             var collection = new Collection<int>();
-            var list = collection.ReadOnly();
-            Assert.AreSame(collection, list.List, "The underlying list was not set.");
+            var readOnly = collection.ReadOnly();
+            Assert.AreSame(collection, readOnly.List, "The underlying list was not set.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReadOnly_ReadOnlySublist_NullSublist_Throws()
+        {
+            IReadOnlySublist<List<int>, int> sublist = null;
+            var readOnly = sublist.ReadOnly();
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a sublist, it should return a IReadOnlySublist wrapping
+        /// a ReadOnlyList.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_ReadOnlySublist_SublistWrapsReadOnly()
+        {
+            var sublist = String.Empty.ToSubstring();
+            var readOnly = sublist.ReadOnly();
+            Assert.AreSame(((IReadOnlySublist<StringAdapter, char>)sublist).List, readOnly.List.List, "The underlying list was not set.");
+            Assert.AreEqual(sublist.Offset, readOnly.Offset, "The offset was not carried forward.");
+            Assert.AreEqual(sublist.Count, readOnly.Count, "The count was not carried forward.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReadOnly_MutableSublist_NullSublist_Throws()
+        {
+            IMutableSublist<List<int>, int> sublist = null;
+            var readOnly = sublist.ReadOnly();
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a sublist, it should return a IReadOnlySublist wrapping
+        /// a ReadOnlyList.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_MutableSublist_SublistWrapsReadOnly()
+        {
+            var sublist = new int[0].ToSublist();
+            var readOnly = sublist.ReadOnly();
+            Assert.AreSame(sublist.List, readOnly.List.List, "The underlying list was not set.");
+            Assert.AreEqual(sublist.Offset, readOnly.Offset, "The offset was not carried forward.");
+            Assert.AreEqual(sublist.Count, readOnly.Count, "The count was not carried forward.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReadOnly_ExpandableSublist_NullSublist_Throws()
+        {
+            IExpandableSublist<List<int>, int> sublist = null;
+            var readOnly = sublist.ReadOnly();
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a sublist, it should return a IReadOnlySublist wrapping
+        /// a ReadOnlyList.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_ExpandableSublist_SublistWrapsReadOnly()
+        {
+            var sublist = new List<int>().ToSublist();
+            var readOnly = sublist.ReadOnly();
+            Assert.AreSame(sublist.List, readOnly.List.List, "The underlying list was not set.");
+            Assert.AreEqual(sublist.Offset, readOnly.Offset, "The offset was not carried forward.");
+            Assert.AreEqual(sublist.Count, readOnly.Count, "The count was not carried forward.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReadOnly_Sublist_NullSublist_Throws()
+        {
+            Sublist<List<int>, int> sublist = null;
+            var readOnly = sublist.ReadOnly();
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a sublist, it should return a IReadOnlySublist wrapping
+        /// a ReadOnlyList.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_Sublist_SublistWrapsReadOnly()
+        {
+            var sublist = new Sublist<List<int>, int>(new List<int>());
+            var readOnly = sublist.ReadOnly();
+            Assert.AreSame(sublist.List, readOnly.List.List, "The underlying list was not set.");
+            Assert.AreEqual(sublist.Offset, readOnly.Offset, "The offset was not carried forward.");
+            Assert.AreEqual(sublist.Count, readOnly.Count, "The count was not carried forward.");
         }
 
         #endregion

@@ -131,6 +131,90 @@ namespace NDex.Test
             Assert.AreEqual(1, sublist.Count, "The count was wrong.");
         }
 
+        /// <summary>
+        /// If we call ToSublist without an offset or count, the entire list should be wrapped.
+        /// </summary>
+        [TestMethod]
+        public void TestToSublist_OnTypedList_WrapsEntireList()
+        {
+            ArrayList list = new ArrayList();
+            var typed = list.Typed<int>();
+            var sublist = typed.ToSublist();
+            Assert.AreSame(typed, sublist.List, "The back list was not set.");
+            Assert.AreEqual(0, sublist.Offset, "The offset was not zero.");
+            Assert.AreEqual(typed.Count, sublist.Count, "The count was wrong.");
+        }
+
+        /// <summary>
+        /// If we call ToSublist with an offset, everything after the offset should be wrapped.
+        /// </summary>
+        [TestMethod]
+        public void TestToSublist_OnTypedList_WithOffset_WrapsRemaining()
+        {
+            ArrayList list = new ArrayList() { 1, 2, 3 };
+            var typed = list.Typed<int>();
+            var sublist = typed.ToSublist(1);
+            Assert.AreSame(typed, sublist.List, "The back list was not set.");
+            Assert.AreEqual(1, sublist.Offset, "The offset was not zero.");
+            Assert.AreEqual(2, sublist.Count, "The count was wrong.");
+        }
+
+        /// <summary>
+        /// If we call ToSublist with an offset and count, the range defined should be wrapped.
+        /// </summary>
+        [TestMethod]
+        public void TestToSublist_OnTypedList_WithOffsetAndCount_WrapsRange()
+        {
+            ArrayList list = new ArrayList() { 1, 2, 3 };
+            var typed = list.Typed<int>();
+            var sublist = typed.ToSublist(1, 1);
+            Assert.AreSame(typed, sublist.List, "The back list was not set.");
+            Assert.AreEqual(1, sublist.Offset, "The offset was not zero.");
+            Assert.AreEqual(1, sublist.Count, "The count was wrong.");
+        }
+
+        /// <summary>
+        /// If we call ToSublist without an offset or count, the entire list should be wrapped.
+        /// </summary>
+        [TestMethod]
+        public void TestToSublist_OnReadOnlyList_WrapsEntireList()
+        {
+            List<int> list = new List<int>();
+            var readOnly = list.ReadOnly();
+            var sublist = readOnly.ToSublist();
+            Assert.AreSame(readOnly, sublist.List, "The back list was not set.");
+            Assert.AreEqual(0, sublist.Offset, "The offset was not zero.");
+            Assert.AreEqual(readOnly.Count, sublist.Count, "The count was wrong.");
+        }
+
+        /// <summary>
+        /// If we call ToSublist with an offset, everything after the offset should be wrapped.
+        /// </summary>
+        [TestMethod]
+        public void TestToSublist_OnReadOnlyList_WithOffset_WrapsRemaining()
+        {
+            List<int> list = new List<int>() { 1, 2, 3 };
+            var readOnly = list.ReadOnly();
+            var sublist = readOnly.ToSublist(1);
+            Assert.AreSame(readOnly, sublist.List, "The back list was not set.");
+            Assert.AreEqual(1, sublist.Offset, "The offset was not zero.");
+            Assert.AreEqual(2, sublist.Count, "The count was wrong.");
+        }
+
+        /// <summary>
+        /// If we call ToSublist with an offset and count, the range defined should be wrapped.
+        /// </summary>
+        [TestMethod]
+        public void TestToSublist_OnReadOnlyList_WithOffsetAndCount_WrapsRange()
+        {
+            List<int> list = new List<int>() { 1, 2, 3 };
+            var readOnly = list.ReadOnly();
+            var sublist = readOnly.ToSublist(1, 1);
+            Assert.AreSame(readOnly, sublist.List, "The back list was not set.");
+            Assert.AreEqual(1, sublist.Offset, "The offset was not zero.");
+            Assert.AreEqual(1, sublist.Count, "The count was wrong.");
+        }
+
         #endregion
 
         #region Ctor

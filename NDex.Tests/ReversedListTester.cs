@@ -179,6 +179,40 @@ namespace NDex.Test
         }
 
         /// <summary>
+        /// If we try to reverse a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReversed_OnSublist_NullSublist_Throws()
+        {
+            Sublist<List<int>, int> sublist = null;
+            sublist.Reversed();
+        }
+
+        /// <summary>
+        /// If a reversed, sublist is reversed, the original sublist should be returned.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReversed_OnReversedSublist_NullSublist_ReturnsOriginal()
+        {
+            Sublist<ReversedList<List<int>, int>, int> reversed = null;
+            reversed.Reversed();
+        }
+
+        /// <summary>
+        /// If a reversed, sublist is reversed, the original sublist should be returned.
+        /// </summary>
+        [TestMethod]
+        public void TestReversed_OnReversedSublist_ReturnsOriginal()
+        {
+            var original = new Sublist<List<int>, int>(new List<int>() { 1, 2, 3, 4, 5 }, 1, 3);
+            var reversed = original.Reversed();
+            var rereversed = reversed.Reversed();
+            Assert.IsTrue(Sublist.AreEqual(original, rereversed), "The original and re-reversed were not the same.");
+        }
+
+        /// <summary>
         /// If we call Reversed on a collection, it should wrap the collection.
         /// </summary>
         [TestMethod]

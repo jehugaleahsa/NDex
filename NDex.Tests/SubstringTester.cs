@@ -90,6 +90,32 @@ namespace NDex.Test
             Assert.AreEqual(1, substring.Count, "The count was wrong.");
         }
 
+        /// <summary>
+        /// If we call ToSubstring a null sublist, it throws an exception/
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestToSubstring_NullSublist_Throws()
+        {
+            IReadOnlySublist<StringAdapter, char> sublist = null;
+            sublist.ToSubstring();
+        }
+
+        /// <summary>
+        /// Some times when manipulating a Substring, it gets converted to an IReadOnlySublist.
+        /// We can call ToSubstring to restore it back to Substring.
+        /// </summary>
+        [TestMethod]
+        public void TestToSubstring_IReadOnlySublist_Restores()
+        {
+            Substring substring = "Hello".ToSubstring(1, 3);
+            var reversed = substring.Reversed().Reversed();
+            var actual = reversed.ToSubstring();
+            Assert.AreSame(substring.Value, actual.Value, "The original string was not wrapped.");
+            Assert.AreEqual(substring.Offset, actual.Offset, "The offset was not restored.");
+            Assert.AreEqual(substring.Count, actual.Count, "The count was not restored.");
+        }
+
         #endregion
 
         #region Ctor

@@ -44,7 +44,22 @@ namespace NDex
         {
             return new Substring(value, offset, count);
         }
+
+        /// <summary>
+        /// Restores a Substring that's been converted to an IReadOnlySublist back to a Substring.
+        /// </summary>
+        /// <param name="sublist">The sublist representation of the substring.</param>
+        /// <returns>A Substring representing the original substring.</returns>
+        public static Substring ToSubstring(this IReadOnlySublist<StringAdapter, char> sublist)
+        {
+            if (sublist == null)
+            {
+                throw new ArgumentNullException("sublist");
+            }
+            return new Substring(sublist.List.Value, sublist.Offset, sublist.Count);
+        }
     }
+
     /// <summary>
     /// Creates a view into a string starting at an offset and containing the designated number of characters.
     /// </summary>
