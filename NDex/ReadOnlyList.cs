@@ -120,6 +120,74 @@ namespace NDex
             ReadOnlyList<TList, T> readOnly = new ReadOnlyList<TList, T>(list);
             return new Sublist<ReadOnlyList<TList, T>, T>(readOnly, offset, count);
         }
+
+        /// <summary>
+        /// Wraps the sublist with a ReadOnlyList.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list wrapped by the sublist.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="sublist">The sublist to wrap.</param>
+        /// <returns>A ReadOnlyList wrapping the given collection.</returns>
+        public static IReadOnlySublist<ReadOnlyList<TList, T>, T> ReadOnly<TList, T>(this IReadOnlySublist<ReadOnlyList<TList, T>, T> sublist)
+            where TList : IList<T>
+        {
+            if (sublist == null)
+            {
+                throw new ArgumentNullException("sublist");
+            }
+            return sublist;
+        }
+
+        /// <summary>
+        /// Wraps the sublist with a ReadOnlyList.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list wrapped by the sublist.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="sublist">The sublist to wrap.</param>
+        /// <returns>A ReadOnlyList wrapping the given collection.</returns>
+        public static IMutableSublist<ReadOnlyList<TList, T>, T> ReadOnly<TList, T>(this IMutableSublist<ReadOnlyList<TList, T>, T> sublist)
+            where TList : IList<T>
+        {
+            if (sublist == null)
+            {
+                throw new ArgumentNullException("sublist");
+            }
+            return sublist;
+        }
+
+        /// <summary>
+        /// Wraps the sublist with a ReadOnlyList.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list wrapped by the sublist.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="sublist">The sublist to wrap.</param>
+        /// <returns>A ReadOnlyList wrapping the given collection.</returns>
+        public static IExpandableSublist<ReadOnlyList<TList, T>, T> ReadOnly<TList, T>(this IExpandableSublist<ReadOnlyList<TList, T>, T> sublist)
+            where TList : IList<T>
+        {
+            if (sublist == null)
+            {
+                throw new ArgumentNullException("sublist");
+            }
+            return sublist;
+        }
+
+        /// <summary>
+        /// Wraps the sublist with a ReadOnlyList.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list wrapped by the sublist.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="sublist">The sublist to wrap.</param>
+        /// <returns>A ReadOnlyList wrapping the given collection.</returns>
+        public static Sublist<ReadOnlyList<TList, T>, T> ReadOnly<TList, T>(this Sublist<ReadOnlyList<TList, T>, T> sublist)
+            where TList : IList<T>
+        {
+            if (sublist == null)
+            {
+                throw new ArgumentNullException("sublist");
+            }
+            return sublist;
+        }
     }
 
     /// <summary>

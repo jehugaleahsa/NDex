@@ -147,6 +147,102 @@ namespace NDex.Test
             Assert.AreEqual(sublist.Count, readOnly.Count, "The count was not carried forward.");
         }
 
+        /// <summary>
+        /// If we call ReadOnly on a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReadOnly_ReadOnlySublistOfReadOnly_NullSublist_Throws()
+        {
+            IReadOnlySublist<ReadOnlyList<List<int>, int>, int> sublist = null;
+            var readOnly = sublist.ReadOnly();
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a sublist, it should return a IReadOnlySublist wrapping
+        /// a ReadOnlyList.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_ReadOnlySublistOfReadOnly_SublistWrapsReadOnly()
+        {
+            var sublist = String.Empty.ToSubstring();
+            var readOnly = sublist.ReadOnly();
+            var doubled = readOnly.ReadOnly();
+            Assert.AreEqual(readOnly, doubled, "The second read-only should have been a no-op.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReadOnly_MutableSublistOfReadOnly_NullSublist_Throws()
+        {
+            IMutableSublist<ReadOnlyList<List<int>, int>, int> sublist = null;
+            var readOnly = sublist.ReadOnly();
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a sublist, it should return a IReadOnlySublist wrapping
+        /// a ReadOnlyList.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_MutableSublistOfReadOnly_SublistWrapsReadOnly()
+        {
+            var sublist = new int[0].ToSublist();
+            var readOnly = (IMutableSublist<ReadOnlyList<int[], int>, int>)sublist.ReadOnly();
+            var doubled = readOnly.ReadOnly();
+            Assert.AreEqual(readOnly, doubled, "The second read-only should have been a no-op.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReadOnly_ExpandableSublistOfReadOnly_NullSublist_Throws()
+        {
+            IExpandableSublist<ReadOnlyList<List<int>, int>, int> sublist = null;
+            var readOnly = sublist.ReadOnly();
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a sublist, it should return a IReadOnlySublist wrapping
+        /// a ReadOnlyList.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_ExpandableSublistOfReadOnly_SublistWrapsReadOnly()
+        {
+            var sublist = new List<int>().ToSublist();
+            var readOnly = (IExpandableSublist<ReadOnlyList<List<int>, int>, int>)sublist.ReadOnly();
+            var doubled = readOnly.ReadOnly();
+            Assert.AreEqual(readOnly, doubled, "The second read-only should have been a no-op.");
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a null sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReadOnly_SublistOfReadOnly_NullSublist_Throws()
+        {
+            Sublist<ReadOnlyList<List<int>, int>, int> sublist = null;
+            var readOnly = sublist.ReadOnly();
+        }
+
+        /// <summary>
+        /// If we call ReadOnly on a sublist, it should return a IReadOnlySublist wrapping
+        /// a ReadOnlyList.
+        /// </summary>
+        [TestMethod]
+        public void TestReadOnly_SublistOfReadOnly_SublistWrapsReadOnly()
+        {
+            var sublist = new Sublist<List<int>, int>(new List<int>());
+            var readOnly = (Sublist<ReadOnlyList<List<int>, int>, int>)sublist.ReadOnly();
+            var doubled = readOnly.ReadOnly();
+            Assert.AreEqual(readOnly, doubled, "The second read-only should have been a no-op.");
+        }
+
         #endregion
 
         #region Ctor, List, Count & IsReadOnly Properties
