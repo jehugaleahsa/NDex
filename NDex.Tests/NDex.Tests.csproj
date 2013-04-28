@@ -69,6 +69,7 @@
     <Compile Include="ContainsDuplicatesTester.cs" />
     <Compile Include="ContainsSequenceTester.cs" />
     <Compile Include="ContainsTester.cs" />
+    <Compile Include="IsSubsetUntilTester.cs" />
     <Compile Include="CopyCombinedTester.cs" />
     <Compile Include="CopyConvertedTester.cs" />
     <Compile Include="CopyDifferenceTester.cs" />

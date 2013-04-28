@@ -215,7 +215,7 @@ namespace NDex.Test
             var view = new ReversedList<List<int>, int>(list);
             Assert.AreSame(list, view.List, "The List value was not set.");
             Assert.AreEqual(list.Count, view.Count, "The Count value was wrong.");
-            Assert.AreEqual(((IList<int>)list).IsReadOnly, view.IsReadOnly, "The IsReadOnly value was wrong.");
+            Assert.AreEqual(((IList<int>)list).IsReadOnly, ((IList<int>)view).IsReadOnly, "The IsReadOnly value was wrong.");
         }
 
         #endregion

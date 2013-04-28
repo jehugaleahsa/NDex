@@ -223,8 +223,7 @@ namespace NDex
     /// Holds the results of the LowerAndUpperBound methods.
     /// </summary>
     public sealed class LowerAndUpperBoundResult
-    {
-        /// <summary>
+    {        /// <summary>
         /// Initializes a new instance of a LowerAndUpperBoundResult.
         /// </summary>
         internal LowerAndUpperBoundResult()
@@ -7369,13 +7368,142 @@ namespace NDex
             where TList1 : IList<T1>
             where TList2 : IList<T2>
         {
-            return isSubset<TList1, T1, TList2, T2>(
+            int past2 = list2.Offset + list2.Count;
+            int index = isSubsetUntil<TList1, T1, TList2, T2>(
+                list1.List, list1.Offset, list1.Offset + list1.Count,
+                list2.List, list2.Offset, past2,
+                comparison);
+            return index == past2;
+        }
+
+        #endregion
+
+        #region IsSubsetUntil
+
+        /// <summary>
+        /// Determines whether all of the items in the second list appear in the first list.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <returns>True if all of the items in the second list appear in the first list; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <remarks>
+        /// This algorithm assumes that both lists are sorted according to the default order of the items. 
+        /// Both lists must contain distinct values.
+        /// </remarks>
+        public static int IsSubsetUntil<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            return isSubsetUntil<TList1, T, TList2, T>(list1, list2, Comparer<T>.Default.Compare);
+        }
+
+        /// <summary>
+        /// Determines whether all of the items in the second list appear in the first list.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparer">The comparison delegate to use to compare items from the lists.</param>
+        /// <returns>True if all of the items in the second list have an equivilent item in the first list; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        /// <remarks>
+        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
+        /// comparison delegate respects that order. Both lists must contain distinct values.
+        /// </remarks>
+        public static int IsSubsetUntil<TList1, TList2, T>(
+            IReadOnlySublist<TList1, T> list1,
+            IReadOnlySublist<TList2, T> list2,
+            IComparer<T> comparer)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return isSubsetUntil<TList1, T, TList2, T>(list1, list2, comparer.Compare);
+        }
+
+        /// <summary>
+        /// Determines whether all of the items in the second list appear in the first list.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparison">The comparison delegate to use to compare items from the lists.</param>
+        /// <returns>True if all of the items in the second list have an equivilent item in the first list; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        /// <remarks>
+        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
+        /// comparison delegate respects that order. Both lists must contain distinct values.
+        /// </remarks>
+        public static int IsSubsetUntil<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, int> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return isSubsetUntil<TList1, T1, TList2, T2>(list1, list2, comparison);
+        }
+
+        private static int isSubsetUntil<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, int> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            int index = isSubsetUntil<TList1, T1, TList2, T2>(
                 list1.List, list1.Offset, list1.Offset + list1.Count,
                 list2.List, list2.Offset, list2.Offset + list2.Count,
                 comparison);
+            return index - list2.Offset;
         }
 
-        private static bool isSubset<TList1, T1, TList2, T2>(
+        private static int isSubsetUntil<TList1, T1, TList2, T2>(
             TList1 list1, int first1, int past1,
             TList2 list2, int first2, int past2,
             Func<T1, T2, int> comparison)
@@ -7391,7 +7519,7 @@ namespace NDex
                 }
                 else if (result > 0)
                 {
-                    return false;
+                    return first2;
                 }
                 else
                 {
@@ -7399,7 +7527,7 @@ namespace NDex
                     ++first2;
                 }
             }
-            return first2 == past2;
+            return first2;
         }
 
         #endregion

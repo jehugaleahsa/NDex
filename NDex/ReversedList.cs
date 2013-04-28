@@ -8,7 +8,7 @@ using NDex.Properties;
 namespace NDex
 {
     /// <summary>
-    /// Provides methods for creating instances of ReveredList.
+    /// Provides methods for creating instances of ReversedList.
     /// </summary>
     public static class ReversedList
     {
@@ -378,7 +378,7 @@ namespace NDex
         /// <summary>
         /// Gets whether the list is read-only.
         /// </summary>
-        public bool IsReadOnly
+        bool ICollection<T>.IsReadOnly
         {
             get
             {
