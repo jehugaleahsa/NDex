@@ -56,7 +56,7 @@ For a more interesting use of `ReversedList`, imagine that you wanted to shift i
     var destination = values.ToSublist(1);
     Sublist.Copy(source, destination);  // 1, 1, 1, 1, 1, 1
     
-Inspecting the `Copy` algorithm, you'd see why this happens. Before the `2` can be copied, it is overwritten with `1`. This continues until the `1` gets propogated all the way. Copying in the opposite direction, back-to-front, works as expected because the values aren't overwritten. Since NDex doesn't provide an algorithm for copying backward, it would seem like the only other option would be to write the code by hand.
+Inspecting the `Copy` algorithm, you'd see why this happens. Before the `2` can be copied, it is overwritten with `1`. This continues until the `1` gets propogated all the way to the right. Copying in the opposite direction, back-to-front, works as expected because the values aren't overwritten before they can be copied. Since NDex doesn't provide an algorithm for copying backward, it would seem like the only other option would be to write the code by hand.
 
 But wait, we can solve this problem using the `ReversedList` class. This is the updated code:
 
@@ -65,26 +65,33 @@ But wait, we can solve this problem using the `ReversedList` class. This is the 
     var destination = values.ToSublist(1).Reversed();
     Sublist.Copy(source, destination);
     
-Here we call the `Reversed` extension method on each `Sublist`. It takes a little diagramming or a lot of imagination to see why this code works. At a high level, it is basically performing a back-to-front copy, but since back is the front and the front is the back... it does the right thing. It's so odd, most people aren't likely to think of it own their own.
+Here we call the `Reversed` extension method on each `Sublist`. It takes a little diagramming or a lot of imagination to see why this code works. At a high level, it is basically performing a back-to-front copy, but since back is the front and the front is the back... it does the right thing. It's so odd, most people aren't likely to think of it on their own.
 
-What's cool is that the `Reversed` extension method is smart and will return a new `Sublist` if called on a `Sublist`. It returns a `Sublist` because all of the algorithms work against a `Sublist`. If it didn't you'd have to write a bunch of code to convert instances of `ReversedList` back to `Sublist`s. You can always get back to the original `ReversedList` by using `Sublist`'s `List` property.
+What's cool is that the `Reversed` extension method is smart and will return a new `Sublist` if called on a `Sublist`. It returns a `Sublist` because all of the algorithms work against a `Sublist`. If it didn't you'd have to write a bunch of code to wrap your `ReversedList`s back to `Sublist`s. You can always get back to the underlying `ReversedList` by using `Sublist`'s `List` property.
 
-`Reversed` will also return the underlying list if you try to reverse a reversed list. This is a good thing because you don't want to add a bunch of unnecessary layers on top of your lists. But wait! What if you reverse a sublist and then reverse it again?!?! Don't worry, NDex handles that, too. Essentially, calling `Reversed` two times in a row is a no-op. Phew!
+`Reversed` will also return the underlying list if you try to reverse a reversed list. This is a good thing because you don't want to add a bunch of unnecessary layers on top of your lists. But wait! What if you reverse a sublist and then reverse it again?!?! Don't worry, NDex handles that, too. Essentially, calling `Reversed` two times in a row is a no-op.
 
-Some algorithms will return an index, such as `IndexOf`. You can find the last index of a value simply by calling `Reversed` first. The only problem is that the index is in terms of the reversed list, not the underlying list. In order to get the index into the underlying list, just call the `BaseIndex` method on the `ReversedList`. You have to be a little more careful when searching for multiple items, like when trying to find the last duplicate items or the last sub-sequence. For example, here is the correct way to find last sub-sequence in a list:
+Some algorithms will return an index, such as `IndexOf`. You can find the last index of a value simply by calling `Reversed` on this list first. The only problem is that the index is in terms of the reversed list, not the underlying list. In order to get the index into the underlying list, just call the `BaseIndex` method on the `ReversedList`.
+
+    int[] values = new int[] { 1, 2, 3, 4 };
+    var reversed = values.Reversed();
+    int index = Sublist.IndexOf(reversed.ToSublist(), 3);  // 1
+    index = reversed.BaseIndex(index);  // 2
+
+You have to be a little more careful when searching for duplicate items or the last sub-sequence. For example, here is the correct way to find last sub-sequence in a list:
 
     // Find the last occurrence of 1, 2, 3
     int[] values = new int[] { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
-    var reversed = values.ToSublist().Reversed();
-    var sequence = new int[] { 1, 2, 3 }.ToSublist().Reversed();
-    int index = Sublist.IndexOfSequence(reversed, sequence);  // returns 7, not 9!
+    var reversed = values.Reversed();
+    var sequence = new int[] { 1, 2, 3 }.Reversed();
+    int index = Sublist.IndexOfSequence(reversed.ToSublist(), sequence.ToSublist());  // returns 7, not 9!
     index += sequence.Count - 1;  // move to the front of the original sequence (10)
-    index = reversed.List.BaseIndex(index);  // convert to an index into the original list (6)
-    var last = values.ToSublist(index, sequence.Count);
+    index = reversed.BaseIndex(index);  // convert to an index into the original list (6)
     
-The good news is you can hide all this complexity behind a helper method if necessary. This is really the most complex reverse operation supported by NDex. It's good to know that you can implement backward operations by combining forward operations with a `ReversedList`.
+The good news is you can hide all this complexity behind a helper method if necessary. Just know this is really all the more complicated it can get.
 
 ## TypedList
+If you are forced to work with non-generic collections, you can still use NDex. NDex provides a `TypedList` class that creates a type safe wrapper around the non-generic `IList` interface.
 
 ## ReadOnlyList
 
