@@ -120,11 +120,12 @@ You have to be a little more careful when searching for duplicate items or the l
 
     // Find the last occurrence of 1, 2, 3
     int[] values = new int[] { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
-    var reversed = values.Reversed();
-    var sequence = new int[] { 1, 2, 3 }.Reversed();
-    int index = Sublist.IndexOfSequence(reversed.ToSublist(), sequence.ToSublist());  // returns 7, not 9!
-    index += sequence.Count - 1;  // move to the front of the original sequence (10)
-    index = reversed.BaseIndex(index);  // convert to an index into the original list (6)
+    var reversed = values.ToSublist().Reversed();
+    var sequence = new int[] { 1, 2, 3 }.ToSublist().Reversed();
+    int index = Sublist.IndexOfSequence(reversed, sequence);  // returns 7, not 9!
+    var lastSeqReversed = reversed.Nest(index, sequence.Count);  // wrap 3, 2, 1
+    var lastSeq = lastSeqReversed.Reversed();  // restore it to 1, 2, 3
+    index = lastSeq.Offset;  // 6
     
 The good news is you can hide all this complexity behind a helper method if necessary. Just know that this is really all the more complicated it can get.
 
