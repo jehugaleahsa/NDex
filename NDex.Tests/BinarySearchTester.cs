@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,7 +24,7 @@ namespace NDex.Test
 
             // first build a list of random values.
             var values = new List<int>();
-            Sublist.Grow(values, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), values.ToSublist());
 
             // now build one with just the unique values
             var set = new List<int>();

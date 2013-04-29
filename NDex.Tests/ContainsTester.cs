@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -21,7 +22,7 @@ namespace NDex.Test
         {
             // build a list of dates.
             var dates = new List<DateTime>();
-            Sublist.Grow(dates, 7, day => new DateTime(2010, 12, day + 1));
+            Sublist.Add(Enumerable.Range(0, 7).Select(day => new DateTime(2010, 12, day + 1)), dates.ToSublist());
 
             // see if any are on a Wednesday
             bool result = Sublist.Contains(dates.ToSublist(), DayOfWeek.Wednesday, (date, day) => date.DayOfWeek == day);
@@ -39,7 +40,7 @@ namespace NDex.Test
 
             // create a list of random numbers
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(0, 100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(0, 100)), list.ToSublist());
             list.Insert(50, 44); // shove a number divisible by 11 in the middle
 
             bool result = Sublist.Contains(list.ToSublist(), i => i % 11 == 0);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -22,7 +23,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
 
             // create a list to hold the top three
             const int numberOfItems = 10;

@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -22,10 +23,10 @@ namespace NDex.Test
             Random random = new Random();
 
             var list1 = new List<int>(10);
-            Sublist.Grow(list1, 10, () => random.Next(0, 10));
+            Sublist.Add(Enumerable.Range(0, 10).Select(i => random.Next(0, 10)), list1.ToSublist());
 
             var list2 = new List<int>(10);
-            Sublist.Grow(list2, 10, () => random.Next(0, 10));
+            Sublist.Add(Enumerable.Range(0, 10).Select(i => random.Next(0, 10)), list2.ToSublist());
 
             // we know list1 and list2 should be equal to themselves
             Assert.AreEqual(0, Sublist.Compare(list1.ToSublist(), list1.ToSublist()), "The first list did not equal itself.");

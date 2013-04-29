@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -22,12 +23,12 @@ namespace NDex.Test
             // build the first list
             Random random1 = new Random(1);
             var list1 = new List<int>(100);
-            Sublist.Grow(list1, 100, () => random1.Next());
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random1.Next()), list1.ToSublist());
 
             // build the second list
             Random random2 = new Random(1);
             var list2 = new List<int>(100);
-            Sublist.Grow(list2, 100, () => random2.Next());
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random2.Next()), list2.ToSublist());
 
             bool result = Sublist.AreEqual(list1.ToSublist(), list2.ToSublist());
             Assert.IsTrue(result, "The random number generator did not return the same numbers.");

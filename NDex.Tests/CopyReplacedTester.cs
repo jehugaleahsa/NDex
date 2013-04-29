@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -24,10 +25,10 @@ namespace NDex.Test
 
             // build a list of numbers
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(-49, 50));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(-49, 50)), list.ToSublist());
 
             var destination = new List<int>(100);
-            Sublist.Grow(destination, 100, 0);
+            Sublist.Add(Enumerable.Repeat(0, 100), destination.ToSublist());
 
             int result = Sublist.CopyReplaced(list.ToSublist(), destination.ToSublist(), i => i < 0, i => -i);
             Assert.AreEqual(destination.Count, result, "The wrong index was returned.");

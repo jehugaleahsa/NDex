@@ -14,23 +14,26 @@ namespace NDex.Test
         #region Real World Example
 
         /// <summary>
-        /// We can make a set out of a sorted list of values.
+        /// We can eliminate duplicates in an array by overwritting them with non-duplicates.
         /// </summary>
         [TestMethod]
-        public void TestRemoveDuplicates_MakeSet()
+        public void TestRemoveDuplicates()
         {
             Random random = new Random();
 
-            // build a list
-            var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(100));
+            // build an array
+            var array = new int[100];
+            Sublist.Fill(array.ToSublist(), () => random.Next(100));
 
-            // remove duplicates requires the list to be sorted
-            Sublist.QuickSort(list.ToSublist());
+            // sort the list to put equivalent items next to each other
+            Sublist.QuickSort(array.ToSublist());
 
-            Sublist.RemoveDuplicates(list.ToSublist());
+            // overwrite the duplicates
+            int index = Sublist.RemoveDuplicates(array.ToSublist());
 
-            Assert.IsTrue(Sublist.IsSet(list.ToSublist()), "The list was not a set.");
+            // create a view over the list, eliminating trailing items
+            var set = array.ToSublist(0, index);
+            Assert.IsTrue(Sublist.IsSet(set), "Duplicate items still remained.");
         }
 
         #endregion
@@ -99,28 +102,30 @@ namespace NDex.Test
         #endregion
 
         /// <summary>
-        /// If a list contains no duplicates, nothing gets removed.
+        /// If a list contains no duplicates, nothing gets overwritten, so the returned index should be past the end of the list.
         /// </summary>
         [TestMethod]
         public void TestRemoveDuplicates_NoDuplicates_ReturnsCount()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            Sublist.RemoveDuplicates(list);
+            int index = Sublist.RemoveDuplicates(list);
+            Assert.AreEqual(list.Count, index, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
         /// <summary>
-        /// If a list contains all duplicates, only the first item should remain.
+        /// If a list contains all duplicates, only the first item should be included.
         /// </summary>
         [TestMethod]
-        public void TestRemoveDuplicates_AllDuplicates_RemovesAllButOne()
+        public void TestRemoveDuplicates_AllDuplicates_ReturnsOne()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1 });
-            Sublist.RemoveDuplicates(list);
+            int index = Sublist.RemoveDuplicates(list);
+            Assert.AreEqual(1, index, "The wrong index was returned.");
             int[] expected = { 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items was not in the expected order.");
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, index)), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -128,12 +133,13 @@ namespace NDex.Test
         /// If the duplicates appear at the end, no items should be moved.
         /// </summary>
         [TestMethod]
-        public void TestRemoveDuplicates_DuplicatesInBack()
+        public void TestRemoveDuplicates_DuplicatesInBack_ReturnsAfterFirstOccurrence()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 5 });
-            Sublist.RemoveDuplicates(list, EqualityComparer<int>.Default);
+            int index = Sublist.RemoveDuplicates(list, EqualityComparer<int>.Default);
+            Assert.AreEqual(5, index, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items was not in the expected order.");
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, index)), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -141,12 +147,13 @@ namespace NDex.Test
         /// If the duplicates appear at the front, they should be overwritten by next non-duplicates.
         /// </summary>
         [TestMethod]
-        public void TestRemoveDuplicates_DuplicatesInFront()
+        public void TestRemoveDuplicates_DuplicatesInFront_ReturnsAtTrailingItems()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 2, 3, 4, 5 });
-            Sublist.RemoveDuplicates(list, EqualityComparer<int>.Default.Equals);
+            int index = Sublist.RemoveDuplicates(list, EqualityComparer<int>.Default.Equals);
+            Assert.AreEqual(5, index, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items was not in the expected order.");
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, index)), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -154,12 +161,13 @@ namespace NDex.Test
         /// If the duplicates appear in the middle, they should be overwritten by next non-duplicates.
         /// </summary>
         [TestMethod]
-        public void TestRemoveDuplicates_DuplicatesInMiddle()
+        public void TestRemoveDuplicates_DuplicatesInMiddle_ReturnsAtTrailingItems()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, 4, 4, 5 });
-            Sublist.RemoveDuplicates(list, EqualityComparer<int>.Default.Equals);
+            int index = Sublist.RemoveDuplicates(list, EqualityComparer<int>.Default.Equals);
+            Assert.AreEqual(5, index, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items was not in the expected order.");
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, index)), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

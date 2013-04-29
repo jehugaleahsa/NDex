@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -24,9 +25,9 @@ namespace NDex.Test
 
             // build two lists
             var list1 = new List<int>(50);
-            Sublist.Grow(list1, 50, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(100)), list1.ToSublist());
             var list2 = new List<int>(50);
-            Sublist.Grow(list2, 50, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(100)), list2.ToSublist());
 
             // partition by evens and odds
             int index1 = Sublist.Partition(list1.ToSublist(), i => i % 2 == 0);

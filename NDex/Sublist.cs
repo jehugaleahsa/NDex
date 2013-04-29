@@ -584,7 +584,7 @@ namespace NDex
             destination.Count = result - destination.Offset;
         }
 
-        internal static int add_optimized<TDestinationList, T>(IEnumerable<T> source, TDestinationList destination, int first, int past)
+        private static int add_optimized<TDestinationList, T>(IEnumerable<T> source, TDestinationList destination, int first, int past)
             where TDestinationList : IList<T>
         {
             ICollection<T> collection = source as ICollection<T>;
@@ -606,6 +606,24 @@ namespace NDex
             }
             rotateLeft<TDestinationList, T>(destination, past, pivot, destination.Count);
             return past + (destination.Count - pivot);
+        }
+
+        private static int growAndShift<TList, T>(TList list, int middle, int growBy)
+            where TList : IList<T>
+        {
+            int oldCount = list.Count;
+            grow<TList, T>(list, oldCount + growBy, default(T));
+            int index = copyBackward<TList, TList, T>(list, middle, oldCount, list, 0, list.Count);
+            return index;
+        }
+
+        private static void grow<TList, T>(TList list, int size, T value)
+            where TList : IList<T>
+        {
+            while (list.Count < size)
+            {
+                list.Add(value);
+            }
         }
 
         #endregion
@@ -1934,7 +1952,7 @@ namespace NDex
             where TSourceList : IList<T>
             where TDestinationList : IList<T>
         {
-            int middle = GetReducedOffset<TSourceList, T>(source, first, past, shift);
+            int middle = getReducedOffset<TSourceList, T>(source, first, past, shift);
             middle += first;
             return addRotatedLeft<TSourceList, TDestinationList, T>(source, first, middle, past, destination, destinationPast);
         }
@@ -5092,7 +5110,7 @@ namespace NDex
             where TSourceList : IList<T>
             where TDestinationList : IList<T>
         {
-            int middle = GetReducedOffset<TSourceList, T>(source, first, past, shift);
+            int middle = getReducedOffset<TSourceList, T>(source, first, past, shift);
             middle += first;
             return copyRotatedLeft<TSourceList, TDestinationList, T>(
                 source, first, middle, past,
@@ -5853,134 +5871,6 @@ namespace NDex
 
         #endregion
 
-        #region Grow
-
-        /// <summary>
-        /// Adds the given value to a list until it is the given size.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to add items to.</param>
-        /// <param name="size">The size to make the list.</param>
-        /// <param name="value">The value to add to the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The size is negative.</exception>
-        /// <remarks>If the list is smaller than the size, the list remains the same size.</remarks>
-        public static void Grow<TList, T>(TList list, int size, T value)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (size < 0)
-            {
-                throw new ArgumentOutOfRangeException("size", size, String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0));
-            }
-            grow<TList, T>(list, size, value);
-        }
-
-        private static void grow<TList, T>(TList list, int size, T value)
-            where TList : IList<T>
-        {
-            while (list.Count < size)
-            {
-                list.Add(value);
-            }
-        }
-
-        /// <summary>
-        /// Adds the generated value to a list until it is the given size.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to add items to.</param>
-        /// <param name="size">The size to make the list.</param>
-        /// <param name="generator">The generator to use to generate the values to add to the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The size is negative.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
-        /// <remarks>If the list is smaller than the size, the list remains the same size.</remarks>
-        public static void Grow<TList, T>(TList list, int size, Func<T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (size < 0)
-            {
-                throw new ArgumentOutOfRangeException("size", size, String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0));
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            grow<TList, T>(list, size, generator);
-        }
-
-        private static void grow<TList, T>(TList list, int size, Func<T> generator)
-            where TList : IList<T>
-        {
-            while (list.Count < size)
-            {
-                list.Add(generator());
-            }
-        }
-
-        /// <summary>
-        /// Adds the generated value to a list until it is the given size.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to add items to.</param>
-        /// <param name="size">The size to make the list.</param>
-        /// <param name="generator">The generator to use to generate the values to add to the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The size is negative.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
-        /// <remarks>
-        /// If the list is smaller than the size, the list remains the same size.
-        /// The integer passed to the generator is the index where the generated value will be added.
-        /// </remarks>
-        public static void Grow<TList, T>(TList list, int size, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (size < 0)
-            {
-                throw new ArgumentOutOfRangeException("size", size, String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0));
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            grow<TList, T>(list, size, generator);
-        }
-
-        private static void grow<TList, T>(TList list, int size, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            while (list.Count < size)
-            {
-                list.Add(generator(list.Count));
-            }
-        }
-
-        internal static int growAndShift<TList, T>(TList list, int middle, int growBy)
-            where TList : IList<T>
-        {
-            int oldCount = list.Count;
-            grow<TList, T>(list, oldCount + growBy, default(T));
-            int index = copyBackward<TList, TList, T>(list, middle, oldCount, list, 0, list.Count);
-            return index;
-        }
-
-        #endregion
-
         #region HeapAdd
 
         /// <summary>
@@ -6055,7 +5945,7 @@ namespace NDex
             heapAdd<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
         }
 
-        internal static void heapAdd<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+        private static void heapAdd<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (past - first > 1)
@@ -6160,7 +6050,7 @@ namespace NDex
             heapRemove<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
         }
 
-        internal static void heapRemove<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+        private static void heapRemove<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             int count = past - first;
@@ -8224,7 +8114,7 @@ namespace NDex
             makeHeap<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
         }
 
-        internal static void makeHeap<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+        private static void makeHeap<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             int bottom = past - first;
@@ -9384,166 +9274,6 @@ namespace NDex
 
         #endregion
 
-        #region OverwriteDuplicates
-
-        /// <summary>
-        /// Overwrites duplicate items in a list with the next non-duplicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to overwrite the duplicates in.</param>
-        /// <returns>The index past the last non-duplicate item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>
-        /// The list is expected to be sorted according to the default order of the items.
-        /// Use this algorithm when either the size of the list is fixed
-        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
-        /// </remarks>
-        public static int OverwriteDuplicates<TList, T>(IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return overwriteDuplicates<TList, T>(list, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Overwrites duplicate items in a list with the next non-duplicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to overwrite the duplicates in.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>The index past the last non-duplicate item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The list is expected to be sorted such that equivalent items appear adjacent to one another.
-        /// Use this algorithm when either the size of the list is fixed
-        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
-        /// </remarks>
-        public static int OverwriteDuplicates<TList, T>(IMutableSublist<TList, T> list, IEqualityComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return overwriteDuplicates<TList, T>(list, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Overwrites duplicate items in a list with the next non-duplicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to overwrite the duplicates in.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <returns>The index past the last non-duplicate item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The list is expected to be sorted such that equivalent items appear adjacent to one another.
-        /// Use this algorithm when either the size of the list is fixed
-        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
-        /// </remarks>26
-        public static int OverwriteDuplicates<TList, T>(IMutableSublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return overwriteDuplicates<TList, T>(list, comparison);
-        }
-
-        private static int overwriteDuplicates<TList, T>(IMutableSublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            int result = overwriteDuplicates<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int overwriteDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            first = indexOfDuplicates<TList, T>(list, first, past, comparison);
-            if (first != past)
-            {
-                for (int next = first + 2; next != past; ++next)
-                {
-                    if (!comparison(list[first], list[next]))
-                    {
-                        ++first;
-                        list[first] = list[next];
-                    }
-                }
-                return first + 1;
-            }
-            return past;
-        }
-
-        #endregion
-
-        #region OverwriteIf
-
-        /// <summary>
-        /// Overwrites the items in a list that satisfy the predicate with items that do not.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to overwrite items in.</param>
-        /// <param name="predicate">The condition an item must satisfy to be overwritten.</param>
-        /// <returns>The index past the last item not satisfying the predicate.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>
-        /// Use this algorithm when either the size of the list is fixed
-        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
-        /// </remarks>
-        public static int OverwriteIf<TList, T>(IMutableSublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int result = overwriteIf<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int overwriteIf<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            for (int position = first; position != past; ++position)
-            {
-                if (!predicate(list[position]))
-                {
-                    list[first] = list[position];
-                    ++first;
-                }
-            }
-            return first;
-        }
-
-        #endregion
-
         #region PartialSort
 
         /// <summary>
@@ -10112,6 +9842,166 @@ namespace NDex
 
         #endregion
 
+        #region RemoveDuplicates
+
+        /// <summary>
+        /// Overwrites duplicate items in a list with the next non-duplicate.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to overwrite the duplicates in.</param>
+        /// <returns>The index past the last non-duplicate item.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <remarks>
+        /// The list is expected to be sorted according to the default order of the items.
+        /// Use this algorithm when either the size of the list is fixed
+        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
+        /// </remarks>
+        public static int RemoveDuplicates<TList, T>(IMutableSublist<TList, T> list)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            return removeDuplicates<TList, T>(list, EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Overwrites duplicate items in a list with the next non-duplicate.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to overwrite the duplicates in.</param>
+        /// <param name="comparer">The comparer to use to compare items in the list.</param>
+        /// <returns>The index past the last non-duplicate item.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        /// <remarks>
+        /// The list is expected to be sorted such that equivalent items appear adjacent to one another.
+        /// Use this algorithm when either the size of the list is fixed
+        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
+        /// </remarks>
+        public static int RemoveDuplicates<TList, T>(IMutableSublist<TList, T> list, IEqualityComparer<T> comparer)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return removeDuplicates<TList, T>(list, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Overwrites duplicate items in a list with the next non-duplicate.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to overwrite the duplicates in.</param>
+        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
+        /// <returns>The index past the last non-duplicate item.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        /// <remarks>
+        /// The list is expected to be sorted such that equivalent items appear adjacent to one another.
+        /// Use this algorithm when either the size of the list is fixed
+        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
+        /// </remarks>26
+        public static int RemoveDuplicates<TList, T>(IMutableSublist<TList, T> list, Func<T, T, bool> comparison)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return removeDuplicates<TList, T>(list, comparison);
+        }
+
+        private static int removeDuplicates<TList, T>(IMutableSublist<TList, T> list, Func<T, T, bool> comparison)
+            where TList : IList<T>
+        {
+            int result = removeDuplicates<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
+            result -= list.Offset;
+            return result;
+        }
+
+        private static int removeDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
+            where TList : IList<T>
+        {
+            first = indexOfDuplicates<TList, T>(list, first, past, comparison);
+            if (first != past)
+            {
+                for (int next = first + 2; next != past; ++next)
+                {
+                    if (!comparison(list[first], list[next]))
+                    {
+                        ++first;
+                        list[first] = list[next];
+                    }
+                }
+                return first + 1;
+            }
+            return past;
+        }
+
+        #endregion
+
+        #region RemoveIf
+
+        /// <summary>
+        /// Overwrites the items in a list that satisfy the predicate with items that do not.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to overwrite items in.</param>
+        /// <param name="predicate">The condition an item must satisfy to be overwritten.</param>
+        /// <returns>The index past the last item not satisfying the predicate.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <remarks>
+        /// Use this algorithm when either the size of the list is fixed
+        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
+        /// </remarks>
+        public static int RemoveIf<TList, T>(IMutableSublist<TList, T> list, Func<T, bool> predicate)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("predicate");
+            }
+            int result = removeIf<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
+            result -= list.Offset;
+            return result;
+        }
+
+        private static int removeIf<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
+            where TList : IList<T>
+        {
+            for (int position = first; position != past; ++position)
+            {
+                if (!predicate(list[position]))
+                {
+                    list[first] = list[position];
+                    ++first;
+                }
+            }
+            return first;
+        }
+
+        #endregion
+
         #region RemoveRange
 
         /// <summary>
@@ -10166,124 +10056,6 @@ namespace NDex
                 --past;
                 list.RemoveAt(past);
             }
-        }
-
-        #endregion
-
-        #region RemoveDuplicates
-
-        /// <summary>
-        /// Removes duplicate items from a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to remove the duplicates from.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void RemoveDuplicates<TList, T>(IExpandableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            removeDuplicates<TList, T>(list, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Removes duplicate items from a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to remove the duplicates from.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void RemoveDuplicates<TList, T>(IExpandableSublist<TList, T> list, IEqualityComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            removeDuplicates<TList, T>(list, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Removes duplicate items from a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to remove the duplicates from.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void RemoveDuplicates<TList, T>(IExpandableSublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            removeDuplicates<TList, T>(list, comparison);
-        }
-
-        private static void removeDuplicates<TList, T>(IExpandableSublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            int removed = removeDuplicates<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            list.Count -= removed;
-        }
-
-        private static int removeDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            int index = overwriteDuplicates<TList, T>(list, first, past, comparison);
-            RemoveRange_optimized<TList, T>(list, index, past);
-            return past - index;
-        }
-
-        #endregion
-
-        #region RemoveIf
-
-        /// <summary>
-        /// Removes the items from a list that satisfy the predicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to remove the items from.</param>
-        /// <param name="predicate">The condition an item must satisfy in order to be removed.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static void RemoveIf<TList, T>(IExpandableSublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int removed = removeIf<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
-            list.Count -= removed;
-        }
-
-        private static int removeIf<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            int index = overwriteIf<TList, T>(list, first, past, predicate);
-            RemoveRange_optimized<TList, T>(list, index, past);
-            return past - index;
         }
 
         #endregion
@@ -10433,12 +10205,12 @@ namespace NDex
         private static void rotateLeftUnreduced<TList, T>(TList list, int first, int past, int shift)
             where TList : IList<T>
         {
-            int middle = GetReducedOffset<TList, T>(list, first, past, shift);
+            int middle = getReducedOffset<TList, T>(list, first, past, shift);
             middle += first;
             rotateLeft<TList, T>(list, first, middle, past);
         }
 
-        internal static int GetReducedOffset<TList, T>(TList list, int first, int past, int shift)
+        private static int getReducedOffset<TList, T>(TList list, int first, int past, int shift)
             where TList : IList<T>
         {
             int count = past - first;
@@ -10450,7 +10222,7 @@ namespace NDex
             return shift;
         }
 
-        internal static void rotateLeft<TList, T>(TList list, int first, int middle, int past)
+        private static void rotateLeft<TList, T>(TList list, int first, int middle, int past)
             where TList : IList<T>
         {
             int shift = middle - first;

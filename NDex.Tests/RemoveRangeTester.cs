@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -24,10 +25,10 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
 
             // overwrite if an odd number
-            int index = Sublist.OverwriteIf(list.ToSublist(), i => i % 2 == 1);
+            int index = Sublist.RemoveIf(list.ToSublist(), i => i % 2 == 1);
 
             // now eliminate garbage at the end
             var remaining = list.ToSublist(index);

@@ -89,7 +89,6 @@
     <Compile Include="CountIfTester.cs" />
     <Compile Include="FillTester.cs" />
     <Compile Include="ForEachTester.cs" />
-    <Compile Include="GrowTester.cs" />
     <Compile Include="HeapAddTester.cs" />
     <Compile Include="HeapRemoveTester.cs" />
     <Compile Include="HeapSortTester.cs" />
@@ -121,8 +120,8 @@
     <Compile Include="MinimumTester.cs" />
     <Compile Include="MismatchTester.cs" />
     <Compile Include="NextPermutationTester.cs" />
-    <Compile Include="OverwriteDuplicatesTester.cs" />
-    <Compile Include="OverwriteIfTester.cs" />
+    <Compile Include="RemoveDuplicatesTester.cs" />
+    <Compile Include="RemoveIfTester.cs" />
     <Compile Include="PartialSortTester.cs" />
     <Compile Include="PartitionTester.cs" />
     <Compile Include="PreviousPermutationTester.cs" />
@@ -130,8 +129,6 @@
     <Compile Include="QuickSortTester.cs" />
     <Compile Include="RandomShuffleTester.cs" />
     <Compile Include="ReadOnlyListTester.cs" />
-    <Compile Include="RemoveDuplicatesTester.cs" />
-    <Compile Include="RemoveIfTester.cs" />
     <Compile Include="RemoveRangeTester.cs" />
     <Compile Include="ReplaceTester.cs" />
     <Compile Include="ReversedListTester.cs" />

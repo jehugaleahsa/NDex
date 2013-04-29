@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,7 +24,7 @@ namespace NDex.Test
 
             // build a list 
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
 
             // partition the odds to the end
             Sublist.Partition(list.ToSublist(), i => i % 2 == 0); // odds to the end

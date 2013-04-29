@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -24,7 +25,7 @@ namespace NDex.Test
 
             // build large, random list
             var list1 = new List<char>(1000);
-            Sublist.Grow(list1, 1000, () => keys[random.Next(4)]);
+            Sublist.Add(Enumerable.Range(0, 1000).Select(i => keys[random.Next(4)]), list1.ToSublist());
 
             // build small search pattern
             var list2 = new char[5];

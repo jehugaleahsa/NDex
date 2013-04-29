@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,11 +24,11 @@ namespace NDex.Test
 
             // build list of random evens
             var evens = new List<int>(50);
-            Sublist.Grow(evens, 50, () => 2 * random.Next(0, 50));
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => 2 * random.Next(0, 50)), evens.ToSublist());
 
             // build list of random odds
             var odds = new List<int>(50);
-            Sublist.Grow(odds, 50, () => 1 + 2 * random.Next(0, 50));
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => 1 + 2 * random.Next(0, 50)), odds.ToSublist());
 
             // join the two together and shuffle
             var list = new List<int>(100);

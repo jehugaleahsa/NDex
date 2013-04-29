@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,7 +24,7 @@ namespace NDex.Test
 
             // build a list of random values
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
 
             // force duplicates
             int[] duplicates = new int[2];
@@ -34,7 +35,7 @@ namespace NDex.Test
             Sublist.QuickSort(list.ToSublist());
 
             Assert.IsTrue(Sublist.ContainsDuplicates(list.ToSublist()), "Did not detect the duplicates.");
-            Sublist.RemoveDuplicates(list.ToSublist());
+            Sublist.RemoveRange(list.ToSublist(Sublist.RemoveDuplicates(list.ToSublist())));
             Assert.IsFalse(Sublist.ContainsDuplicates(list.ToSublist()), "Found a duplicate.");
         }
 

@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,7 +24,7 @@ namespace NDex.Test
 
             // build the list
             List<int> list = new List<int>();
-            Sublist.Grow(list, 10, () => random.Next(10));
+            Sublist.Add(Enumerable.Range(0, 10).Select(i => random.Next(10)), list.ToSublist());
 
             // sort the list
             Sublist.BubbleSort(list.ToSublist());

@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,7 +24,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(5);
-            Sublist.Grow(list, 5, () => random.Next(0, 100));
+            Sublist.Add(Enumerable.Range(0, 5).Select(i => random.Next(0, 100)), list.ToSublist());
 
             bool isSorted = Sublist.IsSorted(list.ToSublist());
             bool hasDuplicates = Sublist.ContainsDuplicates(list.ToSublist());

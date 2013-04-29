@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,13 +24,13 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(0, 100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(0, 100)), list.ToSublist());
 
             // partition into two
             var evens = new List<int>(100);
-            Sublist.Grow(evens, 100, 0);
+            Sublist.Add(Enumerable.Repeat(0, 100), evens.ToSublist());
             var odds = new List<int>(100);
-            Sublist.Grow(odds, 100, 0);
+            Sublist.Add(Enumerable.Repeat(0, 100), odds.ToSublist());
             CopyPartitionedResult result = Sublist.CopyPartitioned(list.ToSublist(), evens.ToSublist(), odds.ToSublist(), i => i % 2 == 0);
             Sublist.RemoveRange(evens.ToSublist(result.DestinationOffset1));
             Sublist.RemoveRange(odds.ToSublist(result.DestinationOffset2));

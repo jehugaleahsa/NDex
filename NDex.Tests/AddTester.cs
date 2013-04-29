@@ -24,11 +24,11 @@ namespace NDex.Test
 
             // build a list of values to concatenate.
             var list = new List<int>();
-            Sublist.Grow(list, 50, () => random.Next(0, 100));
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(0, 100)), list.ToSublist());
 
             // build a destination list
             var destination = new List<int>();
-            Sublist.Grow(destination, 50, () => random.Next(0, 100));
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(0, 100)), destination.ToSublist());
 
             Sublist.Add(list.ToSublist(), destination.ToSublist());
 
@@ -46,11 +46,11 @@ namespace NDex.Test
 
             // build a list of values to concatenate.
             var list = new List<int>();
-            Sublist.Grow(list, 50, () => random.Next(0, 100));
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(0, 100)), list.ToSublist());
 
             // build a destination list
             var destination = new List<int>();
-            Sublist.Grow(destination, 50, () => random.Next(0, 100));
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(0, 100)), destination.ToSublist());
 
             // destination.ToSublist(0,0) represents an empty range at the beginning
             Sublist.Add(list.ToSublist(), destination.ToSublist(0, 0));

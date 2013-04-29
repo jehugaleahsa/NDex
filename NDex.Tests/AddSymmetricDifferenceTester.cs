@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,9 +24,9 @@ namespace NDex.Test
 
             // build two lists
             var list1 = new List<int>(100);
-            Sublist.Grow(list1, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list1.ToSublist());
             var list2 = new List<int>(100);
-            Sublist.Grow(list2, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list2.ToSublist());
 
             // make the lists sets
             Sublist.RemoveRange(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));

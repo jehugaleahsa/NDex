@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -24,7 +25,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next());
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next()), list.ToSublist());
 
             // build a set in place - could call QuickSort then RemoveDuplicates, or MakeSet.
             int index = Sublist.IsSetUntil(list.ToSublist());

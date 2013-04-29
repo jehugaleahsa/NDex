@@ -30,7 +30,7 @@ namespace NDex.Test
 
             // build a list with the numbers 0-4 reoccurring
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, i => i % repeat);
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => i % repeat), list.ToSublist());
 
             // try different shifts, looking for reoccurrences
             int shift = 1;

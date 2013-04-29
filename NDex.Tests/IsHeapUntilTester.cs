@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -26,7 +27,7 @@ namespace NDex.Test
 
             // build a random list
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next());
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next()), list.ToSublist());
 
             // find the first bad value and add the remaining items to the heap
             int index = Sublist.IsHeapUntil(list.ToSublist());

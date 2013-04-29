@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,11 +24,11 @@ namespace NDex.Test
 
             // build all multiples of two
             var list1 = new List<int>(50);
-            Sublist.Grow(list1, 50, () => random.Next(50) * 2);
+            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(50) * 2), list1.ToSublist());
 
             // build all multiples of three
             var list2 = new List<int>(33);
-            Sublist.Grow(list2, 33, () => random.Next(33) * 3);
+            Sublist.Add(Enumerable.Range(0, 33).Select(i => random.Next(33) * 3), list2.ToSublist());
 
             // make sets
             Sublist.RemoveRange(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
@@ -35,7 +36,7 @@ namespace NDex.Test
 
             // find the intersection
             var destination = new List<int>(83);
-            Sublist.Grow(destination, 83, 0);
+            Sublist.Add(Enumerable.Repeat(0, 83), destination.ToSublist());
             int index = Sublist.CopyIntersection(list1.ToSublist(), list2.ToSublist(), destination.ToSublist());
             Sublist.RemoveRange(destination.ToSublist(index));
 
@@ -45,7 +46,7 @@ namespace NDex.Test
 
             // the result should be all multiple of six
             var expected = new List<int>(17); // space for zero
-            Sublist.Grow(expected, 17, i => i * 6);
+            Sublist.Add(Enumerable.Range(0, 17).Select(i => i * 6), expected.ToSublist());
             bool containsAll = Sublist.IsSubset(expected.ToSublist(), destination.ToSublist());
             Assert.IsTrue(containsAll, "Some of the items weren't multiples of six.");
         }

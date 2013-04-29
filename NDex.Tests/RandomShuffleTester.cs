@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -27,7 +28,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(5);
-            Sublist.Grow(list, 5, () => random.Next(5));
+            Sublist.Add(Enumerable.Range(0, 5).Select(i => random.Next(5)), list.ToSublist());
             var set = new HashSet<int>(list);
 
             // try rearranging the items random until it is sorted (may never happen -- bad unit test)

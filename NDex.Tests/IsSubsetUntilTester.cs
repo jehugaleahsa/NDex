@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -22,13 +23,13 @@ namespace NDex.Test
 
             // build all evens
             var evens = new List<int>();
-            Sublist.Grow(evens, 200, i => i * 2);
+            Sublist.Add(Enumerable.Range(0, 200).Select(i => i * 2), evens.ToSublist());
 
             // build multiples of four
             var fours = new List<int>();
-            Sublist.Grow(fours, 100, () => random.Next(100) * 4);
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100) * 4), fours.ToSublist());
             Sublist.QuickSort(fours.ToSublist()); // items must be sorted
-            Sublist.RemoveDuplicates(fours.ToSublist()); // items must be distinct.
+            Sublist.RemoveRange(fours.ToSublist(Sublist.RemoveDuplicates(fours.ToSublist()))); // items must be distinct.
 
             // there shouldn't be a multiple of four that isn't also a multiple of two
             int index = Sublist.IsSubsetUntil(evens.ToSublist(), fours.ToSublist());

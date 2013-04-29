@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -24,7 +25,7 @@ namespace NDex.Test
             Random random = new Random();
 
             List<char> characters = new List<char>(1000);
-            Sublist.Grow(characters, 1000, () => (char)random.Next(0x41, 0x7A));
+            Sublist.Add(Enumerable.Range(0, 1000).Select(i => (char)random.Next(0x41, 0x7A)), characters.ToSublist());
             string value = new String(characters.ToArray());
 
             // count the occurrences of the letter 'e'

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,11 +24,11 @@ namespace NDex.Test
 
             // build even set
             var evens = new List<int>();
-            Sublist.Grow(evens, 100, () => random.Next(49) * 2); // can't exceed 98
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(49) * 2), evens.ToSublist()); // can't exceed 98
             
             // build odd set
             var odds = new List<int>();
-            Sublist.Grow(odds, 100, () => random.Next(49) * 2 + 1); // can't exceed 99
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(49) * 2 + 1), odds.ToSublist()); // can't exceed 99
 
             // make sure sets are sorted using the same comparison
             Sublist.RemoveRange(evens.ToSublist(Sublist.MakeSet(odds.ToSublist())));

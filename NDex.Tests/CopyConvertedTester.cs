@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NDex;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,16 +24,16 @@ namespace NDex.Test
 
             // build a list of numbers
             var numbers = new List<double>(100);
-            Sublist.Grow(numbers, 100, random.NextDouble() * 100);
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.NextDouble() * 100), numbers.ToSublist());
 
             // convert to a list of strings
             var strings = new List<string>(100);
-            Sublist.Grow(strings, 100, String.Empty);
+            Sublist.Add(Enumerable.Repeat(String.Empty, 100), strings.ToSublist());
             Sublist.CopyConverted(numbers.ToSublist(), strings.ToSublist(), i => i.ToString());
 
             // convert back to a list of doubles
             var converted = new List<double>(100);
-            Sublist.Grow(converted, 100, 0d);
+            Sublist.Add(Enumerable.Repeat(0d, 100), converted.ToSublist());
             Sublist.CopyConverted(strings.ToSublist(), converted.ToSublist(), s => Double.Parse(s));
 
             // check that the numbers are mostly the same

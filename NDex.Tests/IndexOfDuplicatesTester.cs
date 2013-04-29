@@ -24,7 +24,7 @@ namespace NDex.Test
 
             // build a list of random values
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
 
             // duplicates must appear next to each other
             Sublist.QuickSort(list.ToSublist());

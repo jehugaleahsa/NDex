@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,11 +24,11 @@ namespace NDex.Test
 
             // build a list of odd numbers
             var odds = new List<int>(100);
-            Sublist.Grow(odds, 100, () => random.Next(0, 50) * 2 + 1); // max of 99 (49 * 2 + 1)
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(0, 50) * 2 + 1), odds.ToSublist()); // max of 99 (49 * 2 + 1)
 
             // build a list of all of the numbers divisible by three
             var threes = new List<int>(34);
-            Sublist.Grow(threes, 34, i => i * 3); // max of 99
+            Sublist.Add(Enumerable.Range(0, 34).Select(i => i * 3), threes.ToSublist()); // max of 99
 
             // sort and eliminate duplicates from odd list, to make it an ordered set
             Sublist.RemoveRange(odds.ToSublist(Sublist.MakeSet(odds.ToSublist())));

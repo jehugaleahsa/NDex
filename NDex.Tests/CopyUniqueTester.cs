@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using NDex;
+using System.Linq;
 
 namespace NDex.Test
 {
@@ -24,14 +25,14 @@ namespace NDex.Test
 
             // build a list of random numbers
             var list = new List<int>(100);
-            Sublist.Grow(list, 100, () => random.Next(100));
+            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
 
             // unique requires that elements be sorted
             Sublist.QuickSort(list.ToSublist());
 
             // now we create a set from the list
             var destination = new List<int>(100);
-            Sublist.Grow(destination, 100, 0);
+            Sublist.Add(Enumerable.Repeat(0, 100), destination.ToSublist());
             int result = Sublist.CopyUnique(list.ToSublist(), destination.ToSublist());
             destination.RemoveRange(result, destination.Count - result); // remove dangling elements
 

@@ -26,7 +26,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(5);
-            Sublist.Grow(list, 5, () => random.Next(0, 10));
+            Sublist.Add(Enumerable.Range(0, 5).Select(i => random.Next(0, 10)), list.ToSublist());
 
             // first, we must sort the items to make sure all permutations are enumerated
             Sublist.BubbleSort(list.ToSublist(), (x, y) => Comparer<int>.Default.Compare(y, x)); // prev. perm. requires reverse order initially
