@@ -39,7 +39,16 @@ The real power of `Sublist` is in its ability to represent a range over a list. 
     Sublist.QuickSort(front);  // 2, 4, 6, 8
     Sublist.QuickSort(back); // 1, 3, 5, 7, 9
     
-The `ToSublist` extension methods accepts two integer arguments: an offset and a count. The offset is the index into the underlying list where the range should begin. The count is the number of items that should be in the `Sublist`. If only the offset is provided, the range will include the rest of the list. Once the `Sublist` is created, these can be accessed via the `Offset` and `Count` properties. A nice feature of `Sublist` is that the `Offset` and `Count` properties are editable. If the `Offset` is modified such that the `Count` would be invalidated, it is automatically resized. `Sublist` also has a property for the underlying list, so you can always get back to it.
+The `ToSublist` extension methods accepts two integer arguments: an offset and a count. The offset is the index into the underlying list where the range should begin. The count is the number of items that should be in the `Sublist`. If only the offset is provided, the range will include the rest of the list. Once the `Sublist` is created, these can be accessed via the `Offset` and `Count` properties. A nice feature of `Sublist` is that the `Offset` and `Count` properties are editable. `Sublist` also has a property for the underlying list, `List`, so you can always get back to it.
+
+### Nesting, Shifting and Resizing
+The only danger of editing the `Offset` and `Count` properties is that you can push the sublist off the ends of the underlying list, which will result in an `ArgumentOutOfRangeException` to be thrown. Sometimes, it is okay to automatically shrink the sublist when it gets too big. 
+
+The `Sublist` class supplies a `Shift` method for moving the offset to the left or the right. It will automatically shrink the `Sublist` if it is too big. If the `Sublist` is resized, `false` will be returned.
+
+Similarly, the `Resize` method allows you to resize the `Sublist` without modifying the `Offset`. It will grow as large as it can without going past the end of the underlying list. If the `Sublist` couldn't get as big as it needed to, `false` will be returned.
+
+You should never need to wrap a `Sublist` with another `Sublist`. Instead, you should call the `Nest` method to create a new `Sublist`. The offset is in terms of the `Sublist`, not the underlying list. Just remember that the nested `Sublist` has to fit within the confines of the outer `Sublist`. There's no overhead for creating multiple nested `Sublist`s - they all work directly against the underlying list.
 
 ### Sublists Can Be Invalidated
 Since `Sublist` is just a wrapper around another list, it is possible that operations on the underlying list will invalidate the `Sublist`. Consider this example:
@@ -165,6 +174,26 @@ A common mistake is that programmers expect `RemoveIf` and `RemoveDuplicates` to
 Basically, you must call `RemoveRange` to actually shrink the list. You might be wondering why the items aren't actually removed. The `RemoveIf` and `RemoveDuplicates` methods don't assume that the underlying list can be resized. Imagine if you wanted to remove items from an array - arrays are a fixed size, so a `NotSupportedException` would be thrown. Another `Sublist` can always be used to *simulate* that an array is resized. Your code should try to limit calls to `RemoveRange`, only removing items after all processing is finished.
 
 ### Search Algorithms
+When a .NET search algorithm can't find a value, it returns `-1`. NDex does something completely differently. It will instead return an index past the end of the `Sublist`. For example:
+
+    int[] values = new int[] { 1, 2, 4, 5 };
+    int index = Sublist.IndexOf(values.ToSublist(), 3);  // 4
+    
+You can always check to see if the match was a success by checking if the returned index equals the `Count` of the sublist.
+
+Returning an index past the end of the list actually makes for cleaner code. Returning `-1`, your code would need to ask two questions: 1) am I past the end of the list? and 2) did I find the value? With NDex, you just need to ask whether you're past the end of the list. Here's an example that removes every occurrence of a sequence from a list:
+
+    int[] values = new int[] { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
+    int[] sequence = new int[] { 1, 2, 3 };
+    int index = 0;
+    while (index < values.Length)
+    {
+        var sublist = values.ToSublist(index);
+        index = Sublist.IndexOfSequence(sublist, sequence.ToSublist());
+        var garabage = sublist.Nest(index, 0);  // avoid assuming length
+        garbage.Resize(sequence.Length);  // will do nothing if at end
+        Sublist.RemoveRange(garbage);
+    }
 
 ### Sorting Algorithms
 
