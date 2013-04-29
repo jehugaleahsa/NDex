@@ -5,12 +5,12 @@ Unified algorithm support for indexed .NET collections.
 Download using NuGet: [NDex](http://nuget.org/packages/ndex)
 
 ## Overview
-There are a lot of classes in .NET that implement the `IList<T>` interface, including `T[]`, `List<T>` and `ObservableCollection<T>`. However, the `IList<T>` interface is really limited and most of its subclasses support very few operations. Only the `List<T>` class has a decent set of algorithms, and even then it is quite limited. LINQ provides a lot more functionality, but every operation creates a new collection. When working with a collection in-place is a must, you are forced to either deal with what .NET gives you or spin your own algorithms.
+There are a lot of classes in .NET that implement the `IList<T>` interface, including `T[]`, `List<T>` and `ObservableCollection<T>`. However, the `IList<T>` interface is really limited and most of its subclasses support very few operations. Only the `List<T>` class has a decent set of algorithms, and even then those are quite limited. LINQ provides a lot more functionality, but every operation creates a new collection. When working with a collection in-place is a must, you are forced to either deal with what .NET gives you or spin your own algorithms.
 
 NDex is a heavily tested and efficient algorithms library for working with indexed collections in-place. Not only does it provide access to algorithms not otherwise available in .NET, it has useful overloads of those algorithms you're already familiar with.
 
 ## Sublist
-In order to access the algorithms provided by NDex, you must wrap your list with a `Sublist`. `Sublist` allows you to specify a range over a list in which you want to apply an operation. There are occasions when you only want to sort part of a list or search for a value after a particular index. Instead of providing a dozen overloads of each algorithm accepting a `startIndex` and `count` argument, you just always pass in a `Sublist`. NDex is smart and will work against the underlying list, so there's no overhead for wrapping a list.
+In order to access the algorithms provided by NDex, you must wrap your list with a `Sublist`. `Sublist` allows you to specify a range over a list in which you want to apply operations. There are occasions when you only want to work in part of a list. Instead of providing a dozen overloads of each algorithm accepting a `startIndex` and `count` argument, you just always pass in a `Sublist`. NDex is smart and will work against the underlying list, so there's no overhead for wrapping a list.
 
 The `Sublist` class has another benefit. In order for the algorithms to work directly with the underlying list, the type of the list must be known at compile time. Otherwise, all the operations would require polymorphic calls to the `IList<T>` interface. The overhead of these polymorphic calls has a dramatic impact on performance once a collection exceeds about 10,000 items. The `Sublist` class keeps track of the type of the underlying list via a generic argument. Normally, you don't need to know what that means in order to use NDex effectively, but I will try to explain. The `Sublist` class has the following signature:
 
@@ -44,9 +44,11 @@ The `ToSublist` extension methods accepts two integer arguments: an offset and a
 ### Sublists Can Be Invalidated
 Since `Sublist` is just a wrapper around another list, it is possible that operations on the underlying list will invalidate the `Sublist`. Consider this example:
 
-    var list = new List<int>() { 1, 2 3, 4, 5 };
+    var list = new List<int>() { 1, 2, 3, 4, 5 };
     var sublist = list.ToSublist();
     list.Remove(3);  // the sublist is now too big
+    
+Algorithms that modify a `Sublist` will update the `Offset` and `Count` properties. However, if two or more `Sublist`s point into the same underlying list, only the passed `Sublist` will be updated. If you are dealing with multiple `Sublist`s like this, you will need to extra care.
 
 ### The Empty Sublist Trick
 There is a useful trick you can perform using a `Sublist` with a `Count` of zero, so I will mention it here. There are a handful of algorithms that start with `Add`. These allow you to add new values to the end of a list. But what if you wanted to add items the front or the middle of a list? You can use the same `Add` methods as before, just create an empty `Sublist` whose offset is at the index you want to insert into. For example:
@@ -74,10 +76,10 @@ If you want to manipulate `string`s, you will need to first convert your `string
     var substring = greeting.ToSubstring();
     var sequence = "World".ToSubstring();
     int index = Sublist.IndexOfSequence(substring, sequence);
-    List<char> list = greeting.ToList();
-    Sublist.RemoveRange(list.ToSublist(index));  // "Hello, "
+    List<char> list = new List<char>();
+    Sublist.Add(greeting.Nest(0, index), list.ToSublist());  // "Hello, "
     Sublist.Add("Bob".ToSubstring(), list.ToSublist());  // "Hello, Bob"
-    greeting = new String(list.ToArray());
+    greeting = new String(list.ToArray());  // convert back to a string
 
 ## ReversedList
 The `ReversedList` class creates a view over a list, creating the illusion that the items are reversed. `ReversedList` solves some tricky problems.
@@ -93,20 +95,20 @@ For a more interesting use of `ReversedList`, imagine that you wanted to shift i
     
 Inspecting the `Copy` algorithm, you'd see why this happens. Before the `2` can be copied, it is overwritten with `1`. This continues until the `1` gets propogated all the way to the right. Copying in the opposite direction, back-to-front, works as expected because the values aren't overwritten before they can be copied. Since NDex doesn't provide an algorithm for copying backward, it would seem like the only other option would be to write the code by hand.
 
-But wait, we can solve this problem using the `ReversedList` class. This is the updated code:
+But wait! We can solve this problem using the `ReversedList` class. This is the updated code:
 
     int[] values = new int[] { 1, 2, 3, 4, 5, 0 };
     var source = values.ToSublist(0, 4).Reversed();
     var destination = values.ToSublist(1).Reversed();
     Sublist.Copy(source, destination);
     
-Here we call the `Reversed` extension method on each `Sublist`. It takes a little diagramming or a lot of imagination to see why this code works. At a high level, it is basically performing a back-to-front copy, but since the back is the front and the front is the back... it does the right thing. It's so odd, most people aren't likely to think of it on their own.
+Here we call the `Reversed` extension method on each `Sublist`. It takes a little diagramming or a lot of imagination to see why this code works. At a high level, it is basically performing a back-to-front copy, but since the back is the front and the front is the back... it does the right thing. It's so odd, most people aren't likely to think of it on their own. But, hey - it works!
 
 ### Once a Sublist, Always a Sublist
-What's cool is that the `Reversed` extension method is smart and will return a new `Sublist` if called on a `Sublist`. It returns a `Sublist` because all of the algorithms work against a `Sublist`. If it didn't you'd have to write a bunch of code to wrap your `ReversedList`s back to `Sublist`s. You can always get back to the underlying `ReversedList` by using `Sublist`'s `List` property.
+What's cool is that the `Reversed` extension method is smart and will return a new `Sublist` if called on a `Sublist`. It returns a `Sublist` because all of the algorithms work against a `Sublist`. If it didn't you'd have to write a bunch of code to wrap your `ReversedList`s with another `Sublist`s. Not only would this be tedious, it would result in a minor performance penalty. If you need to get at the `ReversedList`, you can always use `Sublist`'s `List` property.
 
 ### Reversing a ReversedList
-`Reversed` will also return the original, underlying list if you try to reverse a reversed list. This is a good thing because you don't want to add a bunch of unnecessary layers on top of your lists. But wait! What if you reverse a sublist and then reverse it again?!?! Don't worry, NDex handles that, too. Essentially, calling `Reversed` two times in a row is a no-op.
+`Reversed` will return the original, underlying list if you try to reverse a reversed list. This is a good thing because you don't want to add a bunch of unnecessary layers on top of your lists. But wait! What if you reverse a sublist and then reverse it again?!?! Don't worry, NDex handles that, too. Essentially, calling `Reversed` two times in a row is a no-op.
 
 ### Translating Indicies
 Some algorithms will return an index, such as `IndexOf`. You can find the last index of a value simply by calling `Reversed` on this list first. The only problem is that the index is in terms of the reversed list, not the underlying list. In order to get the index into the underlying list, just call the `BaseIndex` method on the `ReversedList`.
@@ -116,7 +118,7 @@ Some algorithms will return an index, such as `IndexOf`. You can find the last i
     int index = Sublist.IndexOf(reversed.ToSublist(), 3);  // 1
     index = reversed.BaseIndex(index);  // 2
 
-You have to be a little more careful when searching for duplicate items or the last sub-sequence. For example, here is the correct way to find last sub-sequence in a list:
+You have to be a little more careful when searching for duplicate items or the last sub-sequence. For example, here is the correct way to find the last sub-sequence in a list:
 
     // Find the last occurrence of 1, 2, 3
     int[] values = new int[] { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
