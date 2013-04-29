@@ -149,8 +149,20 @@ NDex provides a slight variation to this class called `ReadOnlyList`. Similar to
 The real reason to use `ReadOnlyList` is that you can call `ToSublist` on it, which will return an `IReadOnlySublist`. From there, you can use any of the read-only algorithms on it. Technically, you can wrap a `ReadOnlyCollection`, too, but that's when those polymorphic calls will suddenly matter again.
 
 ## Algorithms
+NDex provides a large number of algorithms. They are optimized to perform as fast as possible without sacrificing safety. They provide various overloads to make them as reusable as possible, making them ideal when working with user-defined types.
+
+The NDex algorithms follow different conventions than the built-in .NET algorithms. Read the following sections to see how they differ. These differences have a large impact on the code you write. Ultimately, code written using NDex will be more compact.
 
 ### Adding and Removing Items
+Most of the NDex algorithms do not change the size of the underlying list. The `Add`* methods will add items to the end of a list. The only other algorithm is `RemoveRange`, which will remove all the items in a `Sublist`. `Sublist`'s `Clear` method will also remove all the items from a list. Whether you call `Sublist.RemoveRange` or `Clear` is a matter of preference.
+
+A common mistake is that programmers expect `RemoveIf` and `RemoveDuplicates` to actually remove items. As strange as it might seem, these methods just shift items to the front of the list. These methods return an index - everything after that index is considered garbage. Here is how you can actually remove items from the underlying list:
+
+    List<int> values = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    int index = Sublist.RemoveIf(values.ToSublist(), x => x % 2 != 0);  // shift evens forward
+    Sublist.RemoveRange(values.ToSublist(index));  // 2, 4, 6, 8
+    
+Basically, you must call `RemoveRange` to actually shrink the list. You might be wondering why the items aren't actually removed. The `RemoveIf` and `RemoveDuplicates` methods don't assume that the underlying list can be resized. Imagine if you wanted to remove items from an array - arrays are a fixed size, so a `NotSupportedException` would be thrown. Another `Sublist` can always be used to *simulate* that an array is resized. Your code should try to limit calls to `RemoveRange`, only removing items after all processing is finished.
 
 ### Search Algorithms
 
