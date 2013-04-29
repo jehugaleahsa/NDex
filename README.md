@@ -150,6 +150,8 @@ The real reason to use `ReadOnlyList` is that you can call `ToSublist` on it, wh
 
 ## Algorithms
 
+### Adding and Removing Items
+
 ### Search Algorithms
 
 ### Sorting Algorithms
@@ -157,3 +159,5 @@ The real reason to use `ReadOnlyList` is that you can call `ToSublist` on it, wh
 ### Set Algorithms
 
 ### Heap Algorithms
+
+### Miscellaneous Algorithms
