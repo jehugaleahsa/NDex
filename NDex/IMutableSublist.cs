@@ -34,23 +34,35 @@ namespace NDex
         new IMutableSublist<TList, T> Nest(int offset, int count);
 
         /// <summary>
+        /// Attempts to shift the sublist to the right by the given shift.
+        /// If the shift is negative, the sublist is shifted to the left.
+        /// The sublist will be automatically resized if it is too big.
+        /// </summary>
+        /// <param name="shift">The amount to shift the sublist to the right.</param>
+        /// <param name="isChecked">If checked, an exception will be thrown if the sublist would extend beyond the list.</param>
+        /// <returns>True if the sublist remained the size; otherwise, false if the sublist shrank.</returns>
+        new IMutableSublist<TList, T> Shift(int shift, bool isChecked);
+
+        /// <summary>
+        /// Attempts to resize the sublist so that its count equals the given limit.
+        /// If the limit is too large, the count gets as large as it can.
+        /// </summary>
+        /// <param name="size">The desired length of the sublist.</param>
+        /// <param name="isChecked">If checked, an exception will be thrown if the sublist would be too large.</param>
+        /// <returns>True if the sublist fit in the list; otherwise, false.</returns>
+        new IMutableSublist<TList, T> Resize(int size, bool isChecked);
+
+        /// <summary>
+        /// Gets the number of items in the sublist.
+        /// </summary>
+        new int Count { get; }
+
+        /// <summary>
         /// Gets or sets the item at the given index.
         /// </summary>
         /// <param name="index">The index into the Sublist to get the item.</param>
         /// <returns>The item at the given index.</returns>
         /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- beyond the bounds of the list.</exception>
-        new T this[int index]
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets the index of the first occurrence of the given value.
-        /// </summary>
-        /// <param name="item">The item to search for.</param>
-        /// <returns>The index of the first occurrence of the given value -or- negative one if the value is not found.</returns>
-        /// <remarks>The returned index is relative to Sublist, rather than the underlying list.</remarks>
-        int IndexOf(T item);
+        new T this[int index] { get; set; }
     }
 }

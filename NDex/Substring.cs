@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using NDex.Properties;
+using System.Globalization;
 
 namespace NDex
 {
@@ -65,9 +66,7 @@ namespace NDex
     /// </summary>
     public sealed class Substring : IReadOnlySublist<StringAdapter, char>
     {
-        private readonly StringAdapter _list;
-        private int _offset;
-        private int _count;
+        private readonly Sublist<StringAdapter, char> _list;
 
         /// <summary>
         /// Initializes a new instance of a Substring representing a splice containing the entire string.
@@ -80,9 +79,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("value");
             }
-            this._list = new StringAdapter(value);
-            this._offset = 0;
-            this._count = value.Length;
+            this._list = new Sublist<StringAdapter,char>(new StringAdapter(value), 0, value.Length);
         }
 
         /// <summary>
@@ -99,13 +96,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("value");
             }
-            if (offset < 0 || offset > value.Length)
-            {
-                throw new ArgumentOutOfRangeException("offset", offset, Resources.IndexOutOfRange);
-            }
-            _list = new StringAdapter(value);
-            _offset = offset;
-            _count = value.Length - offset;
+            _list = new Sublist<StringAdapter,char>(new StringAdapter(value), offset);
         }
 
         /// <summary>
@@ -125,17 +116,12 @@ namespace NDex
             {
                 throw new ArgumentNullException("list");
             }
-            if (offset < 0 || offset > value.Length)
-            {
-                throw new ArgumentOutOfRangeException("offset", offset, Resources.IndexOutOfRange);
-            }
-            if (count < 0 || count > value.Length - offset)
-            {
-                throw new ArgumentOutOfRangeException("count", count, Resources.CountOutOfRange);
-            }
-            _list = new StringAdapter(value);
-            _offset = offset;
-            _count = count;
+            _list = new Sublist<StringAdapter,char>(new StringAdapter(value), offset, count);
+        }
+
+        private Substring(Sublist<StringAdapter, char> sublist)
+        {
+            this._list = sublist;
         }
 
         /// <summary>
@@ -146,11 +132,7 @@ namespace NDex
         /// <exception cref="System.ArgumentOutOfRangeException">The offset is negative -or- outside the bounds of the Substring.</exception>
         public Substring Nest(int offset)
         {
-            if (offset < 0 || offset > _count)
-            {
-                throw new ArgumentOutOfRangeException("offset", offset, Resources.IndexOutOfRange);
-            }
-            return new Substring(_list.Value, offset + _offset, _count - offset);
+            return new Substring(_list.Nest(offset));
         }
 
         IReadOnlySublist<StringAdapter, char> IReadOnlySublist<StringAdapter, char>.Nest(int offset)
@@ -171,15 +153,7 @@ namespace NDex
         /// <exception cref="System.ArgumentOutOfRangeException">The count is negative -or-  beyond the bounds of the StringString.</exception>
         public Substring Nest(int offset, int count)
         {
-            if (offset < 0 || offset > _count)
-            {
-                throw new ArgumentOutOfRangeException("offset", offset, Resources.IndexOutOfRange);
-            }
-            if (count < 0 || offset + count > _count)
-            {
-                throw new ArgumentOutOfRangeException("count", count, Resources.CountOutOfRange);
-            }
-            return new Substring(_list.Value, offset + _offset, count);
+            return new Substring(_list.Nest(offset, count));
         }
 
         IReadOnlySublist<StringAdapter, char> IReadOnlySublist<StringAdapter, char>.Nest(int offset, int count)
@@ -187,9 +161,44 @@ namespace NDex
             return Nest(offset, count);
         }
 
+        /// <summary>
+        /// Attempts to shift the sublist to the right by the given shift.
+        /// If the shift is negative, the sublist is shifted to the left.
+        /// The sublist will be automatically resized if it is too big.
+        /// </summary>
+        /// <param name="shift">The amount to shift the sublist to the right.</param>
+        /// <param name="isChecked">If checked, an exception will be thrown if the sublist would extend beyond the list.</param>
+        /// <returns>True if the sublist remained the size; otherwise, false if the sublist shrank.</returns>
+        public Substring Shift(int shift, bool isChecked)
+        {
+            return new Substring(_list.Shift(shift, isChecked));
+        }
+
+        IReadOnlySublist<StringAdapter, char> IReadOnlySublist<StringAdapter, char>.Shift(int shift, bool isChecked)
+        {
+            return Shift(shift, isChecked);
+        }
+
+        /// <summary>
+        /// Attempts to resize the sublist so that its count equals the given limit.
+        /// If the limit is too large, the count gets as large as it can.
+        /// </summary>
+        /// <param name="size">The desired length of the sublist.</param>
+        /// <param name="isChecked">If checked, an exception will be thrown if the sublist would be too large.</param>
+        /// <returns>True if the sublist fit in the list; otherwise, false.</returns>
+        public Substring Resize(int size, bool isChecked)
+        {
+            return new Substring(_list.Resize(size, isChecked));
+        }
+
+        IReadOnlySublist<StringAdapter, char> IReadOnlySublist<StringAdapter, char>.Resize(int size, bool isChecked)
+        {
+            return Resize(size, isChecked);
+        }
+
         StringAdapter IReadOnlySublist<StringAdapter, char>.List
         {
-            get { return _list; }
+            get { return _list.List; }
         }
 
         /// <summary>
@@ -197,7 +206,7 @@ namespace NDex
         /// </summary>
         public string Value
         {
-            get { return _list.Value; }
+            get { return _list.List.Value; }
         }
 
         /// <summary>
@@ -206,25 +215,9 @@ namespace NDex
         /// <exception cref="System.ArgumentOutOfRangeException">
         /// The value is negative -or- outside the bounds of the underlying string.
         /// </exception>
-        /// <remarks>The Substring's count is adjusted automatically to prevent the splice from going beyond the end of the string.</remarks>
         public int Offset
         {
-            get
-            {
-                return _offset;
-            }
-            set
-            {
-                if (value < 0 || value > _list.Count)
-                {
-                    throw new ArgumentOutOfRangeException("value", value, Resources.IndexOutOfRange);
-                }
-                _offset = value;
-                if (_offset + _count > _list.Count)
-                {
-                    _count = _list.Count - _offset;
-                }
-            }
+            get { return _list.Offset; }
         }
 
         /// <summary>
@@ -235,18 +228,7 @@ namespace NDex
         /// </exception>
         public int Count
         {
-            get
-            {
-                return _count;
-            }
-            set
-            {
-                if (value < 0 || _offset + value > _list.Count)
-                {
-                    throw new ArgumentOutOfRangeException("value", value, Resources.CountOutOfRange);
-                }
-                _count = value;
-            }
+            get { return _list.Count; }
         }
 
         /// <summary>
@@ -257,14 +239,7 @@ namespace NDex
         /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- beyond the bounds of the string.</exception>
         public char this[int index]
         {
-            get
-            {
-                if (index < 0 || index >= _count)
-                {
-                    throw new ArgumentOutOfRangeException("index", index, Resources.IndexOutOfRange);
-                }
-                return _list[_offset + index];
-            }
+            get { return _list[index]; }
         }
 
         /// <summary>
@@ -273,10 +248,7 @@ namespace NDex
         /// <returns>The enumerator.</returns>
         public IEnumerator<char> GetEnumerator()
         {
-            for (int index = 0; index < _count; ++index)
-            {
-                yield return _list[index + _offset];
-            }
+            return _list.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -290,7 +262,7 @@ namespace NDex
         /// <returns>The substring.</returns>
         public override string ToString()
         {
-            return _list.Value.Substring(_offset, _count);
+            return _list.List.Value.Substring(_list.Offset, _list.Count);
         }
 
         /// <summary>

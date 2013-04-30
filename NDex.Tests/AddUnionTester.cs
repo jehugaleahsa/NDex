@@ -208,7 +208,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnion(list, list, destination);
+            destination = Sublist.AddUnion(list, list, destination);
             int[] expected = { 1, 2, 3, 4, 5 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -224,7 +224,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnion(list1, list2, destination);
+            destination = Sublist.AddUnion(list1, list2, destination);
             int[] expected = { 1, 2, 3, 4, 5, 6 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -241,7 +241,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnion(list1, list2, destination);
+            destination = Sublist.AddUnion(list1, list2, destination);
             int[] expected = { 1, 2, 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -258,7 +258,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnion(list1, list2, destination);
+            destination = Sublist.AddUnion(list1, list2, destination);
             int[] expected = { 1, 2, 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -276,7 +276,7 @@ namespace NDex.Test
             var list2 = TestHelper.Wrap(new List<int>() { 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddUnion(list1, list2, destination, comparer);
+            destination = Sublist.AddUnion(list1, list2, destination, comparer);
             int[] expected = { 1, 2, 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -294,7 +294,7 @@ namespace NDex.Test
             var list2 = TestHelper.Wrap(new List<int>() { 3, 2 });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            Sublist.AddUnion(list1, list2, destination, comparison);
+            destination = Sublist.AddUnion(list1, list2, destination, comparison);
             int[] expected = { 3, 2, 1 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);

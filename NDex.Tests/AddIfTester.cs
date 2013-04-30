@@ -83,7 +83,7 @@ namespace NDex.Test
             var list = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, bool> predicate = i => i % 2 == 0; // always true
-            Sublist.AddIf(list, destination, predicate);
+            destination = Sublist.AddIf(list, destination, predicate);
             int[] expected = { 2 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);

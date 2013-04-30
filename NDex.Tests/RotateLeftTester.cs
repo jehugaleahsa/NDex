@@ -31,7 +31,7 @@ namespace NDex.Test
                 var sortedRange = list.ToSublist(0, index);
                 int position = Sublist.LowerBound(sortedRange, list[index]);
                 var rotationRange = sortedRange.Nest(position);
-                rotationRange.Count += 1;
+                rotationRange = rotationRange.Resize(rotationRange.Count + 1, false);
                 Sublist.RotateLeft(rotationRange, -1); // move the last item to the front
             }
 

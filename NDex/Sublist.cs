@@ -5,9 +5,45 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using NDex.Properties;
+using System.Linq;
 
 namespace NDex
 {
+    #region AddPartitionedResult
+
+    /// <summary>
+    /// Holds the results of the AddPartitioned method.
+    /// </summary>
+    public sealed class AddPartitionedResult<TDestinationList1, TDestinationList2, T>
+    {
+        /// <summary>
+        /// Initializes a new instance of an AddPartitionedResult.
+        /// </summary>
+        internal AddPartitionedResult()
+        {
+        }
+
+        /// <summary>
+        /// Gets the subset wrapping the first destination list.
+        /// </summary>
+        public IExpandableSublist<TDestinationList1, T> Destination1
+        {
+            get;
+            internal set;
+        }
+
+        /// <summary>
+        /// Gets the subset wrapping the second destination list.
+        /// </summary>
+        public IExpandableSublist<TDestinationList2, T> Destination2
+        {
+            get;
+            internal set;
+        }
+    }
+
+    #endregion
+
     #region BinarySearchResult
 
     /// <summary>
@@ -527,7 +563,7 @@ namespace NDex
         /// <remarks>
         /// The destination Sublist is resized as necessary to hold the added items.
         /// </remarks>
-        public static void Add<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> Add<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination)
             where TDestinationList : IList<T>
@@ -544,7 +580,7 @@ namespace NDex
             int result = add<TSourceList, TDestinationList, T>(
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int add<TSourceList, TDestinationList, T>(
@@ -569,7 +605,9 @@ namespace NDex
         /// <param name="destination">The list to add the items to.</param>
         /// <exception cref="System.ArgumentNullException">The source collection is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        public static void Add<TDestinationList, T>(IEnumerable<T> source, IExpandableSublist<TDestinationList, T> destination)
+        public static IExpandableSublist<TDestinationList, T> Add<TDestinationList, T>(
+            IEnumerable<T> source, 
+            IExpandableSublist<TDestinationList, T> destination)
             where TDestinationList : IList<T>
         {
             if (source == null)
@@ -581,7 +619,7 @@ namespace NDex
                 throw new ArgumentNullException("destination");
             }
             int result = add_optimized<TDestinationList, T>(source, destination.List, destination.Offset, destination.Offset + destination.Count);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int add_optimized<TDestinationList, T>(IEnumerable<T> source, TDestinationList destination, int first, int past)
@@ -650,7 +688,7 @@ namespace NDex
         /// <remarks>
         /// The destination Sublist is resized as necessary to hold the added items.
         /// </remarks>
-        public static void AddCombined<TSourceList1, T1, TSourceList2, T2, TDestinationList, TDest>(
+        public static IExpandableSublist<TDestinationList, TDest> AddCombined<TSourceList1, T1, TSourceList2, T2, TDestinationList, TDest>(
             IReadOnlySublist<TSourceList1, T1> source1,
             IReadOnlySublist<TSourceList2, T2> source2,
             IExpandableSublist<TDestinationList, TDest> destination,
@@ -680,7 +718,7 @@ namespace NDex
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 combiner);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addCombined<TSourceList1, T1, TSourceList2, T2, TDestinationList, TDest>(
@@ -718,7 +756,7 @@ namespace NDex
         /// <param name="converter">The conversion delegate to convert instances of T to TDest.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        public static void AddConverted<TSourceList, T, TDestinationList, TDest>(
+        public static IExpandableSublist<TDestinationList, TDest> AddConverted<TSourceList, T, TDestinationList, TDest>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, TDest> destination,
             Func<T, TDest> converter)
@@ -737,10 +775,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("converter");
             }
-            addConverted<TSourceList, T, TDestinationList, TDest>(source, destination, converter);
+            return addConverted<TSourceList, T, TDestinationList, TDest>(source, destination, converter);
         }
 
-        private static void addConverted<TSourceList, T, TDestinationList, TDest>(
+        private static IExpandableSublist<TDestinationList, TDest> addConverted<TSourceList, T, TDestinationList, TDest>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, TDest> destination,
             Func<T, TDest> converter)
@@ -751,7 +789,7 @@ namespace NDex
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count,
                 converter);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addConverted<TSourceList, T, TDestinationList, TDest>(
@@ -789,7 +827,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted the same and must not contain duplicates.
         /// </remarks>
-        public static void AddDifference<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddDifference<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination)
@@ -809,7 +847,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            addDifference(source1, source2, destination, Comparer<T>.Default.Compare);
+            return addDifference(source1, source2, destination, Comparer<T>.Default.Compare);
         }
 
         /// <summary>
@@ -830,7 +868,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
         /// </remarks>
-        public static void AddDifference<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddDifference<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -855,7 +893,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            addDifference(source1, source2, destination, comparer.Compare);
+            return addDifference(source1, source2, destination, comparer.Compare);
         }
 
         /// <summary>
@@ -876,7 +914,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
         /// </remarks>
-        public static void AddDifference<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddDifference<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -901,10 +939,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            addDifference(source1, source2, destination, comparison);
+            return addDifference(source1, source2, destination, comparison);
         }
 
-        private static void addDifference<TSourceList1, TSourceList2, TDestinationList, T>(
+        private static IExpandableSublist<TDestinationList, T> addDifference<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -918,7 +956,7 @@ namespace NDex
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addDifference<TSourceList1, TSourceList2, TDestinationList, T>(
@@ -970,7 +1008,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static void AddIf<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddIf<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination,
             Func<T, bool> predicate)
@@ -993,7 +1031,7 @@ namespace NDex
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count,
                 predicate);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addIf<TSourceList, TDestinationList, T>(
@@ -1037,7 +1075,7 @@ namespace NDex
         /// The items in the lists must be sorted according to the default ordering of the items. Neither of
         /// the lists can contain duplicate items.
         /// </remarks>
-        public static void AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination)
@@ -1057,7 +1095,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
+            return addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
         }
 
         /// <summary>
@@ -1078,7 +1116,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
         /// </remarks>
-        public static void AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1103,7 +1141,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
+            return addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
         }
 
         /// <summary>
@@ -1124,7 +1162,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
         /// </remarks>
-        public static void AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1149,10 +1187,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
+            return addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
         }
 
-        private static void addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
+        private static IExpandableSublist<TDestinationList, T> addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1166,7 +1204,7 @@ namespace NDex
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
@@ -1222,7 +1260,7 @@ namespace NDex
         /// <remarks>
         /// The items in the lists must be sorted according to the default ordering of the items.
         /// </remarks>
-        public static void AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination)
@@ -1242,7 +1280,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
+            return addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
         }
 
         /// <summary>
@@ -1264,7 +1302,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparer.
         /// </remarks>
-        public static void AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1289,7 +1327,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
+            return addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
         }
 
         /// <summary>
@@ -1311,7 +1349,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparison delegate.
         /// </remarks>
-        public static void AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1336,10 +1374,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
+            return addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
         }
 
-        private static void addMerged<TSourceList1, TSourceList2, TDestinationList, T>(
+        private static IExpandableSublist<TDestinationList, T> addMerged<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1353,7 +1391,7 @@ namespace NDex
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addMerged<TSourceList1, TSourceList2, TDestinationList, T>(
@@ -1393,7 +1431,7 @@ namespace NDex
         /// <remarks>
         /// The items in the list will be sorted according to the default ordering of the items.
         /// </remarks>
-        public static void AddPartiallySorted<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             int numberOfItems,
             IExpandableSublist<TDestinationList, T> destination)
@@ -1412,7 +1450,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, Comparer<T>.Default.Compare);
+            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, Comparer<T>.Default.Compare);
         }
 
         /// <summary>
@@ -1428,7 +1466,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        public static void AddPartiallySorted<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             int numberOfItems,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1452,7 +1490,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, comparer.Compare);
+            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, comparer.Compare);
         }
 
         /// <summary>
@@ -1468,7 +1506,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        public static void AddPartiallySorted<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             int numberOfItems,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1492,10 +1530,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, comparison);
+            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, comparison);
         }
 
-        private static void addPartiallySorted<TSourceList, TDestinationList, T>(
+        private static IExpandableSublist<TDestinationList, T> addPartiallySorted<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             int numberOfItems,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1507,7 +1545,7 @@ namespace NDex
                 source.List, source.Offset, source.Offset + numberOfItems, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addPartiallySorted<TSourceList, TDestinationList, T>(
@@ -1545,7 +1583,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first destination is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second destination is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static void AddPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
+        public static AddPartitionedResult<TDestinationList1, TDestinationList2, T> AddPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList1, T> destination1,
             IExpandableSublist<TDestinationList2, T> destination2,
@@ -1570,13 +1608,15 @@ namespace NDex
             {
                 throw new ArgumentNullException("predicate");
             }
-            Tuple<int, int> result = addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
+            Tuple<int, int> indexes = addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
                 source.List, source.Offset, source.Offset + source.Count,
                 destination1.List, destination1.Offset + destination1.Count,
                 destination2.List, destination2.Offset + destination2.Count,
                 predicate);
-            destination1.Count = result.Item1 - destination1.Offset;
-            destination2.Count = result.Item2 - destination2.Offset;
+            AddPartitionedResult<TDestinationList1, TDestinationList2, T> result = new AddPartitionedResult<TDestinationList1, TDestinationList2, T>();
+            result.Destination1 = destination1.Resize(indexes.Item1 - destination1.Offset, true);
+            result.Destination2 = destination2.Resize(indexes.Item2 - destination2.Offset, true);
+            return result;
         }
 
         private static Tuple<int, int> addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
@@ -1630,7 +1670,7 @@ namespace NDex
         /// </exception>
         /// <exception cref="System.ArgumentNullException">The random number generator is null.</exception>
         /// <remarks>The order that the items appear in the destination is not guaranteed.</remarks>
-        public static void AddRandomSamples<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddRandomSamples<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             int numberOfSamples,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1654,7 +1694,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("random");
             }
-            addRandomSamples<TSourceList, TDestinationList, T>(source, numberOfSamples, destination, random.Next);
+            return addRandomSamples<TSourceList, TDestinationList, T>(source, numberOfSamples, destination, random.Next);
         }
 
         /// <summary>
@@ -1674,7 +1714,7 @@ namespace NDex
         /// </exception>
         /// <exception cref="System.ArgumentNullException">The random number generator is null.</exception>
         /// <remarks>The order that the items appear in the destination is not guaranteed.</remarks>
-        public static void AddRandomSamples<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddRandomSamples<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             int numberOfSamples,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1698,10 +1738,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("generator");
             }
-            addRandomSamples<TSourceList, TDestinationList, T>(source, numberOfSamples, destination, generator);
+            return addRandomSamples<TSourceList, TDestinationList, T>(source, numberOfSamples, destination, generator);
         }
 
-        private static void addRandomSamples<TSourceList, TDestinationList, T>(
+        private static IExpandableSublist<TDestinationList, T> addRandomSamples<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             int numberOfSamples,
             IExpandableSublist<TDestinationList, T> destination,
@@ -1714,7 +1754,7 @@ namespace NDex
                 destination.List, destination.Offset + destination.Count,
                 numberOfSamples,
                 generator);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addRandomSamples<TSourceList, TDestinationList, T>(
@@ -1749,7 +1789,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static void AddReplaced<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination,
             Func<T, bool> predicate,
@@ -1774,7 +1814,7 @@ namespace NDex
                 destination.List, destination.Offset + destination.Count,
                 predicate,
                 replacement);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addReplaced<TSourceList, TDestinationList, T>(
@@ -1808,7 +1848,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static void AddReplaced<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination,
             Func<T, bool> predicate,
@@ -1837,7 +1877,7 @@ namespace NDex
                 destination.List, destination.Offset + destination.Count,
                 predicate,
                 generator);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addReplaced<TSourceList, TDestinationList, T>(
@@ -1872,7 +1912,7 @@ namespace NDex
         /// <param name="destination">The list to add the items to.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        public static void AddReversed<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddReversed<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination)
             where TSourceList : IList<T>
@@ -1889,7 +1929,7 @@ namespace NDex
             int result = addReversed<TSourceList, TDestinationList, T>(
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addReversed<TSourceList, TDestinationList, T>(
@@ -1924,7 +1964,7 @@ namespace NDex
         /// If the shift is negative, the algoritm simulates rotating the items to the right. If the shift is larger than the number of items, 
         /// the algorithm will simulate a complete rotation as many times as necessary.
         /// </remarks>
-        public static void AddRotatedLeft<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddRotatedLeft<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination, int shift)
             where TSourceList : IList<T>
@@ -1942,7 +1982,7 @@ namespace NDex
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count,
                 shift);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addRotatedLeftUnreduced<TSourceList, TDestinationList, T>(
@@ -1990,7 +2030,7 @@ namespace NDex
         /// The items in the lists must be sorted according to the default ordering of the items. Neither of
         /// the lists can contain duplicate items.
         /// </remarks>
-        public static void AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination)
@@ -2010,7 +2050,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
+            return addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
         }
 
         /// <summary>
@@ -2031,7 +2071,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
         /// </remarks>
-        public static void AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -2056,7 +2096,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
+            return addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
         }
 
         /// <summary>
@@ -2077,7 +2117,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
         /// </remarks>
-        public static void AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -2102,10 +2142,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
+            return addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
         }
 
-        private static void addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
+        private static IExpandableSublist<TDestinationList, T> addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -2119,7 +2159,7 @@ namespace NDex
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
@@ -2178,7 +2218,7 @@ namespace NDex
         /// The items in the lists must be sorted according to the default ordering of the items. Neither of
         /// the lists can contain duplicate items.
         /// </remarks>
-        public static void AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination)
@@ -2198,7 +2238,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
+            return addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
         }
 
         /// <summary>
@@ -2219,7 +2259,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
         /// </remarks>
-        public static void AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -2244,7 +2284,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
+            return addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
         }
 
         /// <summary>
@@ -2265,7 +2305,7 @@ namespace NDex
         /// <remarks>
         /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
         /// </remarks>
-        public static void AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -2290,10 +2330,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
+            return addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
         }
 
-        private static void addUnion<TSourceList1, TSourceList2, TDestinationList, T>(
+        private static IExpandableSublist<TDestinationList, T> addUnion<TSourceList1, TSourceList2, TDestinationList, T>(
             IReadOnlySublist<TSourceList1, T> source1,
             IReadOnlySublist<TSourceList2, T> source2,
             IExpandableSublist<TDestinationList, T> destination,
@@ -2307,7 +2347,7 @@ namespace NDex
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addUnion<TSourceList1, TSourceList2, TDestinationList, T>(
@@ -2361,7 +2401,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <remarks>The items in the list must be sorted according to the default ordering of the items.</remarks>
-        public static void AddUnique<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination)
             where TSourceList : IList<T>
@@ -2375,7 +2415,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            addUnique<TSourceList, TDestinationList, T>(source, destination, EqualityComparer<T>.Default.Equals);
+            return addUnique<TSourceList, TDestinationList, T>(source, destination, EqualityComparer<T>.Default.Equals);
         }
 
         /// <summary>
@@ -2390,7 +2430,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <remarks>The list must be sorted.</remarks>
-        public static void AddUnique<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination,
             IEqualityComparer<T> comparer)
@@ -2409,7 +2449,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            addUnique<TSourceList, TDestinationList, T>(source, destination, comparer.Equals);
+            return addUnique<TSourceList, TDestinationList, T>(source, destination, comparer.Equals);
         }
 
         /// <summary>
@@ -2424,7 +2464,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <remarks>The list must be sorted.</remarks>
-        public static void AddUnique<TSourceList, TDestinationList, T>(
+        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination,
             Func<T, T, bool> comparison)
@@ -2443,10 +2483,10 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            addUnique<TSourceList, TDestinationList, T>(source, destination, comparison);
+            return addUnique<TSourceList, TDestinationList, T>(source, destination, comparison);
         }
 
-        private static void addUnique<TSourceList, TDestinationList, T>(
+        private static IExpandableSublist<TDestinationList, T> addUnique<TSourceList, TDestinationList, T>(
             IReadOnlySublist<TSourceList, T> source,
             IExpandableSublist<TDestinationList, T> destination,
             Func<T, T, bool> comparison)
@@ -2457,7 +2497,7 @@ namespace NDex
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
-            destination.Count = result - destination.Offset;
+            return destination.Resize(result - destination.Offset, true);
         }
 
         private static int addUnique<TSourceList, TDestinationList, T>(
@@ -10011,7 +10051,7 @@ namespace NDex
         /// <typeparam name="T">The type of the items in the list.</typeparam>
         /// <param name="list">The list containing the items to remove.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void RemoveRange<TList, T>(IExpandableSublist<TList, T> list)
+        public static IExpandableSublist<TList, T> RemoveRange<TList, T>(IExpandableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -10019,7 +10059,7 @@ namespace NDex
                 throw new ArgumentNullException("list");
             }
             RemoveRange_optimized<TList, T>(list.List, list.Offset, list.Offset + list.Count);
-            list.Count = 0;
+            return list.Resize(0, true);
         }
 
         internal static void RemoveRange_optimized<TList, T>(TList list, int first, int past)
@@ -10718,8 +10758,8 @@ namespace NDex
         where TList : IList<T>
     {
         private readonly TList _list;
-        private int _offset;
-        private int _count;
+        private readonly int _offset;
+        private readonly int _count;
 
         /// <summary>
         /// Initializes a new instance of a Sublist representing a splice containing the entire list.
@@ -10862,14 +10902,93 @@ namespace NDex
         }
 
         /// <summary>
+        /// Attempts to shift the sublist to the right by the given shift.
+        /// If the shift is negative, the sublist is shifted to the left.
+        /// The sublist will be automatically resized if it is too big.
+        /// </summary>
+        /// <param name="shift">The amount to shift the sublist to the right.</param>
+        /// <param name="isChecked">If checked, an exception will be thrown if the sublist would extend beyond the list.</param>
+        /// <returns>True if the sublist remained the size; otherwise, false if the sublist shrank.</returns>
+        public Sublist<TList, T> Shift(int shift, bool isChecked)
+        {
+            int newOffset = _offset + shift;
+            if (newOffset < 0 || newOffset > _list.Count)
+            {
+                throw new ArgumentOutOfRangeException("shift", shift, Resources.IndexOutOfRange);
+            }
+            int newCount = _count;
+            if (newOffset + newCount > _list.Count)
+            {
+                if (isChecked)
+                {
+                    throw new ArgumentOutOfRangeException("shift", shift, Resources.IndexOutOfRange);
+                }
+                newCount = _list.Count - newOffset;
+            }
+            return new Sublist<TList, T>(_list, newOffset, newCount);
+        }
+
+        IExpandableSublist<TList, T> IExpandableSublist<TList, T>.Shift(int shift, bool isChecked)
+        {
+            return Shift(shift, isChecked);
+        }
+
+        IMutableSublist<TList, T> IMutableSublist<TList, T>.Shift(int shift, bool isChecked)
+        {
+            return Shift(shift, isChecked);
+        }
+
+        IReadOnlySublist<TList, T> IReadOnlySublist<TList, T>.Shift(int shift, bool isChecked)
+        {
+            return Shift(shift, isChecked);
+        }
+
+        /// <summary>
+        /// Attempts to resize the sublist so that its count equals the given limit.
+        /// If the limit is too large, the count gets as large as it can.
+        /// </summary>
+        /// <param name="size">The desired length of the sublist.</param>
+        /// <param name="isChecked">If checked, an exception will be thrown if the sublist would be too large.</param>
+        /// <returns>True if the sublist fit in the list; otherwise, false.</returns>
+        public Sublist<TList, T> Resize(int size, bool isChecked)
+        {
+            int newCount = size;
+            if (newCount < 0)
+            {
+                throw new ArgumentOutOfRangeException("size", size, Resources.CountOutOfRange);
+            }
+            if (newCount > _count && _offset + newCount > _list.Count)
+            {
+                if (isChecked)
+                {
+                    throw new ArgumentOutOfRangeException("size", size, Resources.CountOutOfRange);
+                }
+                newCount = _list.Count - _offset;
+            }
+            return new Sublist<TList, T>(_list, _offset, newCount);
+        }
+
+        IExpandableSublist<TList, T> IExpandableSublist<TList, T>.Resize(int size, bool isChecked)
+        {
+            return Resize(size, isChecked);
+        }
+
+        IMutableSublist<TList, T> IMutableSublist<TList, T>.Resize(int size, bool isChecked)
+        {
+            return Resize(size, isChecked);
+        }
+
+        IReadOnlySublist<TList, T> IReadOnlySublist<TList, T>.Resize(int size, bool isChecked)
+        {
+            return Resize(size, isChecked);
+        }
+
+        /// <summary>
         /// Gets the underlying list.
         /// </summary>
-        public TList List
-        {
-            get
-            {
-                return _list;
-            }
+        public TList List 
+        { 
+            get { return _list; } 
         }
 
         /// <summary>
@@ -10878,25 +10997,9 @@ namespace NDex
         /// <exception cref="System.ArgumentOutOfRangeException">
         /// The value is negative -or- outside the bounds of the underlying list.
         /// </exception>
-        /// <remarks>The Sublist's count is adjusted automatically to prevent the splice from going beyond the end of the list.</remarks>
         public int Offset
         {
-            get
-            {
-                return _offset;
-            }
-            set
-            {
-                if (value < 0 || value > _list.Count)
-                {
-                    throw new ArgumentOutOfRangeException("value", value, Resources.IndexOutOfRange);
-                }
-                _offset = value;
-                if (_offset + _count > _list.Count)
-                {
-                    _count = _list.Count - _offset;
-                }
-            }
+            get { return _offset; }
         }
 
         /// <summary>
@@ -10907,92 +11010,7 @@ namespace NDex
         /// </exception>
         public int Count
         {
-            get
-            {
-                return _count;
-            }
-            set
-            {
-                if (value < 0 || _offset + value > _list.Count)
-                {
-                    throw new ArgumentOutOfRangeException("value", value, Resources.CountOutOfRange);
-                }
-                _count = value;
-            }
-        }
-
-        bool ICollection<T>.IsReadOnly
-        {
-            get
-            {
-                return _list.IsReadOnly;
-            }
-        }
-
-        /// <summary>
-        /// Gets the index of the first occurrence of the given value.
-        /// </summary>
-        /// <param name="item">The item to search for.</param>
-        /// <returns>The index of the first occurrence of the given value -or- negative one if the value is not found.</returns>
-        /// <remarks>The returned index is relative to Sublist, rather than the underlying list.</remarks>
-        public int IndexOf(T item)
-        {
-            return indexOf(item);
-        }
-
-        private int indexOf(T item)
-        {
-            int result = Sublist.IndexOf<TList, T, T>(
-                _list, _offset, _offset + _count,
-                item,
-                EqualityComparer<T>.Default.Equals);
-            result -= _offset;
-            if (result == _count)
-            {
-                result = -1;
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Inserts the item at the given index.
-        /// </summary>
-        /// <param name="index">The index into the Sublist to insert the given item.</param>
-        /// <param name="item">The item to insert.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- beyond the bounds of the list.</exception>
-        public void Insert(int index, T item)
-        {
-            if (index < 0 || index > _count)
-            {
-                throw new ArgumentOutOfRangeException("index", index, Resources.IndexOutOfRange);
-            }
-            insert(index, item);
-        }
-
-        private void insert(int index, T item)
-        {
-            _list.Insert(_offset + index, item);
-            ++_count;
-        }
-
-        /// <summary>
-        /// Removes the item at the given index.
-        /// </summary>
-        /// <param name="index">The index into the Sublist to remove the item.</param>
-        /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- beyond the bounds of the list.</exception>
-        public void RemoveAt(int index)
-        {
-            if (index < 0 || index >= _count)
-            {
-                throw new ArgumentOutOfRangeException("index", index, Resources.IndexOutOfRange);
-            }
-            removeAt(index);
-        }
-
-        private void removeAt(int index)
-        {
-            _list.RemoveAt(_offset + index);
-            --_count;
+            get { return _count; }
         }
 
         /// <summary>
@@ -11019,75 +11037,6 @@ namespace NDex
                 }
                 _list[_offset + index] = value;
             }
-        }
-
-        /// <summary>
-        /// Adds the given item to the end of the list.
-        /// </summary>
-        /// <param name="item">The item to add to the list.</param>
-        public void Add(T item)
-        {
-            insert(_count, item);
-        }
-
-        /// <summary>
-        /// Removes all of the items from the list.
-        /// </summary>
-        public void Clear()
-        {
-            Sublist.RemoveRange_optimized<TList, T>(_list, Offset, Offset + Count);
-            _count = 0;
-        }
-
-        /// <summary>
-        /// Determines whether the list contains the given item.
-        /// </summary>
-        /// <param name="item">The item to search for.</param>
-        /// <returns>True if the item is in the list; otherwise, false.</returns>
-        public bool Contains(T item)
-        {
-            return indexOf(item) != -1;
-        }
-
-        /// <summary>
-        /// Copies the list items to the given array, starting at the given index.
-        /// </summary>
-        /// <param name="array">The array to copy the values to.</param>
-        /// <param name="arrayIndex">The index into the array to start copying.</param>
-        /// <exception cref="System.ArgumentNullException">The array is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The array index is negative.</exception>
-        /// <exception cref="System.ArgumentException">There are too many list items to fit within the remaining space of the array.</exception>
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            if (array == null)
-            {
-                throw new ArgumentNullException("array");
-            }
-            if (arrayIndex < 0)
-            {
-                throw new ArgumentOutOfRangeException("arrayIndex", arrayIndex, Resources.IndexOutOfRange);
-            }
-            if (_count > array.Length - arrayIndex)
-            {
-                throw new ArgumentException(Resources.ArrayTooSmall, "array");
-            }
-            Sublist.Copy<TList, T[], T>(_list, Offset, Offset + Count, array, arrayIndex, array.Length);
-        }
-
-        /// <summary>
-        /// Removes the first occurrence of the given item, if it exists.
-        /// </summary>
-        /// <param name="item">The item to remove.</param>
-        /// <returns>True if the item was removed; otherwise, false.</returns>
-        public bool Remove(T item)
-        {
-            int index = indexOf(item);
-            if (index == -1)
-            {
-                return false;
-            }
-            removeAt(index);
-            return true;
         }
 
         /// <summary>

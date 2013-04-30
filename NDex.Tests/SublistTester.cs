@@ -342,8 +342,6 @@ namespace NDex.Test
             Assert.AreSame(list, sublist.List, "The list was not set as a backing field.");
             Assert.AreEqual(list.Count, sublist.Count, "The sublist had the wrong count.");
             Assert.AreEqual(0, sublist.Offset, "The sublist had the wrong offset.");
-            Assert.AreEqual(((IList<int>)list).IsReadOnly, ((IList<int>)sublist).IsReadOnly,
-                "The read-only property doesn't reflect the underlying list.");
             int[] expected = { 1, 2, 3, 4, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
         }
@@ -359,8 +357,6 @@ namespace NDex.Test
             Assert.AreSame(list, sublist.List, "The list was not set as a backing field.");
             Assert.AreEqual(list.Count - 1, sublist.Count, "The sublist had the wrong count.");
             Assert.AreEqual(1, sublist.Offset, "The sublist had the wrong offset.");
-            Assert.AreEqual(((IList<int>)list).IsReadOnly, ((IList<int>)sublist).IsReadOnly,
-                "The read-only property doesn't reflect the underlying list.");
             int[] expected = { 2, 3, 4, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
         }
@@ -376,8 +372,6 @@ namespace NDex.Test
             Assert.AreSame(list, sublist.List, "The list was not set as a backing field.");
             Assert.AreEqual(2, sublist.Count, "The sublist had the wrong count.");
             Assert.AreEqual(1, sublist.Offset, "The sublist had the wrong offset.");
-            Assert.AreEqual(((IList<int>)list).IsReadOnly, ((IList<int>)sublist).IsReadOnly,
-                "The read-only property doesn't reflect the underlying list.");
             int[] expected = { 2, 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
         }
@@ -598,259 +592,130 @@ namespace NDex.Test
 
         #endregion
 
-        #region Offset
+        #region Shift
 
         /// <summary>
-        /// An exception should be thrown if the offset is negative.
+        /// If we try to shift a sublist, making its offset negative, an exception should be thrown.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestOffset_NegativeOffset_Throws()
+        public void TestShift_MakeOffsetNegative_Throws()
         {
-            var list = new List<int>().ToSublist();
-            list.Offset = -1;
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist();
+            sublist.Shift(-1, true);
         }
 
         /// <summary>
-        /// An exception should be thrown if the offset is greater than the size of the list.
+        /// If we try to shift a sublist, making its offset past the end of the list,
+        /// an exception should be thrown.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestOffset_OffsetTooBig_Throws()
+        public void TestShift_MakeOffsetTooBig_Throws()
         {
-            var list = new List<int>().ToSublist();
-            list.Offset = 1;
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist();
+            sublist.Shift(values.Length + 1, true);
         }
 
         /// <summary>
-        /// If we shift the offset to the right, the whole splice should shift.
+        /// If we try to shift a sublist so that it goes past of the end
+        /// of the list, it should be resized automatically.
         /// </summary>
         [TestMethod]
-        public void TestOffset_ShiftOffsetRight_CountShrinks()
+        public void TestShift_PushPastEnd_Resizes()
         {
-            var list = new List<int>() { 1, 2, 3, }.ToSublist(0, 2);
-            list.Offset = 1;
-            Assert.AreEqual(2, list.Count, "The count did not shrink.");
-            int[] expected = { 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The list was not shifted to the right.");
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist(0, 2);
+            sublist = sublist.Shift(2, false);
+            Assert.AreEqual(sublist.Offset, 2, "The offset was not updated.");
+            Assert.AreEqual(sublist.Count, 1, "The count was not updated.");
         }
 
         /// <summary>
-        /// If we shift the offset to the right, the count should shrink automatically, if needed.
+        /// If we try to shift a sublist so that it still fits in the list,
+        /// it should not be resized.
         /// </summary>
         [TestMethod]
-        public void TestOffset_ShiftOffsetRight_ShiftsSplice()
+        public void TestShift_PushedRightWithinBounds_Shifts()
         {
-            var list = new List<int>() { 1, 2, 3, }.ToSublist();
-            list.Offset = 1;
-            Assert.AreEqual(2, list.Count, "The count did not shrink.");
-            int[] expected = { 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The list was not shifted to the right.");
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist(0, 2);
+            sublist = sublist.Shift(1, true);
+            Assert.AreEqual(sublist.Offset, 1, "The offset was not updated.");
+            Assert.AreEqual(sublist.Count, 2, "The count was updated.");
+        }
+
+        /// <summary>
+        /// If we try to shift a sublist so that it still fits in the list,
+        /// it should not be resized.
+        /// </summary>
+        [TestMethod]
+        public void TestShift_PushedLeftWithinBounds_Shifts()
+        {
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist(1, 2);
+            sublist = sublist.Shift(-1, true);
+            Assert.AreEqual(sublist.Offset, 0, "The offset was not updated.");
+            Assert.AreEqual(sublist.Count, 2, "The count was updated.");
         }
 
         #endregion
 
-        #region Count
+        #region Resize
 
         /// <summary>
-        /// An exception should be thrown if the count is negative.
+        /// It is an error to resize to a negative.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestCount_Setter_NegativeCount_Throws()
+        public void TestResize_NegativeSize_Throws()
         {
-            var list = new List<int>().ToSublist();
-            list.Count = -1;
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist();
+            sublist.Resize(-1, true);
         }
 
         /// <summary>
-        /// An exception should be thrown if the count is larger than the size of the underlying list.
+        /// We should be able to shrink a sublist.
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestCount_Setter_CountTooBig_Throws()
+        public void TestResize_Shrink_ReturnTrue()
         {
-            var list = new List<int>().ToSublist();
-            list.Count = 1;
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist();
+            sublist = sublist.Resize(2, true);
+            Assert.AreEqual(0, sublist.Offset, "The offset was updated.");
+            Assert.AreEqual(2, sublist.Count, "The count was not updated.");
         }
 
         /// <summary>
-        /// The count can be modified to grow or shink the sublist.
+        /// If we try to make the sublist larger than the underlying list,
+        /// it will be resized as much as possible.
         /// </summary>
         [TestMethod]
-        public void TestCount_Setter_CountGrowing_GrowsSplice()
+        public void TestResize_ResizeTooBig_ReturnFalse()
         {
-            var list = new List<int>() { 1, 2, 3, }.ToSublist();
-            list.Count = 1;
-            int[] expected1 = { 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected1.ToSublist(), list), "A sublist of size 1 was wrong.");
-            list.Count = 2;
-            int[] expected2 = { 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected2.ToSublist(), list), "A sublist of size 2 was wrong.");
-            list.Count = 3;
-            int[] expected3 = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected3.ToSublist(), list), "A sublist of size 3 was wrong.");
-        }
-
-        #endregion
-
-        #region IndexOf
-
-        /// <summary>
-        /// IndexOf should return -1 when the item is not in the list.
-        /// </summary>
-        [TestMethod]
-        public void TestIndexOf_NoSuchItem_ReturnsNegativeOne()
-        {
-            var list = new int[] { 1, 2, 3, }.ToSublist();
-            int result = list.IndexOf(4);
-            Assert.AreEqual<int>(-1, result, "The index was not -1.");
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist();
+            sublist.Resize(4, false);
+            Assert.AreEqual(0, sublist.Offset, "The offset was updated.");
+            Assert.AreEqual(values.Length, sublist.Count, "The count was not updated.");
         }
 
         /// <summary>
-        /// IndexOf should return the index of the item, relative to the sublist.
+        /// If we try to make the sublist larger and it still fits in the list,
+        /// it should resize appropriately.
         /// </summary>
         [TestMethod]
-        public void TestIndexOf_ItemExists_ReturnsIndex()
+        public void TestResize_ResizeToLength_ReturnTrue()
         {
-            var list = new int[] { 1, 2, 3, }.ToSublist();
-            int result = list.IndexOf(3);
-            Assert.AreEqual<int>(2, result, "The index was not correct.");
-        }
-
-        /// <summary>
-        /// IndexOf should return the index of the first occurrence of an item, relative to the sublist.
-        /// </summary>
-        [TestMethod]
-        public void TestIndexOf_MultipleOccurrences_ReturnsFirstIndex()
-        {
-            var list = new int[] { 1, 2, 3, 2 }.ToSublist();
-            int result = list.IndexOf(2);
-            Assert.AreEqual<int>(1, result, "The index was not correct.");
-        }
-
-        #endregion
-
-        #region Insert
-
-        /// <summary>
-        /// An exception should be thrown if the index is negative.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestInsert_NegativeIndex_Throws()
-        {
-            var list = new List<int>().ToSublist();
-            list.Insert(-1, 1);
-        }
-
-        /// <summary>
-        /// An exception should be thrown if the index is too big.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestInsert_IndexTooBig_Throws()
-        {
-            var list = new List<int>().ToSublist();
-            list.Insert(1, 1);
-        }
-
-        /// <summary>
-        /// Ensures that the Insert method properly inserts at the beginning of the sublist. The count should increase.
-        /// </summary>
-        [TestMethod]
-        public void TestInsert_InFront_GrowsSublist()
-        {
-            var list = new List<int>() { 2, 3, }.ToSublist();
-            list.Insert(0, 1);
-            int[] expected = { 1, 2, 3, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not added as expected.");
-        }
-
-        /// <summary>
-        /// Ensures that the Insert method properly inserts at the end of the sublist. The count should increase.
-        /// </summary>
-        [TestMethod]
-        public void TestInsert_InBack_GrowsSublist()
-        {
-            var list = new List<int>() { 1, 2, }.ToSublist();
-            list.Insert(list.Count, 3);
-            int[] expected = { 1, 2, 3, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not added as expected.");
-        }
-
-        /// <summary>
-        /// Ensures that the Insert method properly inserts in the middle of the sublist. The count should increase.
-        /// </summary>
-        [TestMethod]
-        public void TestInsert_InMiddle_GrowsSublist()
-        {
-            var list = new List<int>() { 1, 3, }.ToSublist();
-            list.Insert(1, 2);
-            int[] expected = { 1, 2, 3, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not added as expected.");
-        }
-
-        #endregion
-
-        #region RemoveAt
-
-        /// <summary>
-        /// An exception should be thrown if the index is negative.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestRemoveAt_NegativeIndex_Throws()
-        {
-            var list = new List<int>().ToSublist();
-            list.RemoveAt(-1);
-        }
-
-        /// <summary>
-        /// An exception should be thrown if the index is beyond the bounds of the list.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestRemoveAt_IndexTooBig_Throws()
-        {
-            var list = new List<int>().ToSublist();
-            list.RemoveAt(0);
-        }
-
-        /// <summary>
-        /// Removing at the beginning should shrink the sublist.
-        /// </summary>
-        [TestMethod]
-        public void TestRemoveAt_InFront_RemovesFirstItem()
-        {
-            var list = new List<int>() { 1, 2, 3 }.ToSublist();
-            list.RemoveAt(0);
-            int[] expected = { 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not removed as expected.");
-        }
-
-        /// <summary>
-        /// Removing at the end should shrink the sublist.
-        /// </summary>
-        [TestMethod]
-        public void TestRemoveAt_InBack_RemovesLastItem()
-        {
-            var list = new List<int>() { 1, 2, 3 }.ToSublist();
-            list.RemoveAt(list.Count - 1);
-            int[] expected = { 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not removed as expected.");
-        }
-
-        /// <summary>
-        /// Removing in the middle should shrink the sublist.
-        /// </summary>
-        [TestMethod]
-        public void TestRemoveAt_InMiddle_RemovesMiddleItem()
-        {
-            var list = new List<int>() { 1, 2, 3 }.ToSublist();
-            list.RemoveAt(1);
-            int[] expected = { 1, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not removed as expected.");
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist(0, 0);
+            sublist = sublist.Resize(3, true);
+            Assert.AreEqual(0, sublist.Offset, "The offset was updated.");
+            Assert.AreEqual(values.Length, sublist.Count, "The count was not updated.");
         }
 
         #endregion
@@ -924,253 +789,6 @@ namespace NDex.Test
             list[1] = 0;
             int[] expected = { 1, 2, 0 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.ToSublist()), "The item was not set as expected.");
-        }
-
-        #endregion
-
-        #region Add
-
-        /// <summary>
-        /// Add simply places an item at the end of the sublist. If the sublist
-        /// is in the middle of the underlying list, then Add will insert in
-        /// its middle. Adding to a sublist changes the sublist's count.
-        /// </summary>
-        [TestMethod]
-        public void TestAdd_IncrementsCount()
-        {
-            var list = new List<int>() { 1, 2, 4, }.ToSublist(0, 2);
-            list.Add(3);
-            Assert.AreEqual(3, list.Count, "The Sublist did not grow.");
-            int[] expected = { 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.ToSublist()), "The item was not inserted as expected.");
-        }
-
-        #endregion
-
-        #region Clear
-
-        /// <summary>
-        /// Clear removes all of the items of the sublist from the underlying list and
-        /// sets the sublist's count to zero.
-        /// </summary>
-        [TestMethod]
-        public void TestClear_CountGoesToZero()
-        {
-            var list = new List<int>() { 1, 2, 3, }.ToSublist(0, 2);
-            list.Clear();
-            Assert.AreEqual(0, list.Count);
-            int[] expected = { 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.ToSublist()), "The items were not removed as expected.");
-        }
-
-        #endregion
-
-        #region Contains
-
-        /// <summary>
-        /// False should be returned if the value does not exist in the list.
-        /// </summary>
-        [TestMethod]
-        public void TestContains_ValueMissing_ReturnsFalse()
-        {
-            var list = new List<int>() { 1, 2, 4 }.ToSublist();
-            bool result = list.Contains(3);
-            Assert.IsFalse(result);
-        }
-
-        /// <summary>
-        /// True should be returned if the value is in the beginning of the list.
-        /// </summary>
-        [TestMethod]
-        public void TestContains_FirstValue_ReturnsTrue()
-        {
-            var list = new List<int>() { 1, 2, 3 }.ToSublist();
-            bool result = list.Contains(1);
-            Assert.IsTrue(result);
-        }
-
-        /// <summary>
-        /// True should be returned if the value is in the middle of the list.
-        /// </summary>
-        [TestMethod]
-        public void TestContains_MiddleValue_ReturnsTrue()
-        {
-            var list = new List<int>() { 1, 2, 3 }.ToSublist();
-            bool result = list.Contains(2);
-            Assert.IsTrue(result);
-        }
-
-        /// <summary>
-        /// True should be returned if the value is at the end of the list.
-        /// </summary>
-        [TestMethod]
-        public void TestContains_LastValue_ReturnsTrue()
-        {
-            var list = new List<int>() { 1, 2, 3 }.ToSublist();
-            bool result = list.Contains(3);
-            Assert.IsTrue(result);
-        }
-
-        #endregion
-
-        #region CopyTo
-
-        /// <summary>
-        /// An exception should be thrown if the array is null.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyTo_NullArray_Throws()
-        {
-            var list = new List<int>() { 1, 2, }.ToSublist();
-            int[] array = null;
-            int arrayIndex = 0;
-            list.CopyTo(array, arrayIndex);
-        }
-
-        /// <summary>
-        /// An exception should be thrown if the array index is negative.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestCopyTo_NegativeArrayIndex_Throws()
-        {
-            var list = new List<int>() { 1, 2 }.ToSublist();
-            int[] array = new int[2];
-            int arrayIndex = -1;
-            list.CopyTo(array, arrayIndex);
-        }
-
-        /// <summary>
-        /// An exception should be thrown if the array index is larger than the array's count.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void TestCopyTo_ArrayIndexTooBig_Throws()
-        {
-            var list = new List<int>() { 1, 2 }.ToSublist();
-            int[] array = new int[2];
-            int arrayIndex = 3;
-            list.CopyTo(array, arrayIndex);
-        }
-
-        /// <summary>
-        /// An exception should be thrown if the array is too small to hold all of the values.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void TestCopyTo_ArrayTooSmall_Throws()
-        {
-            var list = new List<int>() { 1, 2 }.ToSublist();
-            int[] array = new int[1];
-            int arrayIndex = 0;
-            list.CopyTo(array, arrayIndex);
-        }
-
-        /// <summary>
-        /// CopyTo should only copy the items in the sublist's range.
-        /// </summary>
-        [TestMethod]
-        public void TestCopyTo_CopiesToArray()
-        {
-            var list = new List<int>() { 1, 2, 3, 4 }.ToSublist(1, 2);
-
-            int[] array = new int[2];
-            int arrayIndex = 0;
-            list.CopyTo(array, arrayIndex);
-
-            int[] expected = { 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), array.ToSublist()), "The items were not copied as expected.");
-        }
-
-        /// <summary>
-        /// CopyTo should only copy the items in the sublist's range.
-        /// </summary>
-        [TestMethod]
-        public void TestCopyTo_CopiesToArray_WithArrayIndex()
-        {
-            var list = new List<int>() { 1, 2, 3, 4 }.ToSublist(1, 2);
-
-            int[] array = new int[3];
-            int arrayIndex = 1;
-            list.CopyTo(array, arrayIndex);
-
-            int[] expected = { 0, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), array.ToSublist()), "The items were not copied as expected.");
-        }
-
-        #endregion
-
-        #region Remove
-
-        /// <summary>
-        /// If the given value exists is the first in the list, it should be removed.
-        /// </summary>
-        [TestMethod]
-        public void TestRemove_FirstValue_ReturnsTrue()
-        {
-            var list = new List<int>() { 1, 2, 3, }.ToSublist();
-            bool result = list.Remove(1);
-            Assert.IsTrue(result, "Value not removed.");
-            Assert.AreEqual(2, list.Count, "The Sublist did not shrink.");
-            int[] expected = { 2, 3, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not removed as expected.");
-        }
-
-        /// <summary>
-        /// If the given value exists is the last in the list, it should be removed.
-        /// </summary>
-        [TestMethod]
-        public void TestRemove_LastValue_ReturnsTrue()
-        {
-            var list = new List<int>() { 1, 2, 3, }.ToSublist();
-            bool result = list.Remove(3);
-            Assert.IsTrue(result, "Value not removed.");
-            Assert.AreEqual(2, list.Count, "The Sublist did not shrink.");
-            int[] expected = { 1, 2, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not removed as expected.");
-        }
-
-        /// <summary>
-        /// If the given value exists is in the middle of the list, it should be removed.
-        /// </summary>
-        [TestMethod]
-        public void TestRemove_MiddleValue_ReturnsTrue()
-        {
-            var list = new List<int>() { 1, 2, 3, }.ToSublist();
-            bool result = list.Remove(2);
-            Assert.IsTrue(result, "Value not removed.");
-            Assert.AreEqual(2, list.Count, "The Sublist did not shrink.");
-            int[] expected = { 1, 3, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not removed as expected.");
-        }
-
-        /// <summary>
-        /// If the given value exists twice in the list, the first occurrence should be removed.
-        /// </summary>
-        [TestMethod]
-        public void TestRemove_DuplicateValue_ReturnsTrue()
-        {
-            var list = new List<int>() { 1, 2, 3, 2, }.ToSublist();
-            bool result = list.Remove(2);
-            Assert.IsTrue(result, "Value not removed.");
-            Assert.AreEqual(3, list.Count, "The Sublist did not shrink.");
-            int[] expected = { 1, 3, 2, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The item was not removed as expected.");
-        }
-
-        /// <summary>
-        /// If the given value does not exist is the list, false should be returned.
-        /// </summary>
-        [TestMethod]
-        public void TestRemove_ValueMissing_ReturnsFalse()
-        {
-            var list = new List<int>() { 1, 2, 4, }.ToSublist();
-            bool result = list.Remove(3);
-            Assert.IsFalse(result, "Value was removed.");
-            Assert.AreEqual(3, list.Count, "The Sublist was modified.");
-            int[] expected = { 1, 2, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The list was modified unexpectedly.");
         }
 
         #endregion

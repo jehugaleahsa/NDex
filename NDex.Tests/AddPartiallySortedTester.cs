@@ -253,7 +253,7 @@ namespace NDex.Test
             var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddPartiallySorted(list, numberOfItems, destination);
+            destination = Sublist.AddPartiallySorted(list, numberOfItems, destination);
             int[] expected = { 1, 5, 7 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -270,7 +270,7 @@ namespace NDex.Test
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparer);
+            destination = Sublist.AddPartiallySorted(list, numberOfItems, destination, comparer);
             int[] expected = { 1, 5, 7 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -287,7 +287,7 @@ namespace NDex.Test
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparison);
+            destination = Sublist.AddPartiallySorted(list, numberOfItems, destination, comparison);
             int[] expected = { 12, 8, 7 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);

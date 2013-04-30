@@ -116,7 +116,7 @@ namespace NDex.Test
         public void TestShellSort_Reversed()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.Add(Enumerable.Range(0, 200).Select(i => 199 - i), list);
+            list = Sublist.Add(Enumerable.Range(0, 200).Select(i => 199 - i), list);
             Sublist.ShellSort(list, Comparer<int>.Default);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -130,8 +130,8 @@ namespace NDex.Test
         public void TestShellSort_PipeOrganed()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => i * 2), list);
-            Sublist.Add(Enumerable.Range(0, 200).Select(i => 199 - (i - 100) * 2), list);
+            list = Sublist.Add(Enumerable.Range(0, 100).Select(i => i * 2), list);
+            list = Sublist.Add(Enumerable.Range(0, 200).Select(i => 199 - (i - 100) * 2), list);
             Sublist.ShellSort(list, Comparer<int>.Default.Compare);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default.Compare);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -145,7 +145,7 @@ namespace NDex.Test
         public void TestShellSort_Interweaved()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.Add(Enumerable.Range(0, 200).Select(i => i % 2 == 0 ? i : 199 - (i - 1)), list);
+            list = Sublist.Add(Enumerable.Range(0, 200).Select(i => i % 2 == 0 ? i : 199 - (i - 1)), list);
             Sublist.ShellSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -159,8 +159,8 @@ namespace NDex.Test
         public void TestShellSort_LastMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.Add(Enumerable.Range(0, 200).Select(i => i + 1), list);
-            list.Add(0);
+            list = Sublist.Add(Enumerable.Range(0, 200).Select(i => i + 1), list);
+            list = Sublist.Add(new int[] { 0 }, list);
             Sublist.ShellSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -174,8 +174,8 @@ namespace NDex.Test
         public void TestShellSort_FirstMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list.Add(200);
-            Sublist.Add(Enumerable.Range(0, 201).Select(i => i - 1), list);
+            list = Sublist.Add(new int[] { 200 }, list);
+            list = Sublist.Add(Enumerable.Range(0, 201).Select(i => i - 1), list);
             Sublist.ShellSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");

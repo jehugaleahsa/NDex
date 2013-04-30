@@ -37,32 +37,20 @@ namespace NDex
         /// <summary>
         /// Gets the underlying list.
         /// </summary>
-        TList List
-        {
-            get;
-        }
+        TList List { get; }
 
         /// <summary>
-        /// Gets or sets the offset into the underlying list.
+        /// Gets the offset into the underlying list.
         /// </summary>
         /// <exception cref="System.ArgumentOutOfRangeException">
         /// The value is negative -or- outside the bounds of the underlying list.
         /// </exception>
-        /// <remarks>If Sublist's count is adjusted automatically to prevent the splice for going beyond the end of the list.</remarks>
-        int Offset
-        {
-            get;
-            set;
-        }
+        int Offset { get; }
 
         /// <summary>
-        /// Gets or sets the number of items to include in the Sublist.
+        /// Gets the number of items in the Sublist.
         /// </summary>
-        int Count
-        {
-            get;
-            set;
-        }
+        int Count { get; }
 
         /// <summary>
         /// Gets the item at the given index.
@@ -70,9 +58,25 @@ namespace NDex
         /// <param name="index">The index into the Sublist to get the item.</param>
         /// <returns>The item at the given index.</returns>
         /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- beyond the bounds of the list.</exception>
-        T this[int index]
-        {
-            get;
-        }
+        T this[int index] { get; }
+
+        /// <summary>
+        /// Attempts to shift the sublist to the right by the given shift.
+        /// If the shift is negative, the sublist is shifted to the left.
+        /// The sublist will be automatically resized if it is too big.
+        /// </summary>
+        /// <param name="shift">The amount to shift the sublist to the right.</param>
+        /// <param name="isChecked">If checked, an exception will be thrown if the sublist would extend beyond the list.</param>
+        /// <returns>True if the sublist remained the size; otherwise, false if the sublist shrank.</returns>
+        IReadOnlySublist<TList, T> Shift(int shift, bool isChecked);
+
+        /// <summary>
+        /// Attempts to resize the sublist so that its count equals the given limit.
+        /// If the limit is too large, the count gets as large as it can.
+        /// </summary>
+        /// <param name="size">The desired length of the sublist.</param>
+        /// <param name="isChecked">If checked, an exception will be thrown if the sublist would be too large.</param>
+        /// <returns>True if the sublist fit in the list; otherwise, false.</returns>
+        IReadOnlySublist<TList, T> Resize(int size, bool isChecked);
     }
 }

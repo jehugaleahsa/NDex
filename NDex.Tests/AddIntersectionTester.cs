@@ -232,7 +232,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddIntersection(list1, list2, destination);
+            destination = Sublist.AddIntersection(list1, list2, destination);
             int[] expected = { 1, 2, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -249,7 +249,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddIntersection(list1, list2, destination);
+            destination = Sublist.AddIntersection(list1, list2, destination);
             int[] expected = { 1, 2, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -267,7 +267,7 @@ namespace NDex.Test
             var list2 = TestHelper.Wrap(new List<int>() { 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddIntersection(list1, list2, destination, comparer);
+            destination = Sublist.AddIntersection(list1, list2, destination, comparer);
             int[] expected = { 2, 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -285,7 +285,7 @@ namespace NDex.Test
             var list2 = TestHelper.Wrap(new List<int>() { 3, 2 });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            Sublist.AddIntersection(list1, list2, destination, comparison);
+            destination = Sublist.AddIntersection(list1, list2, destination, comparison);
             int[] expected = { 3, 2, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);

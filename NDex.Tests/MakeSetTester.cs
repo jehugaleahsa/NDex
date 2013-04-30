@@ -146,12 +146,12 @@ namespace NDex.Test
             var list = TestHelper.Wrap(new List<int>() { 1, 5, 3, 2, 4, 2, 1, 5, 4 });
             int index = Sublist.MakeSet(list, Comparer<int>.Default);
             Assert.AreEqual(5, index, "The wrong index was returned.");
+            var set = list.Nest(0, index);
             var garbage = list.Nest(index);
-            list.Count -= garbage.Count;
             Sublist.RemoveRange(garbage);
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The duplicates were not removed.");
-            TestHelper.CheckHeaderAndFooter(list);
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), set), "The duplicates were not removed.");
+            TestHelper.CheckHeaderAndFooter(set);
         }
     }
 }

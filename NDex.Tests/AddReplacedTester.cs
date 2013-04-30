@@ -148,7 +148,7 @@ namespace NDex.Test
             var destination = TestHelper.Wrap(new List<int>());
             int replacement = 3;
             Func<int, bool> predicate = i => i % 2 == 0;
-            Sublist.AddReplaced(list, destination, predicate, replacement);
+            destination = Sublist.AddReplaced(list, destination, predicate, replacement);
             int[] expected = { 1, 3, 3, 5 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -165,7 +165,7 @@ namespace NDex.Test
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int> generator = i => i + 1; // make odd by adding one
             Func<int, bool> predicate = i => i % 2 == 0;
-            Sublist.AddReplaced(list, destination, predicate, generator);
+            destination = Sublist.AddReplaced(list, destination, predicate, generator);
             int[] expected = { 1, 3, 3, 5 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);

@@ -206,7 +206,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddDifference(list1, list2, destination);
+            destination = Sublist.AddDifference(list1, list2, destination);
             int[] expected = { 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);

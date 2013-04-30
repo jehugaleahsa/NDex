@@ -431,98 +431,130 @@ namespace NDex.Test
 
         #endregion
 
-        #region Offset
+        #region Shift
 
         /// <summary>
-        /// An exception should be thrown if the offset is negative.
+        /// If we try to shift a sublist, making its offset negative, an exception should be thrown.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestOffset_NegativeOffset_Throws()
+        public void TestShift_MakeOffsetNegative_Throws()
         {
-            var substring = String.Empty.ToSubstring();
-            substring.Offset = -1;
+            string values = "Bob";
+            var substring = values.ToSubstring();
+            substring.Shift(-1, true);
         }
 
         /// <summary>
-        /// An exception should be thrown if the offset is greater than the size of the list.
+        /// If we try to shift a sublist, making its offset past the end of the list,
+        /// an exception should be thrown.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestOffset_OffsetTooBig_Throws()
+        public void TestShift_MakeOffsetTooBig_Throws()
         {
-            var substring = String.Empty.ToSubstring();
-            substring.Offset = 1;
+            string values = "Bob";
+            var substring = values.ToSubstring();
+            substring.Shift(values.Length + 1, true);
         }
 
         /// <summary>
-        /// If we shift the offset to the right, the whole splice should shift.
+        /// If we try to shift a sublist so that it goes past of the end
+        /// of the list, it should be resized automatically.
         /// </summary>
         [TestMethod]
-        public void TestOffset_ShiftOffsetRight_CountShrinks()
+        public void TestShift_PushPastEnd_Resizes()
         {
-            var substring = "bob".ToSubstring(0, 2);
-            substring.Offset = 1;
-            Assert.AreEqual(2, substring.Count, "The count did not shrink.");
-            char[] expected = { 'o', 'b' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), substring), "The string was not shifted to the right.");
+            string values = "Bob";
+            var substring = values.ToSubstring(0, 2);
+            substring = substring.Shift(2, false);
+            Assert.AreEqual(substring.Offset, 2, "The offset was not updated.");
+            Assert.AreEqual(substring.Count, 1, "The count was not updated.");
         }
 
         /// <summary>
-        /// If we shift the offset to the right, the count should shrink automatically, if needed.
+        /// If we try to shift a sublist so that it still fits in the list,
+        /// it should not be resized.
         /// </summary>
         [TestMethod]
-        public void TestOffset_ShiftOffsetRight_ShiftsSplice()
+        public void TestShift_PushedRightWithinBounds_Shifts()
         {
-            var substring = "bob".ToSubstring();
-            substring.Offset = 1;
-            Assert.AreEqual(2, substring.Count, "The count did not shrink.");
-            char[] expected = { 'o', 'b' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), substring), "The string was not shifted to the right.");
+            string values = "Bob";
+            var substring = values.ToSubstring(0, 2);
+            substring = substring.Shift(1, true);
+            Assert.AreEqual(substring.Offset, 1, "The offset was not updated.");
+            Assert.AreEqual(substring.Count, 2, "The count was updated.");
+        }
+
+        /// <summary>
+        /// If we try to shift a sublist so that it still fits in the list,
+        /// it should not be resized.
+        /// </summary>
+        [TestMethod]
+        public void TestShift_PushedLeftWithinBounds_Shifts()
+        {
+            string values = "Bob";
+            var substring = values.ToSubstring(1, 2);
+            substring = substring.Shift(-1, true);
+            Assert.AreEqual(substring.Offset, 0, "The offset was not updated.");
+            Assert.AreEqual(substring.Count, 2, "The count was updated.");
         }
 
         #endregion
 
-        #region Count
+        #region Resize
 
         /// <summary>
-        /// An exception should be thrown if the count is negative.
+        /// It is an error to resize to a negative.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestCount_Setter_NegativeCount_Throws()
+        public void TestResize_NegativeSize_Throws()
         {
-            var substring = String.Empty.ToSubstring();
-            substring.Count = -1;
+            string values = "Bob";
+            var substring = values.ToSubstring();
+            substring.Resize(-1, true);
         }
 
         /// <summary>
-        /// An exception should be thrown if the count is larger than the size of the underlying string.
+        /// We should be able to shrink a sublist.
         /// </summary>
         [TestMethod]
-        [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestCount_Setter_CountTooBig_Throws()
+        public void TestResize_Shrink_ReturnTrue()
         {
-            var substring = String.Empty.ToSubstring();
-            substring.Count = 1;
+            string values = "Bob";
+            var substring = values.ToSubstring();
+            substring = substring.Resize(2, true);
+            Assert.AreEqual(0, substring.Offset, "The offset was updated.");
+            Assert.AreEqual(2, substring.Count, "The count was not updated.");
         }
 
         /// <summary>
-        /// The count can be modified to grow or shink the substring.
+        /// If we try to make the sublist larger than the underlying list,
+        /// it will be resized as much as possible.
         /// </summary>
         [TestMethod]
-        public void TestCount_Setter_CountGrowing_GrowsSplice()
+        public void TestResize_ResizeTooBig_ReturnFalse()
         {
-            var substring = "bob".ToSubstring();
-            substring.Count = 1;
-            char[] expected1 = { 'b' };
-            Assert.IsTrue(Sublist.AreEqual(expected1.ToSublist(), substring), "A substring of size 1 was wrong.");
-            substring.Count = 2;
-            char[] expected2 = { 'b', 'o' };
-            Assert.IsTrue(Sublist.AreEqual(expected2.ToSublist(), substring), "A substring of size 2 was wrong.");
-            substring.Count = 3;
-            char[] expected3 = { 'b', 'o', 'b' };
-            Assert.IsTrue(Sublist.AreEqual(expected3.ToSublist(), substring), "A substring of size 3 was wrong.");
+            string values = "Bob";
+            var substring = values.ToSubstring();
+            substring = substring.Resize(4, false);
+            Assert.AreEqual(0, substring.Offset, "The offset was updated.");
+            Assert.AreEqual(values.Length, substring.Count, "The count was not updated.");
+        }
+
+        /// <summary>
+        /// If we try to make the sublist larger and it still fits in the list,
+        /// it should resize appropriately.
+        /// </summary>
+        [TestMethod]
+        public void TestResize_ResizeToLength_ReturnTrue()
+        {
+            string values = "Bob";
+            var substring = values.ToSubstring(0, 0);
+            substring = substring.Resize(3, true);
+            Assert.AreEqual(0, substring.Offset, "The offset was updated.");
+            Assert.AreEqual(values.Length, substring.Count, "The count was not updated.");
         }
 
         #endregion

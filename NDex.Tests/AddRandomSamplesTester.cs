@@ -197,7 +197,7 @@ namespace NDex.Test
             int numberOfSamples = list.Count;
             var destination = TestHelper.Wrap(new List<int>());
             Func<int> generator = () => 0;
-            Sublist.AddRandomSamples(list, numberOfSamples, destination, generator);
+            destination = Sublist.AddRandomSamples(list, numberOfSamples, destination, generator);
             Sublist.QuickSort(destination); // guarantees order -> actually unnecessary
             int[] expected = { 1, 2, 3, 4, 5 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong samples were chosen.");
@@ -216,7 +216,7 @@ namespace NDex.Test
             var destination = TestHelper.Wrap(new List<int>());
             Random random = new Random();
             Func<int> generator = () => random.Next(-5, 6);
-            Sublist.AddRandomSamples(list, numberOfSamples, destination, generator);
+            destination = Sublist.AddRandomSamples(list, numberOfSamples, destination, generator);
             Sublist.BubbleSort(destination);
             Assert.IsTrue(Sublist.IsSubset(list, destination), "Not all of the items in the destination exist in the original list.");
             TestHelper.CheckHeaderAndFooter(list);

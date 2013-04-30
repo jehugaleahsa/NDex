@@ -225,7 +225,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddSymmetricDifference(list1, list2, destination);
+            destination = Sublist.AddSymmetricDifference(list1, list2, destination);
             int[] expected = { 1, 2, 3, 4, 5, 6 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -242,7 +242,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddSymmetricDifference(list1, list2, destination);
+            destination = Sublist.AddSymmetricDifference(list1, list2, destination);
             int[] expected = { 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -259,7 +259,7 @@ namespace NDex.Test
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddSymmetricDifference(list1, list2, destination);
+            destination = Sublist.AddSymmetricDifference(list1, list2, destination);
             int[] expected = { 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -277,7 +277,7 @@ namespace NDex.Test
             var list2 = TestHelper.Wrap(new List<int>() { 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddSymmetricDifference(list1, list2, destination, comparer);
+            destination = Sublist.AddSymmetricDifference(list1, list2, destination, comparer);
             int[] expected = { 1 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -295,7 +295,7 @@ namespace NDex.Test
             var list2 = TestHelper.Wrap(new List<int>() { 3, 2 });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            Sublist.AddSymmetricDifference(list1, list2, destination, comparison);
+            destination = Sublist.AddSymmetricDifference(list1, list2, destination, comparison);
             int[] expected = { 1 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);

@@ -93,7 +93,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddConverted(list, destination, i => i * 2);
+            destination = Sublist.AddConverted(list, destination, i => i * 2);
             int[] expected = { 2, 4, 6, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "Not all of the items were added as expected.");
             TestHelper.CheckHeaderAndFooter(list);

@@ -155,7 +155,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1, });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnique(list, destination);
+            destination = Sublist.AddUnique(list, destination);
             int[] expected = { 1 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -170,7 +170,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 4, 3, 2, 1 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnique(list, destination, EqualityComparer<int>.Default.Equals);
+            destination = Sublist.AddUnique(list, destination, EqualityComparer<int>.Default.Equals);
             int[] expected = { 5, 4, 3, 2, 1 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -185,7 +185,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 4, });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnique(list, destination, EqualityComparer<int>.Default);
+            destination = Sublist.AddUnique(list, destination, EqualityComparer<int>.Default);
             int[] expected = { 1, 2, 3, 4 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -200,7 +200,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 2, 3, 4, });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnique(list, destination);
+            destination = Sublist.AddUnique(list, destination);
             int[] expected = { 1, 2, 3, 4 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -215,7 +215,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, 4, });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddUnique(list, destination);
+            destination = Sublist.AddUnique(list, destination);
             int[] expected = { 1, 2, 3, 4 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);

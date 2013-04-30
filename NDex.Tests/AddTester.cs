@@ -121,7 +121,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 6, 7, 8, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
-            Sublist.Add(list, destination);
+            destination = Sublist.Add(list, destination);
             Assert.AreEqual(9, destination.Count, "The destination Sublist was not grown as expected.");
             int[] expected = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
@@ -137,7 +137,7 @@ namespace NDex.Test
         {
             var source = new List<int>() { 4, 5, 6 };
             var destination = new List<int>() { 1, 2, 3 }.ToSublist();
-            Sublist.Add(source, destination);
+            destination = Sublist.Add(source, destination);
             Assert.AreEqual(6, destination.Count, "The size of the sublist was not adjusted.");
             var expected = new List<int>() { 1, 2, 3, 4, 5, 6 }.ToSublist();
             Assert.IsTrue(Sublist.AreEqual(expected, destination), "The items were not added as expected.");
@@ -152,7 +152,7 @@ namespace NDex.Test
         {
             var source = Enumerable.Range(4, 3);
             var destination = new List<int>() { 1, 2, 3 }.ToSublist();
-            Sublist.Add(source, destination);
+            destination = Sublist.Add(source, destination);
             Assert.AreEqual(6, destination.Count, "The size of the sublist was not adjusted.");
             var expected = new List<int>() { 1, 2, 3, 4, 5, 6 }.ToSublist();
             Assert.IsTrue(Sublist.AreEqual(expected, destination), "The items were not added as expected.");
@@ -167,7 +167,7 @@ namespace NDex.Test
             var source = new List<int>() { 3, 4 };
             var list = new List<int>() { 1, 2, 5, 6 };
             var destination = list.ToSublist(2, 0);
-            Sublist.Add(source, destination);
+            destination = Sublist.Add(source, destination);
             var expected = new List<int>() { 1, 2, 3, 4, 5, 6 }.ToSublist();
             Assert.AreEqual(6, list.Count, "The items were not added to the original list.");
             Assert.AreEqual(2, destination.Count, "The size of the sublist was not adjusted.");
@@ -184,7 +184,7 @@ namespace NDex.Test
             var source = Enumerable.Range(3, 2);
             var list = new List<int>() { 1, 2, 5, 6 };
             var destination = list.ToSublist(2, 0);
-            Sublist.Add(source, destination);
+            destination = Sublist.Add(source, destination);
             var expected = new List<int>() { 1, 2, 3, 4, 5, 6 }.ToSublist();
             Assert.AreEqual(6, list.Count, "The items were not added to the original list.");
             Assert.AreEqual(2, destination.Count, "The size of the sublist was not adjusted.");

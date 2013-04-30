@@ -97,7 +97,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            list.Add(4);
+            list = Sublist.Add(new int[] { 4 }, list);
             Sublist.HeapAdd(list, comparison);
             Assert.IsTrue(Sublist.IsHeap(list, comparison), "The list was not a heap.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -110,10 +110,10 @@ namespace NDex.Test
         public void TestHeapAdd_AddLargest_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.Add(Enumerable.Range(0, 10), list); // 0..9
+            list = Sublist.Add(Enumerable.Range(0, 10), list); // 0..9
             Sublist.MakeHeap(list);
 
-            list.Add(10);
+            list = Sublist.Add(new int[] { 10 }, list);
             Sublist.HeapAdd(list);
 
             Assert.IsTrue(Sublist.IsHeap(list), "The list was not a heap.");
@@ -128,10 +128,10 @@ namespace NDex.Test
         public void TestHeapAdd_AddSmallest_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.Add(Enumerable.Range(0, 10).Select(i => i + 1), list); // 1..10
+            list = Sublist.Add(Enumerable.Range(0, 10).Select(i => i + 1), list); // 1..10
             Sublist.MakeHeap(list);
 
-            list.Add(0);
+            list = Sublist.Add(new int[] { 0 }, list);
             Sublist.HeapAdd(list);
 
             Assert.IsTrue(Sublist.IsHeap(list), "The list was not a heap.");
@@ -145,10 +145,10 @@ namespace NDex.Test
         public void TestHeapAdd_AddMedium_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.Add(Enumerable.Range(0, 10).Select(i => i + (i > 4 ? 1 : 0)), list); // 0..4, 6..10
+            list = Sublist.Add(Enumerable.Range(0, 10).Select(i => i + (i > 4 ? 1 : 0)), list); // 0..4, 6..10
             Sublist.MakeHeap(list);
 
-            list.Add(5);
+            list = Sublist.Add(new int[] { 5 }, list);
             Sublist.HeapAdd(list);
 
             Assert.IsTrue(Sublist.IsHeap(list), "The list was not a heap.");

@@ -67,7 +67,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
-            Sublist.AddReversed(list, destination);
+            destination = Sublist.AddReversed(list, destination);
             int[] expected = { 3, 2, 1, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);

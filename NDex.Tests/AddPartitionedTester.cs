@@ -121,9 +121,11 @@ namespace NDex.Test
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
             var evens = TestHelper.Wrap(new List<int>());
             var odds = TestHelper.Wrap(new List<int>());
-            Sublist.AddPartitioned(list, evens, odds, i => i % 2 == 0);
+            var result = Sublist.AddPartitioned(list, evens, odds, i => i % 2 == 0);
+            evens = result.Destination1;
             int[] expectedEvens = { 2, 4, 6, 8 };
             Assert.IsTrue(Sublist.AreEqual(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
+            odds = result.Destination2;
             int[] expectedOdds = { 1, 3, 5, 7, 9 };
             Assert.IsTrue(Sublist.AreEqual(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
             TestHelper.CheckHeaderAndFooter(list);

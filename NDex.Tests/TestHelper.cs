@@ -8,7 +8,7 @@ namespace NDex.Test
 {
     internal static class TestHelper
     {
-        public static Sublist<List<int>, int> Wrap(List<int> list)
+        public static IExpandableSublist<List<int>, int> Wrap(List<int> list)
         {
             int count = list.Count;
             var wrapper = new List<int>();
@@ -19,7 +19,7 @@ namespace NDex.Test
             return sublist;
         }
 
-        public static void CheckHeaderAndFooter(Sublist<List<int>, int> list)
+        public static void CheckHeaderAndFooter(IExpandableSublist<List<int>, int> list)
         {
             for (int index = 0, value = 0; index != list.Offset; ++index, ++value)
             {

@@ -89,7 +89,7 @@ namespace NDex.Test
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>());
             int shift = 2;
-            Sublist.AddRotatedLeft(list, destination, shift);
+            destination = Sublist.AddRotatedLeft(list, destination, shift);
             int[] expected = { 3, 4, 5, 1, 2 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -105,7 +105,7 @@ namespace NDex.Test
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>());
             int shift = -1;
-            Sublist.AddRotatedLeft(list, destination, shift);
+            destination = Sublist.AddRotatedLeft(list, destination, shift);
             int[] expected = { 5, 1, 2, 3, 4, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -121,7 +121,7 @@ namespace NDex.Test
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>());
             int shift = list.Count + 1;
-            Sublist.AddRotatedLeft(list, destination, shift);
+            destination = Sublist.AddRotatedLeft(list, destination, shift);
             int[] expected = { 2, 3, 4, 5, 1, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
