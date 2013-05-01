@@ -207,10 +207,39 @@ If calling a sorting algorithm on an already sorted list doesn't move any items,
 
 Not all of the algorithms sort the entire `Sublist`. Namely, `PartialSort` will only sort a given number of values. This is different than nesting another `Sublist` and calling `QuickSort`. `PartialSort` is good when all you care about are the top "N" items. The `ItemAt` method is pretty interesting, too - it will move an item into the specified index as if the rest of the list was sorted.
 
-The benefit of having different sorting algorithms is that you can try them out and compare their run times. If you have a small collection, try `BubbleSort`, `SelectionSort` or `InsertionSort`. If the collection has more than a few dozen items, use `MergeSort`, `HashSort`, `ShellSort` or `QuickSort`.
+The benefit of having different sorting algorithms is that you can try them out and compare their run times. If you have a small collection, you can try `BubbleSort`, `SelectionSort` or `InsertionSort`. If the collection has more than a few dozen items, use `MergeSort`, `HashSort`, `ShellSort` or `QuickSort`. Most of the time, you are safe just calling `MergeSort` or `QuickSort` because these will call `InsertionSort` automatically when it makes sense. Use `MergeSort` when you need a stable algorithm and use `QuickSort` otherwise.
 
 ### Set Algorithms
+.NET `ISet<T>`s guarantee that every item is unique. NDex sets have an extra requirement: the sets must be *sorted*. Working with sorted sets typically results in faster set operations (O(N)), but it requires more effort on the programmer's part. For one, .NET set operations do not require that both collections be sets, whereas NDex algorithms do.
+
+#### Creating a Set
+It is easy to convert a list into a NDex set, using the `MakeSet` algorithm. A common mistake is to assume that `MakeSet` will remove items from the underlying list. Instead, `MakeSet` returns an index past the end of the set - any past the index is considered garbage. If you want to shrink the list, you have to do it manually. For example:
+
+    List<int> values = new List<int>() { 1, 2, 3, 4, 2, 3, 4, 1, 5 };
+    int index = Sublist.MakeSet(values.ToSublist());
+    Sublist.RemoveRange(values.ToSublist(index));
+    var set = values.ToSublist();  // 1, 2, 3, 4, 5
+
+NDex doesn't assume that you want to re-size the list. This also makes the algorithm more reusable since it can run against `Sublist`s wrapping fixed-length collections. Even when you can remove the items, you should consider whether removing them is truly necessary.
+
+#### Working with Sets
+Once you have a set or two, you can pass them to any of the algorithms expecting sets. These include variations of union, intersection, difference and symmetric difference. There is a version of each algorithm that adds the items to a list (`Add*`) and another version that copies the items (`Copy*`). The `Copy*` algorithms return the index pointing to the end of the new set. What's interesting about the `Copy*` algorithms, those that shrink the set, is that the destination can be the same as one of sources, so you can save a lot of memory when necessary.
 
 ### Heap Algorithms
+If you need to efficiently track items by priority, the [heap algorithms](http://en.wikipedia.org/wiki/Heap_data_structure) are what you are looking for. Working with heap algorithms is interesting because they have unique pre- and post-conditions. For instance, this is the code for adding to a heap:
+
+    List<int> values = new List<int>() { 1, 2, 3, 4, 5 };
+    Sublist.MakeHeap(values.ToSublist());  // 5, 4, 3, 1, 2
+    values.Add(6);  // 5, 4, 1, 2, 3 -> no longer a heap
+    Sublist.HeapAdd(values.ToSublist());  // 6, 4, 5, 1, 2, 3
+
+As you can see in this example, in order to add an item to a heap, you first place it past the end of the heap. Then you call `HeapAdd` passing in a `Sublist` wrapping the heap and the new item. It will move the item up the heap into its proper location.
+
+Removing an item from a heap is similar. First you call `HeapRemove` to move the top item past the end of the heap. Then you can remove the last item from the list:
+
+    Sublist.HeapRemove(values.ToSublist());  // 5, 4, 3, 1, 2, 6
+    values.RemoveAt(values.Count - 1);
+
+Anytime you have a heap, you can call `HeapSort` on it - `HeapSort` won't work on a list that isn't a proper heap.
 
 ### Miscellaneous Algorithms
