@@ -39,25 +39,23 @@ The real power of `Sublist` is in its ability to represent a range over a list. 
     Sublist.QuickSort(front);  // 2, 4, 6, 8
     Sublist.QuickSort(back); // 1, 3, 5, 7, 9
     
-The `ToSublist` extension methods accepts two integer arguments: an offset and a count. The offset is the index into the underlying list where the range should begin. The count is the number of items that should be in the `Sublist`. If only the offset is provided, the range will include the rest of the list. Once the `Sublist` is created, these can be accessed via the `Offset` and `Count` properties. A nice feature of `Sublist` is that the `Offset` and `Count` properties are editable. `Sublist` also has a property for the underlying list, `List`, so you can always get back to it.
+The `ToSublist` extension methods accepts two integer arguments: an offset and a count. The offset is the index into the underlying list where the range should begin. The count is the number of items that should be in the `Sublist`. If only the offset is provided, the range will include the rest of the list. Once the `Sublist` is created, these can be accessed via the `Offset` and `Count` properties. `Sublist` also has a property for the underlying list, `List`, so you can always get back to it.
 
 ### Nesting, Shifting and Resizing
-The only danger of editing the `Offset` and `Count` properties is that you can push the sublist off the ends of the underlying list, which will result in an `ArgumentOutOfRangeException` to be thrown. Sometimes, it is okay to automatically shrink the sublist when it gets too big. 
-
-The `Sublist` class supplies a `Shift` method for moving the offset to the left or the right. It will automatically shrink the `Sublist` if it is too big. If the `Sublist` is resized, `false` will be returned.
-
-Similarly, the `Resize` method allows you to resize the `Sublist` without modifying the `Offset`. It will grow as large as it can without going past the end of the underlying list. If the `Sublist` couldn't get as big as it needed to, `false` will be returned.
-
 You should never need to wrap a `Sublist` with another `Sublist`. Instead, you should call the `Nest` method to create a new `Sublist`. The offset is in terms of the `Sublist`, not the underlying list. Just remember that the nested `Sublist` has to fit within the confines of the outer `Sublist`. There's no overhead for creating multiple nested `Sublist`s - they all work directly against the underlying list.
 
+The `Sublist` class supplies a `Shift` method for moving the offset to the left or the right. It accepts a second parameter, `isChecked`, that when `false`, allows the operation to automatically shrink the `Sublist` if it goes past the end of the underlying list. If `isChecked` is `true`, an exception will be thrown.
+
+Similarly, the `Resize` method allows you to resize the `Sublist` without modifying the `Offset`. It also accepts a second parameter, `isChecked`, that when `false`, allows the operation to limit the size of the sublist. If `isChecked` is `true`, an exception will be thrown.
+
 ### Sublists Can Be Invalidated
-Since `Sublist` is just a wrapper around another list, it is possible that operations on the underlying list will invalidate the `Sublist`. Consider this example:
+Since `Sublist` is just a thin wrapper around another list, it is possible that operations on the underlying list will invalidate the `Sublist`. Consider this example:
 
     var list = new List<int>() { 1, 2, 3, 4, 5 };
     var sublist = list.ToSublist();
     list.Remove(3);  // the sublist is now too big
     
-Algorithms that modify a `Sublist` will update the `Offset` and `Count` properties. However, if two or more `Sublist`s point into the same underlying list, only the passed `Sublist` will be updated. If you are dealing with multiple `Sublist`s like this, you will need to extra care.
+Algorithms that modify a `Sublist` will return a *new* `Sublist`. If you are dealing with multiple `Sublist`s, you will need to take extra care.
 
 ### The Empty Sublist Trick
 There is a useful trick you can perform using a `Sublist` with a `Count` of zero, so I will mention it here. There are a handful of algorithms that start with `Add`. These allow you to add new values to the end of a list. But what if you wanted to add items the front or the middle of a list? You can use the same `Add` methods as before, just create an empty `Sublist` whose offset is at the index you want to insert into. For example:
@@ -70,7 +68,7 @@ There is a useful trick you can perform using a `Sublist` with a `Count` of zero
 Those familiar with data structures might be concerned about the performance implications of inserting into the middle of a list. This is less of a concern with NDex - it is optimized to handle inserting multiple items into the middle of a list efficiently (at the cost of a single shift in items). Of course, you won't see any benefit at all if you call `Add` for each item individually. In that case, it might be more efficient to first create a second list and then insert it. Even more efficient would be to add to the end of the list and perform a `RotateLeft`.
 
 ### IReadOnlySublist, IMutableSublist and IExpandableSublist
-There are three interfaces returned by the `ToSublist` method. The `IReadOnlySublist` interface prevents any modification to the underlying list. The `IMutableSublist` allows a value to be replaced at a particular index. Finally, `IExpandableSublist` allows items to be removed or added to the underlying list.
+There are three interfaces returned by the `ToSublist` method. The `IReadOnlySublist` interface prevents any modification to the underlying list. The `IMutableSublist` allows a value to be replaced at a particular index. Finally, `IExpandableSublist` allows items to be added or removed to the underlying list.
 
 For instance, an array (`int[]`) has a fixed size. Calling `ToSublist` on an array will return a `IMutableSublist`. Algorithms guaranteeing that they will not add or remove items will accept an `IMutableSublist`.
 
@@ -93,7 +91,7 @@ If you want to manipulate `string`s, you will need to first convert your `string
 ## ReversedList
 The `ReversedList` class creates a view over a list, creating the illusion that the items are reversed. `ReversedList` solves some tricky problems.
 
-### Copying Items Backwards (but not reversed...)
+### Copying Items Backwards (but not in reverse...)
 For a more interesting use of `ReversedList`, imagine that you wanted to shift items in a list to the right. You could try to use the `Copy` algorithm, but the results would probably surprise you. Here's what that would look like:
 
     // We're expecting: 1, 1, 2, 3, 4, 5
@@ -163,7 +161,7 @@ NDex provides a large number of algorithms. They are optimized to perform as fas
 The NDex algorithms follow different conventions than the built-in .NET algorithms. Read the following sections to see how they differ. These differences have a large impact on the code you write. Ultimately, code written using NDex will be more compact.
 
 ### Adding and Removing Items
-Most of the NDex algorithms do not change the size of the underlying list. The `Add`* methods will add items to the end of a list. The only other algorithm is `RemoveRange`, which will remove all the items in a `Sublist`. `Sublist`'s `Clear` method will also remove all the items from a list. Whether you call `Sublist.RemoveRange` or `Clear` is a matter of preference.
+Most of the NDex algorithms do not change the size of the underlying list. The `Add`* methods will add items to the end of a list. The only other algorithm that changes the list is `RemoveRange`, which will remove all the items in a `Sublist`.
 
 A common mistake is that programmers expect `RemoveIf` and `RemoveDuplicates` to actually remove items. As strange as it might seem, these methods just shift items to the front of the list. These methods return an index - everything after that index is considered garbage. Here is how you can actually remove items from the underlying list:
 
@@ -183,7 +181,7 @@ You can always check to see if the match was a success by checking if the return
 
 Returning an index past the end of the list actually makes for cleaner code. Returning `-1`, your code would need to ask two questions: 1) am I past the end of the list? and 2) did I find the value? With NDex, you just need to ask whether you're past the end of the list. Here's an example that removes every occurrence of a sequence from a list:
 
-    int[] values = new int[] { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
+    List<int> values = new List<int> { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
     int[] sequence = new int[] { 1, 2, 3 };
     int index = 0;
     while (index < values.Length)
@@ -191,11 +189,25 @@ Returning an index past the end of the list actually makes for cleaner code. Ret
         var sublist = values.ToSublist(index);
         index = Sublist.IndexOfSequence(sublist, sequence.ToSublist());
         var garabage = sublist.Nest(index, 0);  // avoid assuming length
-        garbage.Resize(sequence.Length);  // will do nothing if at end
+        garbage.Resize(sequence.Length, false);  // will do nothing if at end
         Sublist.RemoveRange(garbage);
     }
 
 ### Sorting Algorithms
+The sorting algorithms are pretty straight-forward. What might surprise you is that there are multiple sort algorithms. Sorting algorithms have multiple properties:
+
+* Do they require additional storage?
+* Are they stable?
+* Do they sort the entire list?
+* How fast do they perform?
+
+Most of the sorting algorithms will do their jobs in-place. However, `MergeSort` uses a separate buffer to do its job. The buffer can be almost any size, in case you need to conserve memory. By default, the buffer is half the size of the `Sublist`.
+
+If calling a sorting algorithm on an already sorted list doesn't move any items, it is considered stable. Occasionally, this is a useful property, especially when moving items is a costly operation (e.g., a collection of large structs). Both `MergeSort` and `InsertionSort` are stable sorting algorithms.
+
+Not all of the algorithms sort the entire `Sublist`. Namely, `PartialSort` will only sort a given number of values. This is different than nesting another `Sublist` and calling `QuickSort`. `PartialSort` is good when all you care about are the top "N" items. The `ItemAt` method is pretty interesting, too - it will move an item into the specified index as if the rest of the list was sorted.
+
+The benefit of having different sorting algorithms is that you can try them out and compare their run times. If you have a small collection, try `BubbleSort`, `SelectionSort` or `InsertionSort`. If the collection has more than a few dozen items, use `MergeSort`, `HashSort`, `ShellSort` or `QuickSort`.
 
 ### Set Algorithms
 
