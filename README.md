@@ -192,6 +192,10 @@ Returning an index past the end of the list actually makes for cleaner code. Ret
         garbage.Resize(sequence.Length, false);  // will do nothing if at end
         Sublist.RemoveRange(garbage);
     }
+    
+#### BinarySearch, LowerBound and UpperBound
+
+### Comparison Algorithms
 
 ### Sorting Algorithms
 The sorting algorithms are pretty straight-forward. What might surprise you is that there are multiple sort algorithms. Sorting algorithms have multiple properties:
@@ -213,17 +217,17 @@ The benefit of having different sorting algorithms is that you can try them out 
 .NET `ISet<T>`s guarantee that every item is unique. NDex sets have an extra requirement: the sets must be *sorted*. Working with sorted sets typically results in faster set operations (O(N)), but it requires more effort on the programmer's part. For one, .NET set operations do not require that both collections be sets, whereas NDex algorithms do.
 
 #### Creating a Set
-It is easy to convert a list into a NDex set, using the `MakeSet` algorithm. A common mistake is to assume that `MakeSet` will remove items from the underlying list. Instead, `MakeSet` returns an index past the end of the set - any past the index is considered garbage. If you want to shrink the list, you have to do it manually. For example:
+It is easy to convert a list into a NDex set, using the `MakeSet` algorithm. A common mistake is to assume that `MakeSet` will remove items from the underlying list. Instead, `MakeSet` returns an index past the end of the set - any items past the index are considered garbage. If you want to shrink the list, you will have to do it manually. For example:
 
     List<int> values = new List<int>() { 1, 2, 3, 4, 2, 3, 4, 1, 5 };
     int index = Sublist.MakeSet(values.ToSublist());
     Sublist.RemoveRange(values.ToSublist(index));
     var set = values.ToSublist();  // 1, 2, 3, 4, 5
 
-NDex doesn't assume that you want to re-size the list. This also makes the algorithm more reusable since it can run against `Sublist`s wrapping fixed-length collections. Even when you can remove the items, you should consider whether removing them is truly necessary.
+NDex doesn't assume that you want to re-size the list. This also makes the algorithm more reusable since it can be run against `Sublist`s wrapping fixed-length collections. Even when you can remove the items, you should consider whether removing them is truly necessary.
 
 #### Working with Sets
-Once you have a set or two, you can pass them to any of the algorithms expecting sets. These include variations of union, intersection, difference and symmetric difference. There is a version of each algorithm that adds the items to a list (`Add*`) and another version that copies the items (`Copy*`). The `Copy*` algorithms return the index pointing to the end of the new set. What's interesting about the `Copy*` algorithms, those that shrink the set, is that the destination can be the same as one of sources, so you can save a lot of memory when necessary.
+Once you have a set or two, you can pass them to any of the algorithms expecting sets. These include variations of union, intersection, difference and symmetric difference. There is a version of each algorithm that adds the items to a list (`Add*`) and another version that copies the items (`Copy*`). The `Copy*` algorithms return the index past the end of the new set. What's interesting about some of the `Copy*` algorithms is that the destination can be the same as one of sources, so you can save a lot of memory when necessary.
 
 ### Heap Algorithms
 If you need to efficiently track items by priority, the [heap algorithms](http://en.wikipedia.org/wiki/Heap_data_structure) are what you are looking for. Working with heap algorithms is interesting because they have unique pre- and post-conditions. For instance, this is the code for adding to a heap:
@@ -240,6 +244,22 @@ Removing an item from a heap is similar. First you call `HeapRemove` to move the
     Sublist.HeapRemove(values.ToSublist());  // 5, 4, 3, 1, 2, 6
     values.RemoveAt(values.Count - 1);
 
-Anytime you have a heap, you can call `HeapSort` on it - `HeapSort` won't work on a list that isn't a proper heap.
+Anytime you have a heap, you can call `HeapSort` on it - `HeapSort` won't work on a list that isn't a proper heap. A benefit to `HeapSort` is that it has guaranteed runtime performance and can run faster than `MergeSort` in some cases.
 
 ### Miscellaneous Algorithms
+There are a handful of additional algorithms:
+
+* `AddRandomSamples`
+* `CopyRandomSamples`
+* `CountIf`
+* `Fill`
+* `ForEach`
+* `Partition`
+* `PreviousPermutation`
+* `RandomShuffle`
+* `Replace`
+* `Reverse`
+* `RotateLeft`
+* `NextPermutation`
+* `SwapRanges`
+* `TrueForAll`
