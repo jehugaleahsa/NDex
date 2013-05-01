@@ -88,6 +88,15 @@ namespace NDex.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An attempt was made to elevate a sublist wrapping a different list..
+        /// </summary>
+        internal static string ElevateOtherList {
+            get {
+                return ResourceManager.GetString("ElevateOtherList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The index is negative or outside the bounds of the collection..
         /// </summary>
         internal static string IndexOutOfRange {

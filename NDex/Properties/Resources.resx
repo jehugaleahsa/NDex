@@ -126,6 +126,9 @@
   <data name="EditReadonlyList" xml:space="preserve">
     <value>An attempt was made to edit a read-only list.</value>
   </data>
+  <data name="ElevateOtherList" xml:space="preserve">
+    <value>An attempt was made to elevate a sublist wrapping a different list.</value>
+  </data>
   <data name="IndexOutOfRange" xml:space="preserve">
     <value>The index is negative or outside the bounds of the collection.</value>
   </data>

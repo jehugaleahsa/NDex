@@ -661,6 +661,49 @@ namespace NDex.Test
             Assert.AreEqual(sublist.Count, 2, "The count was updated.");
         }
 
+        /// <summary>
+        /// If we try to shift a sublist so that it goes beyond the bounds
+        /// of the list, and we are checking our bounds, an exceptions should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void TestShift_PushedRightOutOfBounds_Checked_Throws()
+        {
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist(1, 2);
+            sublist = sublist.Shift(1, true);
+        }
+
+        /// <summary>
+        /// We should be able to call Shift via the IReadOnlySublist interface.
+        /// </summary>
+        [TestMethod]
+        public void TestShift_ReadOnly()
+        {
+            IReadOnlySublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            sublist.Shift(0, true);
+        }
+
+        /// <summary>
+        /// We should be able to call Shift via the IMutableSublist interface.
+        /// </summary>
+        [TestMethod]
+        public void TestShift_Mutable()
+        {
+            IMutableSublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            sublist.Shift(0, true);
+        }
+
+        /// <summary>
+        /// We should be able to call Shift via the IExpandableSublist interface.
+        /// </summary>
+        [TestMethod]
+        public void TestShift_Expandable()
+        {
+            IExpandableSublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            sublist.Shift(0, true);
+        }
+
         #endregion
 
         #region Resize
@@ -675,6 +718,19 @@ namespace NDex.Test
             int[] values = new int[] { 1, 2, 3 };
             var sublist = values.ToSublist();
             sublist.Resize(-1, true);
+        }
+
+        /// <summary>
+        /// If we are checking, resizing beyond the length of the
+        /// underlying list will result in an exception.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void TestResize_CountTooBig_Checked_Throws()
+        {
+            int[] values = new int[] { 1, 2, 3 };
+            var sublist = values.ToSublist(0, 0);
+            sublist.Resize(values.Length + 1, true);
         }
 
         /// <summary>
@@ -716,6 +772,36 @@ namespace NDex.Test
             sublist = sublist.Resize(3, true);
             Assert.AreEqual(0, sublist.Offset, "The offset was updated.");
             Assert.AreEqual(values.Length, sublist.Count, "The count was not updated.");
+        }
+
+        /// <summary>
+        /// We should be able to call Resize via the IReadOnlySublist interface.
+        /// </summary>
+        [TestMethod]
+        public void TestResize_ReadOnly()
+        {
+            IReadOnlySublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            sublist.Resize(sublist.Count, true);
+        }
+
+        /// <summary>
+        /// We should be able to call Resize via the IMutableSublist interface.
+        /// </summary>
+        [TestMethod]
+        public void TestResize_Mutable()
+        {
+            IMutableSublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            sublist.Resize(sublist.Count, true);
+        }
+
+        /// <summary>
+        /// We should be able to call Resize via the IExpandableSublist interface.
+        /// </summary>
+        [TestMethod]
+        public void TestResize_Expandable()
+        {
+            IExpandableSublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            sublist.Resize(sublist.Count, true);
         }
 
         #endregion

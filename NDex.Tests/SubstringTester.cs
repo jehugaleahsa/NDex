@@ -500,6 +500,16 @@ namespace NDex.Test
             Assert.AreEqual(substring.Count, 2, "The count was updated.");
         }
 
+        /// <summary>
+        /// The Shift method should be available to the IReadOnlySublist interface.
+        /// </summary>
+        [TestMethod]
+        public void TestShift_ReadOnly()
+        {
+            IReadOnlySublist<StringAdapter, char> sublist = new Substring("Hello");
+            sublist.Shift(0, true);
+        }
+
         #endregion
 
         #region Resize
@@ -555,6 +565,16 @@ namespace NDex.Test
             substring = substring.Resize(3, true);
             Assert.AreEqual(0, substring.Offset, "The offset was updated.");
             Assert.AreEqual(values.Length, substring.Count, "The count was not updated.");
+        }
+
+        /// <summary>
+        /// The Resize method should be available to the IReadOnlySublist interface.
+        /// </summary>
+        [TestMethod]
+        public void TestResize_ReadOnly()
+        {
+            IReadOnlySublist<StringAdapter, char> sublist = new Substring("Hello");
+            sublist.Resize(sublist.Count, true);
         }
 
         #endregion
