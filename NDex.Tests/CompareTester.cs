@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -23,10 +21,10 @@ namespace NDex.Test
             Random random = new Random();
 
             var list1 = new List<int>(10);
-            Sublist.Add(Enumerable.Range(0, 10).Select(i => random.Next(0, 10)), list1.ToSublist());
+            Sublist.AddGenerated(list1.ToSublist(), 10, i => random.Next(0, 10));
 
             var list2 = new List<int>(10);
-            Sublist.Add(Enumerable.Range(0, 10).Select(i => random.Next(0, 10)), list2.ToSublist());
+            Sublist.AddGenerated(list2.ToSublist(), 10, i => random.Next(0, 10));
 
             // we know list1 and list2 should be equal to themselves
             Assert.AreEqual(0, Sublist.Compare(list1.ToSublist(), list1.ToSublist()), "The first list did not equal itself.");

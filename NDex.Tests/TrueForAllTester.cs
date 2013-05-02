@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +22,7 @@ namespace NDex.Test
 
             // create a list of random numbers
             var list = new List<int>(5);
-            Sublist.Add(Enumerable.Range(0, 5).Select(i => random.Next(5)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 5, i => random.Next(5));
 
             // see if they are all even
             bool allEven = Sublist.TrueForAll(list.ToSublist(), i => i % 2 == 0);

@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,11 +22,11 @@ namespace NDex.Test
 
             // build a list of random values
             var list = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
 
             // force duplicates
             int[] duplicates = new int[2];
-            Sublist.Fill(duplicates.ToSublist(), 4);
+            Sublist.CopyGenerated(duplicates.ToSublist(), 4);
             Sublist.Add(duplicates.ToSublist(), list.ToSublist()); // add the duplicates
 
             // requires list to be sorted

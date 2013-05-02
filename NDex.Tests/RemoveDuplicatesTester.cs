@@ -1,7 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -23,7 +22,7 @@ namespace NDex.Test
 
             // build an array
             var array = new int[100];
-            Sublist.Fill(array.ToSublist(), () => random.Next(100));
+            Sublist.CopyGenerated(array.ToSublist(), () => random.Next(100));
 
             // sort the list to put equivalent items next to each other
             Sublist.QuickSort(array.ToSublist());

@@ -1,8 +1,7 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -26,7 +25,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(5);
-            Sublist.Add(Enumerable.Range(0, 5).Select(i => random.Next(0, 10)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 5, i => random.Next(0, 10));
 
             // first, we must sort the items to make sure all permutations are enumerated
             Sublist.BubbleSort(list.ToSublist(), (x, y) => Comparer<int>.Default.Compare(y, x)); // prev. perm. requires reverse order initially

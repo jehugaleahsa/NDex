@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +22,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next()), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
 
             MinimumMaximumResult result = Sublist.MinimumMaximum(list.ToSublist());
             Assert.AreNotEqual(list.Count, result.MinimumIndex, "The index cannot be past the end of the list.");

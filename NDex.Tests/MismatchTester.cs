@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,9 +22,9 @@ namespace NDex.Test
 
             // build two, small lists
             var list1 = new List<int>(5);
-            Sublist.Add(Enumerable.Range(0, 5).Select(i => random.Next(5)), list1.ToSublist());
+            Sublist.AddGenerated(list1.ToSublist(), 5, i => random.Next(5));
             var list2 = new List<int>(5);
-            Sublist.Add(Enumerable.Range(0, 5).Select(i => random.Next(5)), list2.ToSublist());
+            Sublist.AddGenerated(list2.ToSublist(), 5, i => random.Next(5));
 
             // now find the differences
             int index = Sublist.Mismatch(list1.ToSublist(), list2.ToSublist());

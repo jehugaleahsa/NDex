@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -25,11 +23,11 @@ namespace NDex.Test
 
             // build large, random list
             var list1 = new List<char>(1000);
-            Sublist.Add(Enumerable.Range(0, 1000).Select(i => keys[random.Next(4)]), list1.ToSublist());
+            Sublist.AddGenerated(list1.ToSublist(), 1000, i => keys[random.Next(4)]);
 
             // build small search pattern
             var list2 = new char[5];
-            Sublist.Fill(list2.ToSublist(), () => keys[random.Next(4)]);
+            Sublist.CopyGenerated(list2.ToSublist(), () => keys[random.Next(4)]);
 
             // force a find
             Sublist.Add(list2.ToSublist(), list1.ToSublist(random.Next(list1.Count + 1), 0));

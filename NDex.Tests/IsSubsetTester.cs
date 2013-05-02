@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,11 +22,11 @@ namespace NDex.Test
 
             // build all evens
             var evens = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 200).Select(i => i * 2), evens.ToSublist());
+            Sublist.AddGenerated(evens.ToSublist(), 200, i => i * 2);
 
             // build multiples of four
             var fours = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100) * 4), fours.ToSublist());
+            Sublist.AddGenerated(fours.ToSublist(), 100, i => random.Next(100) * 4);
             Sublist.QuickSort(fours.ToSublist()); // items must be sorted
             Sublist.RemoveRange(fours.ToSublist(Sublist.RemoveDuplicates(fours.ToSublist()))); // items must be distinct.
 

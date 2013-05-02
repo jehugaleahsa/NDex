@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace NDex
 {
@@ -42,9 +41,7 @@ namespace NDex
             get
             {
                 T[] items = new T[_sublist.Count];
-                Sublist.Copy<TList, T[], T>(
-                    _sublist.List, _sublist.Offset, _sublist.Offset + _sublist.Count,
-                    items, 0, items.Length);
+                Sublist.Copy<TList, T[], T>(_sublist, items.ToSublist());
                 return items;
             }
         }

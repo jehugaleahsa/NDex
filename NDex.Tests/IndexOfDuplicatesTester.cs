@@ -1,8 +1,7 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +23,7 @@ namespace NDex.Test
 
             // build a list of random values
             var list = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
 
             // duplicates must appear next to each other
             Sublist.QuickSort(list.ToSublist());

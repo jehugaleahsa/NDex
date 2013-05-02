@@ -1,7 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +23,7 @@ namespace NDex.Test
             // generate a week starting from today
             DateTime[] week = new DateTime[7];
             DateTime today = DateTime.Today;
-            Sublist.Fill(week.ToSublist(), days => today.AddDays(days));
+            Sublist.CopyGenerated(week.ToSublist(), days => today.AddDays(days));
 
             int index = Sublist.IndexOf(week.ToSublist(), DayOfWeek.Wednesday, (date, day) => date.DayOfWeek == day);
             Assert.AreNotEqual(week.Length, index, "A span of seven days should have included a Wednesday, but none was found.");
@@ -43,7 +42,7 @@ namespace NDex.Test
             // generate a week starting from today
             DateTime[] week = new DateTime[7];
             DateTime today = DateTime.Today;
-            Sublist.Fill(week.ToSublist(), days => today.AddDays(days));
+            Sublist.CopyGenerated(week.ToSublist(), days => today.AddDays(days));
 
             int index = Sublist.IndexOf(week.ToSublist(), date => date.DayOfWeek == DayOfWeek.Wednesday);
             Assert.AreNotEqual(week.Length, index, "A span of seven days should have included a Wednesday, but none was found.");

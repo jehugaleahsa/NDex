@@ -1,8 +1,7 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,11 +23,11 @@ namespace NDex.Test
 
             // build a list of values to concatenate.
             var list = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(0, 100)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 50, i => random.Next(0, 100));
 
             // build a destination list
             var destination = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(0, 100)), destination.ToSublist());
+            Sublist.AddGenerated(destination.ToSublist(), 50, i => random.Next(0, 100));
 
             Sublist.Add(list.ToSublist(), destination.ToSublist());
 
@@ -46,11 +45,11 @@ namespace NDex.Test
 
             // build a list of values to concatenate.
             var list = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(0, 100)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 50, i => random.Next(0, 100));
 
             // build a destination list
             var destination = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(0, 100)), destination.ToSublist());
+            Sublist.AddGenerated(destination.ToSublist(), 50, i => random.Next(0, 100));
 
             // destination.ToSublist(0,0) represents an empty range at the beginning
             Sublist.Add(list.ToSublist(), destination.ToSublist(0, 0));

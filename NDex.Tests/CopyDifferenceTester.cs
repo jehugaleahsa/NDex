@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,11 +22,11 @@ namespace NDex.Test
 
             // build a list of odd numbers
             var odds = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(0, 50) * 2 + 1), odds.ToSublist()); // max of 99 (49 * 2 + 1)
+            Sublist.AddGenerated(odds.ToSublist(), 100, i => random.Next(0, 50) * 2 + 1); // max of 99 (49 * 2 + 1)
 
             // build a list of all of the numbers divisible by three
             var threes = new List<int>(34);
-            Sublist.Add(Enumerable.Range(0, 34).Select(i => i * 3), threes.ToSublist()); // max of 99
+            Sublist.AddGenerated(threes.ToSublist(), 34, i => i * 3); // max of 99
 
             // sort and eliminate duplicates from odd list, to make it an ordered set
             Sublist.QuickSort(odds.ToSublist());
@@ -36,7 +34,7 @@ namespace NDex.Test
 
             // now remove the threes and make sure none remain
             var destination = new List<int>(100);
-            Sublist.Add(Enumerable.Repeat(0, 100), destination.ToSublist());
+            Sublist.AddGenerated(destination.ToSublist(), 100, 0);
 
             int result = Sublist.CopyDifference(odds.ToSublist(), threes.ToSublist(), destination.ToSublist());
             Sublist.RemoveRange(destination.ToSublist(result)); // throw away the back end

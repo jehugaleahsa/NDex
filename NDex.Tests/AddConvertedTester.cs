@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +22,7 @@ namespace NDex.Test
 
             // build a list of numbers
             var numbers = new List<double>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.NextDouble() * 100), numbers.ToSublist());
+            Sublist.AddGenerated(numbers.ToSublist(), 100, i => random.NextDouble() * 100);
 
             // convert to a list of strings
             var strings = new List<string>(100);

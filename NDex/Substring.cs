@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using NDex.Properties;
-using System.Globalization;
 
 namespace NDex
 {

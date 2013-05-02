@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +22,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next()), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
 
             // we'll partition the list and make sure evens and odds are separated
             int index = Sublist.Partition(list.ToSublist(), i => i % 2 == 0);

@@ -1,39 +1,38 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
     /// <summary>
-    /// Tests the Fill methods.
+    /// Tests the CopyGenerated methods.
     /// </summary>
     [TestClass]
-    public class FillTester
+    public class CopyGeneratedTester
     {
         #region Real World Examples
 
         /// <summary>
-        /// Fill can be used to populate an array with incrementing values.
+        /// CopyGenerated can be used to populate an array with incrementing values.
         /// </summary>
         [TestMethod]
-        public void TestFill_Counting()
+        public void TestCopyGenerated_Counting()
         {
             int[] values = new int[10];
-            Sublist.Fill(values.ToSublist(), i => i);
+            Sublist.CopyGenerated(values.ToSublist(), i => i);
             int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), values.ToSublist()), "The items were not set as expected.");
         }
 
         /// <summary>
-        /// Fill can be used to populate an array with default values.
+        /// CopyGenerated can be used to populate an array with default values.
         /// </summary>
         [TestMethod]
-        public void TestFill_Defaulting()
+        public void TestCopyGenerated_Defaulting()
         {
             DateTime[] values = new DateTime[10]; // defaults to 01/01/0001
             DateTime defaultDate = DateTime.Today;
-            Sublist.Fill(values.ToSublist(), defaultDate); // change default to today
+            Sublist.CopyGenerated(values.ToSublist(), defaultDate); // change default to today
 
             DateTime[] expected = new DateTime[10];
             Sublist.CopyConverted(expected.ToSublist(), expected.ToSublist(), i => defaultDate); // replace all with default
@@ -42,14 +41,14 @@ namespace NDex.Test
         }
 
         /// <summary>
-        /// Fill can be used to populate an array with random values.
+        /// CopyGenerated can be used to populate an array with random values.
         /// </summary>
         [TestMethod]
-        public void TestFill_WithRandomValues()
+        public void TestCopyGenerated_WithRandomValues()
         {
             Random random = new Random();
             int[] values = new int[10];
-            Sublist.Fill(values.ToSublist(), i => random.Next(1, 10)); // fixed length version of Grow!
+            Sublist.CopyGenerated(values.ToSublist(), i => random.Next(1, 10)); // fixed length version of Grow!
             Assert.IsTrue(Sublist.TrueForAll(values.ToSublist(), i => i != 0), "Not all of the values were filled in.");
         }
 
@@ -62,11 +61,11 @@ namespace NDex.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestFill_NullList_Throws()
+        public void TestCopyGenerated_NullList_Throws()
         {
             Sublist<int[], int> list = null;
             int value = 0;
-            Sublist.Fill(list, value);
+            Sublist.CopyGenerated(list, value);
         }
 
         /// <summary>
@@ -74,11 +73,11 @@ namespace NDex.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestFill_WithGenerator_NullList_Throws()
+        public void TestCopyGenerated_WithGenerator_NullList_Throws()
         {
             Sublist<int[], int> list = null;
             Func<int> generator = () => 0;
-            Sublist.Fill(list, generator);
+            Sublist.CopyGenerated(list, generator);
         }
 
         /// <summary>
@@ -86,11 +85,11 @@ namespace NDex.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestFill_WithIndexedGenerator_NullList_Throws()
+        public void TestCopyGenerated_WithIndexedGenerator_NullList_Throws()
         {
             Sublist<int[], int> list = null;
             Func<int, int> generator = i => i;
-            Sublist.Fill(list, generator);
+            Sublist.CopyGenerated(list, generator);
         }
 
         /// <summary>
@@ -98,11 +97,11 @@ namespace NDex.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestFill_NullGenerator_Throws()
+        public void TestCopyGenerated_NullGenerator_Throws()
         {
             Sublist<int[], int> list = new int[10];
             Func<int> generator = null;
-            Sublist.Fill(list, generator);
+            Sublist.CopyGenerated(list, generator);
         }
 
         /// <summary>
@@ -110,11 +109,11 @@ namespace NDex.Test
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestFill_NullIndexedGenerator_Throws()
+        public void TestCopyGenerated_NullIndexedGenerator_Throws()
         {
             Sublist<int[], int> list = new int[10];
             Func<int, int> generator = null;
-            Sublist.Fill(list, generator);
+            Sublist.CopyGenerated(list, generator);
         }
 
         #endregion
@@ -123,12 +122,12 @@ namespace NDex.Test
         /// We should be able to set every item to a particular value type.
         /// </summary>
         [TestMethod]
-        public void TestFill_SetValueType()
+        public void TestCopyGenerated_SetValueType()
         {
             var list = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             int defaultValue = 4;
 
-            Sublist.Fill(list, defaultValue);
+            Sublist.CopyGenerated(list, defaultValue);
             int[] expected = { 4, 4, 4, 4, 4, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not set as expected.");
 
@@ -141,10 +140,10 @@ namespace NDex.Test
         /// reference types.
         /// </summary>
         [TestMethod]
-        public void TestFill_WithGenerator_CallCtor()
+        public void TestCopyGenerated_WithGenerator_CallCtor()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1 });
-            Sublist.Fill(list, () => new int());
+            Sublist.CopyGenerated(list, () => new int());
             int[] expected = { 0, 0, 0, 0, 0, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not set as expected.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -154,11 +153,11 @@ namespace NDex.Test
         /// We should be able to set every item to a value relative to its index.
         /// </summary>
         [TestMethod]
-        public void TestFill_IncrementingCount()
+        public void TestCopyGenerated_IncrementingCount()
         {
             var list = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
 
-            Sublist.Fill(list, i => i + 1);
+            Sublist.CopyGenerated(list, i => i + 1);
             int[] expected = { 1, 2, 3, 4, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not set as expected.");
 

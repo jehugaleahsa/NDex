@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +22,7 @@ namespace NDex.Test
 
             // build a random string representing a password
             var password = new List<char>();
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => (char)random.Next(32, 127)), password.ToSublist());
+            Sublist.AddGenerated(password.ToSublist(), 100, i => (char)random.Next(32, 127));
             password.Insert(50, '>'); // insert an invalid character
 
             // have a list of characters that aren't allowed

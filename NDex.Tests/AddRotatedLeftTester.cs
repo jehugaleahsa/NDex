@@ -1,8 +1,7 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -30,7 +29,7 @@ namespace NDex.Test
 
             // build a list with the numbers 0-4 reoccurring
             var list = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => i % repeat), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 100, i => i % repeat);
 
             // try different shifts, looking for reoccurrences
             int shift = 1;

@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,11 +22,11 @@ namespace NDex.Test
 
             // builds the first list
             var list1 = new List<int>(50);
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(100)), list1.ToSublist());
+            Sublist.AddGenerated(list1.ToSublist(), 50, i => random.Next(100));
 
             // builds the second list
             var list2 = new List<int>(50);
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(100)), list2.ToSublist());
+            Sublist.AddGenerated(list2.ToSublist(), 50, i => random.Next(100));
 
             // merging requires sorted lists
             Sublist.QuickSort(list1.ToSublist());
@@ -36,7 +34,7 @@ namespace NDex.Test
 
             // merge the lists
             var destination = new List<int>(100);
-            Sublist.Add(Enumerable.Repeat(0, 100), destination.ToSublist());
+            Sublist.AddGenerated(destination.ToSublist(), 100, 0);
             int result = Sublist.CopyMerged(list1.ToSublist(), list2.ToSublist(), destination.ToSublist());
             Assert.AreEqual(destination.Count, result, "Not all of the items were copied.");
 

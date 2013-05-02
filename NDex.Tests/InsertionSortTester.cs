@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +22,7 @@ namespace NDex.Test
 
             // build the list
             List<int> list = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => random.Next(50)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 50, i => random.Next(50));
 
             // sort the list
             Sublist.InsertionSort(list.ToSublist());

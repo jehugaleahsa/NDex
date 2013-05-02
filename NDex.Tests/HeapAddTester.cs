@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace NDex.Test
 {
@@ -110,7 +109,7 @@ namespace NDex.Test
         public void TestHeapAdd_AddLargest_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 10), list); // 0..9
+            list = Sublist.AddGenerated(list, 10, i => i); // 0..9
             Sublist.MakeHeap(list);
 
             list = Sublist.Add(new int[] { 10 }, list);
@@ -128,7 +127,7 @@ namespace NDex.Test
         public void TestHeapAdd_AddSmallest_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 10).Select(i => i + 1), list); // 1..10
+            list = Sublist.AddGenerated(list, 10, i => i + 1); // 1..10
             Sublist.MakeHeap(list);
 
             list = Sublist.Add(new int[] { 0 }, list);
@@ -145,7 +144,7 @@ namespace NDex.Test
         public void TestHeapAdd_AddMedium_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 10).Select(i => i + (i > 4 ? 1 : 0)), list); // 0..4, 6..10
+            list = Sublist.AddGenerated(list, 10, i => i + (i > 4 ? 1 : 0)); // 0..4, 6..10
             Sublist.MakeHeap(list);
 
             list = Sublist.Add(new int[] { 5 }, list);

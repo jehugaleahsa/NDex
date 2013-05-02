@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace NDex.Test
 {
@@ -24,7 +23,7 @@ namespace NDex.Test
 
             // build a list of random values, then sort it
             var list = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
             Sublist.QuickSort(list.ToSublist());
 
             // now detect each duplicate and remove all but the first

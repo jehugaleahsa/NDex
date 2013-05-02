@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -26,7 +24,7 @@ namespace NDex.Test
 
             // build a list, leaving space for zero, one and two
             var list = new List<int>(97);
-            Sublist.Add(Enumerable.Range(0, 97).Select(i => random.Next(3, 100)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 97, i => random.Next(3, 100));
 
             // insert 0-2 at random positions in the list
             list.Insert(random.Next(0, list.Count + 1), 0);
@@ -192,7 +190,7 @@ namespace NDex.Test
         public void TestItemAt_Reversed_ItemInFront()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 100).Select(i => 100 - i), list);
+            list = Sublist.AddGenerated(list, 100, i => 100 - i);
             Sublist.ItemAt(list, 0, Comparer<int>.Default);
             Assert.AreEqual(1, list[0], "The wrong item was moved to the front.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -205,7 +203,7 @@ namespace NDex.Test
         public void TestItemAt_Reversed_ItemInBack()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 100).Select(i => 100 - i), list);
+            list = Sublist.AddGenerated(list, 100, i => 100 - i);
             Sublist.ItemAt(list, list.Count - 1, Comparer<int>.Default);
             Assert.AreEqual(100, list[list.Count - 1], "The wrong item was moved to the back.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -218,7 +216,7 @@ namespace NDex.Test
         public void TestItemAt_Reversed_ItemInMiddle()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 100).Select(i => 100 - i), list);
+            list = Sublist.AddGenerated(list, 100, i => 100 - i);
             Sublist.ItemAt(list, 49, Comparer<int>.Default);
             Assert.AreEqual(50, list[49], "The wrong item was moved to the middle.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -231,8 +229,8 @@ namespace NDex.Test
         public void TestItemAt_PipeOrganed_ItemInFront()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 50).Select(i => i * 2), list);
-            list = Sublist.Add(Enumerable.Range(0, 50).Select(i => 100 - (i * 2 + 1)), list);
+            list = Sublist.AddGenerated(list, 50, i => i * 2);
+            list = Sublist.AddGenerated(list, 50, i => 100 - (i * 2 + 1));
             Sublist.ItemAt(list, 0, Comparer<int>.Default.Compare);
             Assert.AreEqual(0, list[0], "The wrong item was moved to the front.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -245,8 +243,8 @@ namespace NDex.Test
         public void TestItemAt_PipeOrganed_ItemInBack()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 50).Select(i => i * 2), list);
-            list = Sublist.Add(Enumerable.Range(0, 50).Select(i => 100 - (i * 2 + 1)), list);
+            list = Sublist.AddGenerated(list, 50, i => i * 2);
+            list = Sublist.AddGenerated(list, 50, i => 100 - (i * 2 + 1));
             Sublist.ItemAt(list, list.Count - 1, Comparer<int>.Default.Compare);
             Assert.AreEqual(99, list[list.Count - 1], "The wrong item was moved to the back.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -259,8 +257,8 @@ namespace NDex.Test
         public void TestItemAt_PipeOrganed_ItemInMiddle()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 50).Select(i => i * 2), list);
-            list = Sublist.Add(Enumerable.Range(0, 50).Select(i => 100 - (i * 2 + 1)), list);
+            list = Sublist.AddGenerated(list, 50, i => i * 2);
+            list = Sublist.AddGenerated(list, 50, i => 100 - (i * 2 + 1));
             Sublist.ItemAt(list, 49, Comparer<int>.Default.Compare);
             Assert.AreEqual(49, 49, "The wrong item was moved to the middle.");
             TestHelper.CheckHeaderAndFooter(list);

@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,11 +22,11 @@ namespace NDex.Test
 
             // build list of random evens
             var evens = new List<int>(50);
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => 2 * random.Next(0, 50)), evens.ToSublist());
+            Sublist.AddGenerated(evens.ToSublist(), 50, i => 2 * random.Next(0, 50));
 
             // build list of random odds
             var odds = new List<int>(50);
-            Sublist.Add(Enumerable.Range(0, 50).Select(i => 1 + 2 * random.Next(0, 50)), odds.ToSublist());
+            Sublist.AddGenerated(odds.ToSublist(), 50, i => 1 + 2 * random.Next(0, 50));
 
             // join the two together and shuffle
             var list = new List<int>(100);

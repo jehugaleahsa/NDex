@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
-using System.Linq;
 
 namespace NDex.Test
 {
@@ -23,7 +21,7 @@ namespace NDex.Test
             var list = new List<int>() { 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1, };
 
             var copy = new List<int>(list.Count);
-            Sublist.Add(Enumerable.Repeat(0, list.Count), copy.ToSublist());
+            Sublist.AddGenerated(copy.ToSublist(), list.Count, 0);
 
             int result = Sublist.CopyReversed(list.ToSublist(), copy.ToSublist());
             Assert.AreEqual(copy.Count, result, "The wrong index was returned.");

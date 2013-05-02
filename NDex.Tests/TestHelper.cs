@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using NDex;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace NDex.Test
 {
@@ -12,7 +9,7 @@ namespace NDex.Test
         {
             int count = list.Count;
             var wrapper = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 100), wrapper.ToSublist());
+            Sublist.AddGenerated(wrapper.ToSublist(), 100, i => i);
             Sublist.Add(wrapper.ToSublist(), list.ToSublist(0, 0)); // add to front
             Sublist.Add(wrapper.ToSublist(), list.ToSublist()); // add to back
             var sublist = new Sublist<List<int>, int>(list, 100, count);

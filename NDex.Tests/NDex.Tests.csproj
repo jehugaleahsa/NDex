@@ -69,6 +69,7 @@
     <Compile Include="ContainsDuplicatesTester.cs" />
     <Compile Include="ContainsSequenceTester.cs" />
     <Compile Include="ContainsTester.cs" />
+    <Compile Include="AddGeneratedTester.cs" />
     <Compile Include="IsSubsetUntilTester.cs" />
     <Compile Include="CopyCombinedTester.cs" />
     <Compile Include="CopyConvertedTester.cs" />
@@ -87,7 +88,7 @@
     <Compile Include="CopyUnionTester.cs" />
     <Compile Include="CopyUniqueTester.cs" />
     <Compile Include="CountIfTester.cs" />
-    <Compile Include="FillTester.cs" />
+    <Compile Include="CopyGeneratedTester.cs" />
     <Compile Include="ForEachTester.cs" />
     <Compile Include="HeapAddTester.cs" />
     <Compile Include="HeapRemoveTester.cs" />

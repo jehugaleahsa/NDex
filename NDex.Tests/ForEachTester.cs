@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,7 +22,7 @@ namespace NDex.Test
 
             // build the list 
             var list = new List<int>(10);
-            Sublist.Add(Enumerable.Range(0, 10).Select(i => random.Next(10)), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 10, i => random.Next(10));
 
             decimal sum = 0m;
             Sublist.ForEach(list.ToSublist(), i => sum += i);

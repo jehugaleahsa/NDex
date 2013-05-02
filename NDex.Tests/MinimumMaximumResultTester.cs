@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Globalization;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {

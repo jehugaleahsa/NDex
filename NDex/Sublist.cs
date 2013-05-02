@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using NDex.Properties;
-using System.Linq;
 
 namespace NDex
 {
@@ -590,7 +589,7 @@ namespace NDex
             where TSourceList : IList<T>
         {
             growAndShift<TDestinationList, T>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = Copy<TSourceList, TDestinationList, T>(
+            Tuple<int, int> indexes = copy<TSourceList, TDestinationList, T>(
                 source, first, past,
                 destination, destinationPast, destination.Count);
             return indexes.Item2;
@@ -990,6 +989,135 @@ namespace NDex
             add<TSourceList1, TDestinationList, T>(source1, first1, past1, destination, destination.Count);
             rotateLeft<TDestinationList, T>(destination, destinationPast, pivot, destination.Count);
             return destinationPast + (destination.Count - pivot);
+        }
+
+        #endregion
+
+        #region AddGenerated
+
+        /// <summary>
+        /// Copies the given value into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="numberOfItems">The number of items to add.</param>
+        /// <param name="value">The value to fill the list with.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
+        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, T value)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (numberOfItems < 0)
+            {
+                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
+            }
+            int past = list.Offset + list.Count;
+            addGenerated<TList, T>(list.List, past, past + numberOfItems, value);
+            return list.Resize(list.Count + numberOfItems, true);
+        }
+
+        private static void addGenerated<TList, T>(TList list, int first, int past, T value)
+            where TList : IList<T>
+        {
+            while (first != past)
+            {
+                list.Insert(first, value);
+                ++first;
+            }
+        }
+
+        /// <summary>
+        /// Copies the result of each call to the generator into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="numberOfItems">The number of items to add.</param>
+        /// <param name="generator">The delegate to use to fill the list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
+        /// <remarks>The generator will be called to set each item in the list.</remarks>
+        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, Func<T> generator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (numberOfItems < 0)
+            {
+                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
+            }
+            if (generator == null)
+            {
+                throw new ArgumentNullException("generator");
+            }
+            int past = list.Offset + list.Count;
+            addGenerated<TList, T>(list.List, past, past + numberOfItems, generator);
+            return list.Resize(list.Count + numberOfItems, true);
+        }
+
+        private static void addGenerated<TList, T>(TList list, int first, int past, Func<T> generator)
+            where TList : IList<T>
+        {
+            while (first != past)
+            {
+                list.Insert(first, generator());
+                ++first;
+            }
+        }
+
+        /// <summary>
+        /// Copies the result of each call to the generator into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="numberOfItems">The number of items to add.</param>
+        /// <param name="generator">The delegate to use to fill the list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
+        /// <remarks>
+        /// The generator will be called to set each item in the list. 
+        /// The relative index of the item is passed with each call to the generator.
+        /// </remarks>
+        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, Func<int, T> generator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (numberOfItems < 0)
+            {
+                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
+            }
+            if (generator == null)
+            {
+                throw new ArgumentNullException("generator");
+            }
+            int past = list.Offset + list.Count;
+            addGenerated<TList, T>(list.List, past, past + numberOfItems, generator);
+            return list.Resize(list.Count + numberOfItems, true);
+        }
+
+        private static void addGenerated<TList, T>(TList list, int first, int past, Func<int, T> generator)
+            where TList : IList<T>
+        {
+            int adjustment = first;
+            while (first != past)
+            {
+                list.Insert(first, generator(first - adjustment));
+                ++first;
+            }
         }
 
         #endregion
@@ -2004,8 +2132,8 @@ namespace NDex
             where TDestinationList : IList<T>
         {
             growAndShift<TDestinationList, T>(destination, destinationPast, past - first);
-            destinationPast = Copy<TSourceList, TDestinationList, T>(source, middle, past, destination, destinationPast, destination.Count).Item2;
-            destinationPast = Copy<TSourceList, TDestinationList, T>(source, first, middle, destination, destinationPast, destination.Count).Item2;
+            destinationPast = copy<TSourceList, TDestinationList, T>(source, middle, past, destination, destinationPast, destination.Count).Item2;
+            destinationPast = copy<TSourceList, TDestinationList, T>(source, first, middle, destination, destinationPast, destination.Count).Item2;
             return destinationPast;
         }
 
@@ -3254,7 +3382,7 @@ namespace NDex
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
-            int result = IndexOf<TList, T, TSearch>(list.List, list.Offset, past, value, comparison);
+            int result = indexOf<TList, T, TSearch>(list.List, list.Offset, past, value, comparison);
             return result != past;
         }
 
@@ -3625,7 +3753,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            Tuple<int, int> indexes = Copy<TSourceList, TDestinationList, T>(
+            Tuple<int, int> indexes = copy<TSourceList, TDestinationList, T>(
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count);
             CopyResult result = new CopyResult()
@@ -3636,7 +3764,7 @@ namespace NDex
             return result;
         }
 
-        internal static Tuple<int, int> Copy<TSourceList, TDestinationList, T>(
+        private static Tuple<int, int> copy<TSourceList, TDestinationList, T>(
             TSourceList source, int first, int past,
             TDestinationList destination, int destinationFirst, int destinationPast)
             where TSourceList : IList<T>
@@ -4036,12 +4164,117 @@ namespace NDex
                     ++first2;
                 }
             }
-            Tuple<int, int> indexes = Copy<TSourceList1, TDestinationList, T>(
+            Tuple<int, int> indexes = copy<TSourceList1, TDestinationList, T>(
                 source1, first1, past1,
                 destination, destinationFirst, destinationPast);
             first1 = indexes.Item1;
             destinationFirst = indexes.Item2;
             return new Tuple<int, int, int>(first1, first2, destinationFirst);
+        }
+
+        #endregion
+
+        #region CopyGenerated
+
+        /// <summary>
+        /// Copies the given value into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="value">The value to fill the list with.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
+        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, T value)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, value);
+        }
+
+        private static void copyGenerated<TList, T>(TList list, int first, int past, T value)
+            where TList : IList<T>
+        {
+            while (first != past)
+            {
+                list[first] = value;
+                ++first;
+            }
+        }
+
+        /// <summary>
+        /// Copies the result of each call to the generator into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="generator">The delegate to use to fill the list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
+        /// <remarks>The generator will be called to set each item in the list.</remarks>
+        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, Func<T> generator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (generator == null)
+            {
+                throw new ArgumentNullException("generator");
+            }
+            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
+        }
+
+        private static void copyGenerated<TList, T>(TList list, int first, int past, Func<T> generator)
+            where TList : IList<T>
+        {
+            while (first != past)
+            {
+                list[first] = generator();
+                ++first;
+            }
+        }
+
+        /// <summary>
+        /// Copies the result of each call to the generator into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="generator">The delegate to use to fill the list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
+        /// <remarks>
+        /// The generator will be called to set each item in the list. 
+        /// The relative index of the item is passed with each call to the generator.
+        /// </remarks>
+        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, Func<int, T> generator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (generator == null)
+            {
+                throw new ArgumentNullException("generator");
+            }
+            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
+        }
+
+        private static void copyGenerated<TList, T>(TList list, int first, int past, Func<int, T> generator)
+            where TList : IList<T>
+        {
+            int adjustment = first;
+            while (first != past)
+            {
+                list[first] = generator(first - adjustment);
+                ++first;
+            }
         }
 
         #endregion
@@ -4487,12 +4720,12 @@ namespace NDex
                 }
                 ++destinationFirst;
             }
-            Tuple<int, int> indexes1 = Copy<TSourceList1, TDestinationList, T>(
+            Tuple<int, int> indexes1 = copy<TSourceList1, TDestinationList, T>(
                 source1, first1, past1,
                 destination, destinationFirst, destinationPast);
             first1 = indexes1.Item1;
             destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Copy<TSourceList2, TDestinationList, T>(
+            Tuple<int, int> indexes2 = copy<TSourceList2, TDestinationList, T>(
                 source2, first2, past2,
                 destination, destinationFirst, destinationPast);
             first2 = indexes2.Item1;
@@ -5163,14 +5396,14 @@ namespace NDex
             where TSourceList : IList<T>
             where TDestinationList : IList<T>
         {
-            Tuple<int, int> indexes1 = Copy<TSourceList, TDestinationList, T>(
+            Tuple<int, int> indexes1 = copy<TSourceList, TDestinationList, T>(
                 source, middle, past,
                 destination, destinationFirst, destinationPast);
             int position = indexes1.Item1;
             destinationFirst = indexes1.Item2;
             if (position == past)
             {
-                Tuple<int, int> indexes2 = Copy<TSourceList, TDestinationList, T>(
+                Tuple<int, int> indexes2 = copy<TSourceList, TDestinationList, T>(
                     source, first, middle,
                     destination, destinationFirst, destinationPast);
                 position = indexes2.Item1;
@@ -5368,12 +5601,12 @@ namespace NDex
                     ++first2;
                 }
             }
-            Tuple<int, int> indexes1 = Copy<TSourceList1, TDestinationList, T>(
+            Tuple<int, int> indexes1 = copy<TSourceList1, TDestinationList, T>(
                 source1, first1, past1,
                 destination, destinationFirst, destinationPast);
             first1 = indexes1.Item1;
             destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Copy<TSourceList2, TDestinationList, T>(
+            Tuple<int, int> indexes2 = copy<TSourceList2, TDestinationList, T>(
                 source2, first2, past2,
                 destination, destinationFirst, destinationPast);
             first2 = indexes2.Item1;
@@ -5572,12 +5805,12 @@ namespace NDex
                     ++destinationFirst;
                 }
             }
-            Tuple<int, int> indexes1 = Copy<TSourceList1, TDestinationList, T>(
+            Tuple<int, int> indexes1 = copy<TSourceList1, TDestinationList, T>(
                 source1, first1, past1,
                 destination, destinationFirst, destinationPast);
             first1 = indexes1.Item1;
             destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Copy<TSourceList2, TDestinationList, T>(
+            Tuple<int, int> indexes2 = copy<TSourceList2, TDestinationList, T>(
                 source2, first2, past2,
                 destination, destinationFirst, destinationPast);
             first2 = indexes2.Item1;
@@ -5765,111 +5998,6 @@ namespace NDex
                 ++first;
             }
             return count;
-        }
-
-        #endregion
-
-        #region Fill
-
-        /// <summary>
-        /// Sets each item in a list to the given value.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="value">The value to fill the list with.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
-        public static void Fill<TList, T>(IMutableSublist<TList, T> list, T value)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            fill<TList, T>(list.List, list.Offset, list.Offset + list.Count, value);
-        }
-
-        private static void fill<TList, T>(TList list, int first, int past, T value)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list[first] = value;
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Sets each item in a list to the given value.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>The generator will be called to set each item in the list.</remarks>
-        public static void Fill<TList, T>(IMutableSublist<TList, T> list, Func<T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            fill<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
-        }
-
-        private static void fill<TList, T>(TList list, int first, int past, Func<T> generator)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list[first] = generator();
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Sets each item in a list to the given value.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>
-        /// The generator will be called to set each item in the list. 
-        /// The relative index of the item is passed with each call to the generator.
-        /// </remarks>
-        public static void Fill<TList, T>(IMutableSublist<TList, T> list, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            fill<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
-        }
-
-        private static void fill<TList, T>(TList list, int first, int past, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list[first] = generator(first - adjustment);
-                ++first;
-            }
         }
 
         #endregion
@@ -6266,12 +6394,12 @@ namespace NDex
         private static int indexOf<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
             where TList : IList<T>
         {
-            int result = IndexOf<TList, T, TSearch>(list.List, list.Offset, list.Offset + list.Count, value, comparison);
+            int result = indexOf<TList, T, TSearch>(list.List, list.Offset, list.Offset + list.Count, value, comparison);
             result -= list.Offset;
             return result;
         }
 
-        internal static int IndexOf<TList, T, TSearch>(TList list, int first, int past, TSearch value, Func<T, TSearch, bool> comparison)
+        private static int indexOf<TList, T, TSearch>(TList list, int first, int past, TSearch value, Func<T, TSearch, bool> comparison)
             where TList : IList<T>
         {
             while (first != past && !comparison(list[first], value))
@@ -8676,10 +8804,10 @@ namespace NDex
                 int bufferMiddle;
                 for (int past1 = middle + chunkSize; past1 < past; first1 = middle, middle = past1, past1 += chunkSize)
                 {
-                    bufferMiddle = Copy<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
+                    bufferMiddle = copy<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
                     copyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past1, list, first1, past1, comparison);
                 }
-                bufferMiddle = Copy<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
+                bufferMiddle = copy<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
                 copyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past, list, first1, past, comparison);
             }
         }
@@ -8707,7 +8835,7 @@ namespace NDex
                 int count2 = past - middle;
                 if (count1 <= count2 && count1 <= bufferCount)
                 {
-                    int bufferMiddle = Copy<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
+                    int bufferMiddle = copy<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
                     copyMerged<TBuffer, TList, TList, T>(
                         buffer, bufferFirst, bufferMiddle,
                         list, middle, past,
@@ -8716,7 +8844,7 @@ namespace NDex
                 }
                 else if (count2 <= bufferCount)
                 {
-                    int bufferMiddle = Copy<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast).Item2;
+                    int bufferMiddle = copy<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast).Item2;
                     copyMergedBackward<TList, TBuffer, TList, T>(
                         list, first, middle,
                         buffer, bufferFirst, bufferMiddle,
@@ -8765,15 +8893,15 @@ namespace NDex
             int bufferCount = bufferPast - bufferFirst;
             if (count1 <= count2 && count1 <= bufferCount)
             {
-                int bufferMiddle = Copy<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
-                Copy<TList, TList, T>(list, middle, past, list, first, past);
+                int bufferMiddle = copy<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
+                copy<TList, TList, T>(list, middle, past, list, first, past);
                 return copyBackward<TBuffer, TList, T>(buffer, bufferFirst, bufferMiddle, list, first, past);
             }
             else if (count2 <= bufferCount)
             {
-                int bufferMiddle = Copy<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast).Item2;
+                int bufferMiddle = copy<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast).Item2;
                 copyBackward<TList, TList, T>(list, first, middle, list, first, past);
-                return Copy<TBuffer, TList, T>(buffer, bufferFirst, bufferMiddle, list, first, past).Item2;
+                return copy<TBuffer, TList, T>(buffer, bufferFirst, bufferMiddle, list, first, past).Item2;
             }
             else
             {
@@ -10058,11 +10186,11 @@ namespace NDex
             {
                 throw new ArgumentNullException("list");
             }
-            RemoveRange_optimized<TList, T>(list.List, list.Offset, list.Offset + list.Count);
+            removeRange_optimized<TList, T>(list.List, list.Offset, list.Offset + list.Count);
             return list.Resize(0, true);
         }
 
-        internal static void RemoveRange_optimized<TList, T>(TList list, int first, int past)
+        private static void removeRange_optimized<TList, T>(TList list, int first, int past)
             where TList : IList<T>
         {
             if (typeof(ReversedList<,>) == list.GetType().GetGenericTypeDefinition())
@@ -10089,7 +10217,7 @@ namespace NDex
         private static void removeRange<TList, T>(TList list, int first, int past)
             where TList : IList<T>
         {
-            first = Copy<TList, TList, T>(list, past, list.Count, list, first, list.Count).Item2;
+            first = copy<TList, TList, T>(list, past, list.Count, list, first, list.Count).Item2;
             past = list.Count;
             while (first != past)
             {
@@ -10536,7 +10664,7 @@ namespace NDex
                 }
                 ++first;
             }
-            Copy<List<T>, TList, T>(buffer, 0, buffer.Count, list, next, past);
+            copy<List<T>, TList, T>(buffer, 0, buffer.Count, list, next, past);
             return next;
         }
 

@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -129,7 +127,7 @@ namespace NDex.Test
             var list = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
 
-            list = Sublist.Add(Enumerable.Range(0, 100).Select(i => 99 - i), list); // largest to smallest
+            list = Sublist.AddGenerated(list, 100, i => 99 - i); // largest to smallest
             Sublist.MakeHeap(list, comparison); // smallest to largest
 
             Assert.AreEqual(0, list[0], "The largest element was not first.");
@@ -145,7 +143,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Add(Enumerable.Range(0, 99), list);
+            list = Sublist.AddGenerated(list, 99, i => i);
             Sublist.MakeHeap(list, Comparer<int>.Default);
 
             Assert.AreEqual(98, list[0], "The largest element was not first.");

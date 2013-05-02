@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -24,14 +22,14 @@ namespace NDex.Test
             
             // build the first list
             var list1 = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list1.ToSublist());
+            Sublist.AddGenerated(list1.ToSublist(), 100, i => random.Next(100));
 
             // build the second list
             var list2 = new List<int>(100);
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next(100)), list2.ToSublist());
+            Sublist.AddGenerated(list2.ToSublist(), 100, i => random.Next(100));
 
             var destination = new List<int>(100);
-            Sublist.Add(Enumerable.Repeat(0, 100), destination.ToSublist());
+            Sublist.AddGenerated(destination.ToSublist(), 100, 0);
 
             // multiply the values at each index together
             int destinationIndex = Sublist.CopyCombined(list1.ToSublist(), list2.ToSublist(), destination.ToSublist(), (i, j) => i * j);

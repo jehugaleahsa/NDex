@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NDex;
 using System.Collections.Generic;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -122,7 +120,7 @@ namespace NDex.Test
         public void TestHeap_EvenSized_MovesTopToEnd()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 100).Select(i => i + 1), list); // 1..100
+            list = Sublist.AddGenerated(list, 100, i => i + 1); // 1..100
 
             Sublist.MakeHeap(list);
             Sublist.HeapRemove(list);
@@ -138,7 +136,7 @@ namespace NDex.Test
         public void TestHeap_OddSized_MovesTopToEnd()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(Enumerable.Range(0, 99).Select(i => i + 1), list); // 1..99
+            list = Sublist.AddGenerated(list, 99, i => i + 1); // 1..99
 
             Sublist.MakeHeap(list);
             Sublist.HeapRemove(list);
@@ -155,7 +153,7 @@ namespace NDex.Test
         {
             var list = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            list = Sublist.Add(Enumerable.Range(0, 64).Select(i => i + 1), list); // 1..64
+            list = Sublist.AddGenerated(list, 64, i => i + 1); // 1..64
 
             Sublist.MakeHeap(list, comparison);
             Sublist.HeapRemove(list, comparison);

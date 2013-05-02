@@ -1,8 +1,6 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using NDex;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Test
 {
@@ -25,7 +23,7 @@ namespace NDex.Test
 
             // build a list
             var list = new List<int>();
-            Sublist.Add(Enumerable.Range(0, 100).Select(i => random.Next()), list.ToSublist());
+            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
 
             // now, we'll find the top 10 largest items
             Sublist.PartialSort(list.ToSublist(), 10, (x, y) => Comparer<int>.Default.Compare(y, x));
