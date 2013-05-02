@@ -271,17 +271,19 @@ Anytime you have a heap, you can call `HeapSort` on it - `HeapSort` won't work o
 ### Miscellaneous Algorithms
 There are a handful of additional algorithms:
 
-* `AddRandomSamples`
-* `CopyRandomSamples`
-* `CountIf`
-* `Fill`
-* `ForEach`
-* `Partition`
-* `PreviousPermutation`
-* `RandomShuffle`
-* `Replace`
-* `Reverse`
-* `RotateLeft`
-* `NextPermutation`
-* `SwapRanges`
-* `TrueForAll`
+* `AddCombined` and `CopyCombined` - Zip together the values from two lists.
+* `AddConverted` and `CopyConverted` - Convert/Map the items in one collection into other values.
+* `AddIf` and `CopyIf` - Add or copy items satisfying a predicate.
+* `AddMerged` and `CopyMerged` - Merge the items from two sorted lists so that they remaining in sorted order.
+* `AddRandomSamples` and `CopyRandomSamples` - Select N items from a list at random.
+* `CountIf` - Count all items satisfying a condition.
+* `Fill` - Populate a list with generated values.
+* `ForEach` - Perform and action for each item in a list.
+* `Partition` and `StablePartition` - Move items satisfying a condition to the front of a list.
+* `RandomShuffle` - Rearrange the items in the list at random.
+* `Replace` - Replace items satisfying a condition with another value.
+* `Reverse` - Reverse a list.
+* `RotateLeft` - Rotate the items in a list to the left (or the right).
+* `NextPermutation` and `PreviousPermutation` - Reorder the items into every unique combination.
+* `SwapRanges` - Swap the items between two lists.
+* `TrueForAll` - Check to see if all the items in a list satisfy a condition.
