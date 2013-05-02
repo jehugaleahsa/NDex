@@ -26,7 +26,9 @@ Fortunately, you can avoid typing out this long signature simply by using the `T
     var sublist = values.ToSublist();
     Sublist.QuickSort(sublist);  // 1, 2, 3, 4, 5, 6, 7, 8, 9
     
-The compiler is smart enough to infer the generic arguments when you call `ToSublist`. Furthermore, you can use `var` to avoid even more typing. In the example above, it is important to point out that the original `values` array will be modified eventhough the `sublist` variable was passed to the algorithm. Again, the `Sublist` is just a thin wrapper around the underlying list.
+The compiler is smart enough to infer the generic arguments when you call `ToSublist`. Furthermore, you can use `var` to avoid even more typing. In the example above, it is important to point out that the original `values` array will be modified even though the `sublist` variable was passed to the algorithm. Again, the `Sublist` is just a thin wrapper around the underlying list.
+
+There is an extension method for the most common built-in collections. You can write your own `ToSublist` extension method if you really want to (just check out the source code).
 
 ### Using Sublist to Create a View
 The real power of `Sublist` is in its ability to represent a range over a list. For instance, the following example will first partition a list and then sort the two partitions:
