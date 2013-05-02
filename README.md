@@ -194,8 +194,30 @@ Returning an index past the end of the list actually makes for cleaner code. Ret
     }
     
 #### BinarySearch, LowerBound and UpperBound
+If you have a sorted list, you can perform quick look-ups using the `BinarySearch`, `LowerBound` and `UpperBound` algorithms. There's also a `LowerAndUpperBound` method that finds both bounds in one go.
+
+`LowerBound` returns the first index into the list where the item your looking for *could* be. If the item you're looking for is already in the list, it will be the index of the first occurrence. Otherwise, it will be the index where you can safely insert the item while keeping the list in sorted order.
+
+`UpperBound` returns the index into the list past the last occurrence of the item you're looking for. If the item isn't in the list, `UpperBound` returns the same index as `LowerBound`.
+
+You can use `LowerAndUpperBound` to get the indexes surrounding all occurrences of an item. For instance, the following example removes all occurrences of a particular value:
+
+    List<int> values = new List<int>() { 1, 1, 2, 2, 2, 3, 3, 3, 4, 5, 5 };
+    var result = Sublist.LowerAndUpperBound(values.ToSublist(), 3);
+    int count = result.UpperBound - result.LowerBound;
+    var occurrences = values.ToSublist(result.LowerBound, count);
+    Sublist.RemoveRange(occurrences);  // 1, 1, 2, 2, 2, 4, 5, 5
+    
+The `BinarySearch` algorithm is similar to `LowerBound` in that it will find the first occurrence of a value. It returns a result class, providing an `Index` property. It also provides an `Exists` property that says whether the item was found. The result class automatically converts to a `Boolean` or an `Int32`, representing the `Exists` or the `Index` properties, respectively.
 
 ### Comparison Algorithms
+If you need to compare two lists, you should use the `AreEqual`, `Compare` and `Mismatch` methods.
+
+`AreEqual` returns `true` if the two lists have the same items and are the same size.
+
+The `Compare` method will compare two lists in the same way `string`s are compared, using a [lexicographical comparison](http://en.wikipedia.org/wiki/Lexicographical_order). It will return `-1` if the first list is smaller or has an item smaller than what's in same position in the second list. It will return `1` if the first list is larger or has an item larger than what's in the same position in the second list. If the two lists are the same size and have the same items, it will return `0`.
+
+Finally, `Mismatch` will return the index where two lists differ. If one list is shorter than the other, it will return the index past the end of the shorter list. If the items at a particular index are different, that index is returned. If all the items are the same and the lists are the same size, an index past the end of both lists will be returned. Both `AreEqual` and `Compare` are implemented in terms of `Mismatch`.
 
 ### Sorting Algorithms
 The sorting algorithms are pretty straight-forward. What might surprise you is that there are multiple sort algorithms. Sorting algorithms have multiple properties:
