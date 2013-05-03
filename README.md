@@ -275,11 +275,11 @@ There are a handful of additional algorithms:
 
 * `AddCombined` and `CopyCombined` - Zip together the values from two lists.
 * `AddConverted` and `CopyConverted` - Convert/Map the items in one collection into other values.
+* `AddGenerated` and `CopyGenerated` - Populate a list with a fixed value or the results of a generator.
 * `AddIf` and `CopyIf` - Add or copy items satisfying a predicate.
 * `AddMerged` and `CopyMerged` - Merge the items from two sorted lists so that they remaining in sorted order.
 * `AddRandomSamples` and `CopyRandomSamples` - Select N items from a list at random.
 * `CountIf` - Count all items satisfying a condition.
-* `Fill` - Populate a list with generated values.
 * `ForEach` - Perform and action for each item in a list.
 * `Partition` and `StablePartition` - Move items satisfying a condition to the front of a list.
 * `RandomShuffle` - Rearrange the items in the list at random.
