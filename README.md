@@ -279,6 +279,7 @@ There are a handful of additional algorithms:
 * `AddIf` and `CopyIf` - Add or copy items satisfying a predicate.
 * `AddMerged` and `CopyMerged` - Merge the items from two sorted lists so that they remaining in sorted order.
 * `AddRandomSamples` and `CopyRandomSamples` - Select N items from a list at random.
+* `Aggregate` - aggregate the values in the list.
 * `CountIf` - Count all items satisfying a condition.
 * `ForEach` - Perform and action for each item in a list.
 * `Partition` and `StablePartition` - Move items satisfying a condition to the front of a list.
