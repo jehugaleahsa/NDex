@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NDex.Test
+namespace NDex.Tests
 {
     /// <summary>
     /// Tests the AddConverted methods.

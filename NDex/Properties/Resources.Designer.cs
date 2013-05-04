@@ -61,6 +61,15 @@ namespace NDex.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An attempt was made to aggregate the values in an empty list without providing a seed..
+        /// </summary>
+        internal static string AggregateEmptyList {
+            get {
+                return ResourceManager.GetString("AggregateEmptyList", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The given array was too small to hold the items..
         /// </summary>
         internal static string ArrayTooSmall {
@@ -84,15 +93,6 @@ namespace NDex.Properties {
         internal static string EditReadonlyList {
             get {
                 return ResourceManager.GetString("EditReadonlyList", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to An attempt was made to elevate a sublist wrapping a different list..
-        /// </summary>
-        internal static string ElevateOtherList {
-            get {
-                return ResourceManager.GetString("ElevateOtherList", resourceCulture);
             }
         }
         

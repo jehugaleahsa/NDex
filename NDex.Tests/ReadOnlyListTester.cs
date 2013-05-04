@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NDex.Test
+namespace NDex.Tests
 {
     /// <summary>
     /// Tests the ReadOnlyList class.

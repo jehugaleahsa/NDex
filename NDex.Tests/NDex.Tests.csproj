@@ -59,6 +59,7 @@
     <Compile Include="AddTester.cs" />
     <Compile Include="AddUnionTester.cs" />
     <Compile Include="AddUniqueTester.cs" />
+    <Compile Include="AggregateTester.cs" />
     <Compile Include="AreDisjointTester.cs" />
     <Compile Include="AreEqualTester.cs" />
     <Compile Include="BinarySearchResultTester.cs" />

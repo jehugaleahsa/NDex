@@ -2653,6 +2653,85 @@ namespace NDex
 
         #endregion
 
+        #region Aggregate
+
+        /// <summary>
+        /// Aggregates the values in the list using the given operation.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list of items to aggregate.</param>
+        /// <param name="aggregator">A function that combines the aggregated value with the next item in the list.</param>
+        /// <returns>The value after all items are combined.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.InvalidOperationException">The list did not contain any items.</exception>
+        /// <exception cref="System.ArgumentNullException">The aggregator function is null.</exception>
+        public static T Aggregate<TList, T>(
+            IReadOnlySublist<TList, T> list,
+            Func<T, T, T> aggregator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (list.Count == 0)
+            {
+                throw new InvalidOperationException();
+            }
+            if (aggregator == null)
+            {
+                throw new ArgumentNullException("aggregator");
+            }
+            return aggregate<TList, T, T>(list.List, list.Offset + 1, list.Offset + list.Count, list.List[list.Offset], aggregator);
+        }
+
+        /// <summary>
+        /// Aggregates the values in the list using the given operation.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <typeparam name="TAggregate">The type of the result.</typeparam>
+        /// <param name="list">The list of items to aggregate.</param>
+        /// <param name="seed">The initial value to combine with the items in the list.</param>
+        /// <param name="aggregator">A function that combines the aggregated value with the next item in the list.</param>
+        /// <returns>The aggregated value after all items are combined.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The aggregator function is null.</exception>
+        public static TAggregate Aggregate<TList, T, TAggregate>(
+            IReadOnlySublist<TList, T> list,
+            TAggregate seed,
+            Func<TAggregate, T, TAggregate> aggregator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (aggregator == null)
+            {
+                throw new ArgumentNullException("aggregator");
+            }
+            return aggregate<TList, T, TAggregate>(list.List, list.Offset, list.Offset + list.Count, seed, aggregator);
+        }
+
+        private static TAggregate aggregate<TList, T, TAggregate>(
+            TList list, int first, int past, 
+            TAggregate seed, 
+            Func<TAggregate, T, TAggregate> aggregator)
+            where TList : IList<T>
+        {
+            TAggregate result = seed;
+            while (first != past)
+            {
+                result = aggregator(result, list[first]);
+                ++first;
+            }
+            return result;
+        }
+
+        #endregion
+
         #region AreDisjoint
 
         /// <summary>

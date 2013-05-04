@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace NDex.Test
+namespace NDex.Tests
 {
     /// <summary>
     /// Tests the MinimumMaximumResult class.
