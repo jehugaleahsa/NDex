@@ -179,7 +179,7 @@ When a .NET search algorithm can't find a value, it returns `-1`. NDex does some
     int[] values = new int[] { 1, 2, 4, 5 };
     int index = Sublist.IndexOf(values.ToSublist(), 3);  // 4
     
-You can always check to see if the match was a success by checking if the returned index equals the `Count` of the sublist.
+You can always check to see if the match was a success by checking if the returned index equals the `Count` of the `Sublist`.
 
 Returning an index past the end of the list actually makes for cleaner code. Returning `-1`, your code would need to ask two questions: 1) am I past the end of the list? and 2) did I find the value? With NDex, you just need to ask whether you're past the end of the list. Here's an example that removes every occurrence of a sequence from a list:
 
