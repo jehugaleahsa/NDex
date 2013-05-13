@@ -70,7 +70,7 @@ There is a useful trick you can perform using a `Sublist` with a `Count` of zero
 Those familiar with data structures might be concerned about the performance implications of inserting into the middle of a list. This is less of a concern with NDex - it is optimized to handle inserting multiple items into the middle of a list efficiently (at the cost of a single shift in items). Of course, you won't see any benefit at all if you call `Add` for each item individually. In that case, it might be more efficient to first create a second list and then insert it. Even more efficient would be to add to the end of the list and perform a `RotateLeft`.
 
 ### IReadOnlySublist, IMutableSublist and IExpandableSublist
-There are three interfaces returned by the `ToSublist` method. The `IReadOnlySublist` interface prevents any modification to the underlying list. The `IMutableSublist` allows a value to be replaced at a particular index. Finally, `IExpandableSublist` allows items to be added or removed to the underlying list.
+There are three interfaces returned by the `ToSublist` method. The `IReadOnlySublist` interface prevents any modification to the underlying list whatsoever. The `IMutableSublist` allows a value to be replaced at a particular index. Finally, `IExpandableSublist` allows items to be added to or removed from the underlying list.
 
 For instance, an array (`int[]`) has a fixed size. Calling `ToSublist` on an array will return a `IMutableSublist`. Algorithms guaranteeing that they will not add or remove items will accept an `IMutableSublist`.
 
