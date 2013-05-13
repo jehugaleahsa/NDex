@@ -258,7 +258,7 @@ If you need to efficiently track items by priority, the [heap algorithms](http:/
 
     List<int> values = new List<int>() { 1, 2, 3, 4, 5 };
     Sublist.MakeHeap(values.ToSublist());  // 5, 4, 3, 1, 2
-    values.Add(6);  // 5, 4, 1, 2, 3 -> no longer a heap
+    values.Add(6);  // 5, 4, 1, 2, 3, 6 -> no longer a heap
     Sublist.HeapAdd(values.ToSublist());  // 6, 4, 5, 1, 2, 3
 
 As you can see in this example, in order to add an item to a heap, you first place it past the end of the heap. Then you call `HeapAdd` passing in a `Sublist` wrapping the heap and the new item. It will move the item up the heap into its proper location.
