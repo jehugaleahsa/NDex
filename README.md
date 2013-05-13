@@ -163,7 +163,7 @@ NDex provides a large number of algorithms. They are optimized to perform as fas
 The NDex algorithms follow different conventions than the built-in .NET algorithms. Read the following sections to see how they differ. These differences have a large impact on the code you write. Ultimately, code written using NDex will be more compact.
 
 ### Adding and Removing Items
-Most of the NDex algorithms do not change the size of the underlying list. The `Add`* methods will add items to the end of a list. The only other algorithm that changes the list is `RemoveRange`, which will remove all the items in a `Sublist`.
+Most of the NDex algorithms do not change the size of the underlying list. The `Add*` methods will add items to the end of a list. The only other algorithm that changes the list is `RemoveRange`, which will remove all the items in a `Sublist`.
 
 A common mistake is that programmers expect `RemoveIf` and `RemoveDuplicates` to actually remove items. As strange as it might seem, these methods just shift items to the front of the list. These methods return an index - everything after that index is considered garbage. Here is how you can actually remove items from the underlying list:
 
