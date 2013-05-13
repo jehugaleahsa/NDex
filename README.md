@@ -127,7 +127,7 @@ Some algorithms will return an index, such as `IndexOf`. You can find the last i
     int index = Sublist.IndexOf(reversed.ToSublist(), 3);  // 1
     index = reversed.BaseIndex(index);  // 2
 
-You have to be a little more careful when searching for duplicate items or the last sub-sequence. For example, here is the correct way to find the last sub-sequence in a list:
+You have to be a little more careful when searching for the last duplicate items or sub-sequence. For example, here is the correct way to find the last sub-sequence in a list:
 
     // Find the last occurrence of 1, 2, 3
     int[] values = new int[] { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
