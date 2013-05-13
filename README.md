@@ -60,7 +60,7 @@ Since `Sublist` is just a thin wrapper around another list, it is possible that 
 Algorithms that modify a `Sublist` will return a *new* `Sublist`. If you are dealing with multiple `Sublist`s, you will need to take extra care.
 
 ### The Empty Sublist Trick
-There is a useful trick you can perform using a `Sublist` with a `Count` of zero, so I will mention it here. There are a handful of algorithms that start with `Add`. These allow you to add new values to the end of a list. But what if you wanted to add items the front or the middle of a list? You can use the same `Add` methods as before, just create an empty `Sublist` whose offset is at the index you want to insert into. For example:
+There is a useful trick you can perform using a `Sublist` with a `Count` of zero, so I will mention it here. There are a handful of algorithms that start with `Add`. These allow you to add new values to the end of a list. But what if you wanted to add items to the front or the middle of a list? You can use the same `Add` methods as before, just create an empty `Sublist` whose offset is at the index you want to insert into. For example:
 
     List<int> values = new List<int>() { 1, 2, 3, 7, 8, 9 };
     var source = new int[] { 4, 5, 6 }.ToSublist();
