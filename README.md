@@ -14,7 +14,7 @@ In order to access the algorithms provided by NDex, you must wrap your list with
 
 The `Sublist` class has another benefit. In order for the algorithms to work directly with the underlying list, the type of the list must be known at compile time. Otherwise, all the operations would require polymorphic calls to the `IList<T>` interface. The overhead of these polymorphic calls has a dramatic impact on performance once a collection exceeds about 10,000 items. The `Sublist` class keeps track of the type of the underlying list via a generic argument. Normally, you don't need to know what that means in order to use NDex effectively, but I will try to explain. The `Sublist` class has the following signature:
 
-    public sealed class Sublist<TList, T> : IExpandableSublist<T>
+    public sealed class Sublist<TList, T> : IExpandableSublist<TList, T>
         where TList : IList<T>
         
 Developers unfamiliar with generics may be confused by this signature. Basically, it says that the `Sublist` class has two generic arguments: 1) the type of the list being wrapped and 2) the type of the elements in the list. The underlying list is *constrained* to being an `IList<T>`.
