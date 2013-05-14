@@ -183,17 +183,17 @@ You can always check to see if the match was a success by checking if the return
 
 Returning an index past the end of the list actually makes for cleaner code. Returning `-1`, your code would need to ask two questions: 1) am I past the end of the list? and 2) did I find the value? With NDex, you just need to ask whether you're past the end of the list. Here's an example that removes every occurrence of a sequence from a list:
 
-        List<int> values = new List<int> { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
-        int[] sequence = new int[] { 1, 2, 3 };
-        int index = 0;
-        while (index < values.Count)
-        {
-            var sublist = values.ToSublist(index);
-            index += Sublist.IndexOfSequence(values.ToSublist(index), sequence.ToSublist());
-            var garbage = values.ToSublist(index, 0);  // avoid assuming length
-            garbage = garbage.Resize(sequence.Length, false);  // will do nothing if at end
-            Sublist.RemoveRange(garbage);
-        }
+    List<int> values = new List<int> { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
+    int[] sequence = new int[] { 1, 2, 3 };
+    int index = 0;
+    while (index < values.Count)
+    {
+        var sublist = values.ToSublist(index);
+        index += Sublist.IndexOfSequence(values.ToSublist(index), sequence.ToSublist());
+        var garbage = values.ToSublist(index, 0);  // avoid assuming length
+        garbage = garbage.Resize(sequence.Length, false);  // will do nothing if at end
+        Sublist.RemoveRange(garbage);
+    }
     
 #### BinarySearch, LowerBound and UpperBound
 If you have a sorted list, you can perform quick look-ups using the `BinarySearch`, `LowerBound` and `UpperBound` algorithms. There's also a `LowerAndUpperBound` method that finds both bounds in one go.
