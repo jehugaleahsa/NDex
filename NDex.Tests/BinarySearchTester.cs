@@ -28,7 +28,7 @@ namespace NDex.Tests
             var set = new List<int>();
             foreach (int value in values)
             {
-                BinarySearchResult result = Sublist.BinarySearch(set.ToSublist(), value);
+                SearchResult result = Sublist.BinarySearch(set.ToSublist(), value);
                 if (!result.Exists)
                 {
                     set.Insert(result.Index, value);
@@ -134,7 +134,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = 2.5m;
-            BinarySearchResult result = Sublist.BinarySearch(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            SearchResult result = Sublist.BinarySearch(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.IsFalse(result.Exists, "The value should not have been found.");
             Assert.AreEqual(2, result.Index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -161,7 +161,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = .5m;
-            BinarySearchResult result = Sublist.BinarySearch(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            SearchResult result = Sublist.BinarySearch(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.IsFalse(result.Exists, "The found should not have been found.");
             Assert.AreEqual(0, result.Index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -188,7 +188,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             int value = 4;
-            BinarySearchResult result = Sublist.BinarySearch(list, value, Comparer<int>.Default);
+            SearchResult result = Sublist.BinarySearch(list, value, Comparer<int>.Default);
             Assert.IsFalse(result.Exists, "The value should not have been found.");
             Assert.AreEqual(3, result.Index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);

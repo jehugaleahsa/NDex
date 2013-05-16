@@ -10,9 +10,37 @@ namespace NDex.Tests
     [TestClass]
     public class IsHeapTester
     {
-        // see HeapTester for a real world example
+        // see HeapTester for an additional real world example
 
-        #region Argument Checking
+        #region Real World Example
+
+        /// <summary>
+        /// IsHeap can be useful when you want to save time building a heap from scratch, especially
+        /// when you know the list may already partially be a heap.
+        /// </summary>
+        [TestMethod]
+        public void TestIsHeap_BuildHeapFromRemaining()
+        {
+            Random random = new Random();
+
+            // build a random list
+            var list = new List<int>(100);
+            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
+
+            // find the first bad value and add the remaining items to the heap
+            var result = Sublist.IsHeap(list.ToSublist());
+            while (!result.Success)
+            {
+                var heap = list.ToSublist(0, result.Index + 1);
+                Sublist.HeapAdd(heap);
+                Assert.IsTrue(Sublist.IsHeap(heap), "After adding an item to the heap, it was no longer valid.");
+                result = Sublist.IsHeap(list.ToSublist()); // bypass already valid items - usually more efficient to simply incrememnt
+            }
+        }
+
+        #endregion
+
+        #region Argument Checks
 
         /// <summary>
         /// An exception should be thrown if the list is null.
@@ -76,63 +104,55 @@ namespace NDex.Tests
         #endregion
 
         /// <summary>
-        /// An empty list is a valid heap.
+        /// An empty list is a valid heap, so zero should be returned.
         /// </summary>
         [TestMethod]
-        public void TestIsHeap_EmptyList_ReturnsTrue()
+        public void TestIsHeap_EmptyList_ReturnsZero()
         {
             var list = TestHelper.Wrap(new List<int>());
-            bool isHeap = Sublist.IsHeap(list);
-            Assert.IsTrue(isHeap, "An empty list should be a valid heap.");
+            var result = Sublist.IsHeap(list);
+            Assert.IsTrue(result.Success, "An empty list should be a valid heap.");
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
         /// <summary>
-        /// An list with one item is a valid heap.
+        /// A list with one item is a valid heap, so an index past the last item should be returned.
         /// </summary>
         [TestMethod]
-        public void TestIsHeap_SizeOfOne_ReturnsTrue()
+        public void TestIsHeap_ListOfOne_ReturnsOne()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            bool isHeap = Sublist.IsHeap(list);
-            Assert.IsTrue(isHeap, "A list of size one should be a valid heap.");
+            var result = Sublist.IsHeap(list);
+            Assert.IsTrue(result.Success, "A list with one item should be a valid heap.");
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
         /// <summary>
-        /// An list with two item is a valid heap if the first value is larger.
+        /// In a list of two items, it is a valid heap if the first item is larger.
         /// </summary>
         [TestMethod]
-        public void TestIsHeap_SizeOfTwo()
+        public void TestIsHeap_ListOfTwo_BigToSmall_ReturnsCount()
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 1 });
-            bool isHeap = Sublist.IsHeap(list, Comparer<int>.Default);
-            Assert.IsTrue(isHeap, "The list should have been a valid heap.");
+            var result = Sublist.IsHeap(list, Comparer<int>.Default);
+            Assert.IsTrue(result.Success, "The list should have been a heap.");
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
         /// <summary>
-        /// If we build a heap in reverse, it should still be a heap with the appropriate comparison.
+        /// If there is an item in the list that stops it from being a heap,
+        /// its index should be returned.
         /// </summary>
         [TestMethod]
-        public void TestIsHeap_MinHeap()
+        public void TestIsHeap_InvalidHeap_ReturnsFirstInvalidIndex()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6, 7, });
-            Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            bool isHeap = Sublist.IsHeap(list, comparison);
-            Assert.IsTrue(isHeap, "The list should have been a valid heap.");
-            TestHelper.CheckHeaderAndFooter(list);
-        }
-
-        /// <summary>
-        /// If we build a list that is not a heap, false should be returned.
-        /// </summary>
-        [TestMethod]
-        public void TestIsHeap_NotAHeap_ReturnsFalse()
-        {
-            var list = TestHelper.Wrap(new List<int>() { 10, 9, 8, 5, 6, 11, 4 }); // the 11 is the problem
-            bool isHeap = Sublist.IsHeap(list);
-            Assert.IsFalse(isHeap, "The list was not a valid heap.");
+            var list = TestHelper.Wrap(new List<int>() { 10, 8, 9, 6, 7, 5, 10, 4, 3 });
+            var result = Sublist.IsHeap(list, Comparer<int>.Default.Compare);
+            Assert.IsFalse(result.Success, "The list should not have been a heap.");
+            Assert.AreEqual(6, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

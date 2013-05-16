@@ -5,30 +5,49 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the IsSet methods.
+    /// Tests the ISetUntil methods.
     /// </summary>
     [TestClass]
     public class IsSetTester
     {
-        #region Real World Examples
+        #region Real World Example
 
         /// <summary>
-        /// If we take random numbers, sort them and remove duplicates, the list represents a set.
+        /// If we have a partially ordered, unique set of numbers, we may want to know where to start
+        /// adding items.
         /// </summary>
         [TestMethod]
-        public void TestIsSet_SortedAndUnique()
+        public void TestIsSet_BuildSet()
         {
             Random random = new Random();
 
             // build a list
-            var list = new List<int>(5);
-            Sublist.AddGenerated(list.ToSublist(), 5, i => random.Next(0, 100));
+            var list = new List<int>(100);
+            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
 
-            bool isSorted = Sublist.IsSorted(list.ToSublist());
-            bool hasDuplicates = Sublist.FindDuplicates(list.ToSublist());
-            bool expected = isSorted && !hasDuplicates;
-            bool actual = Sublist.IsSet(list.ToSublist());
-            Assert.AreEqual(expected, actual, "A sorted list without duplicates is a set.");
+            // build a set in place - could call QuickSort then RemoveDuplicates, or MakeSet.
+            int index = Sublist.IsSet(list.ToSublist());
+            for (int next = index; next < list.Count; ++next)
+            {
+                var set = list.ToSublist(0, index);
+                int value = list[next];
+                int location = Sublist.BinarySearch(set, value);
+                // if the value is unique
+                if (location < 0)
+                {
+                    location = ~location;
+                    // shift everything over one and stick in the value
+                    int size = index - location;
+                    var backend = list.ToSublist(location, size);
+                    var offset = list.ToSublist(location + 1, size);
+                    Sublist.Copy(backend.Reversed(), offset.Reversed());
+                    //copyBackward(backend, offset);
+                    list[location] = value;
+                    ++index; // the set grew
+                }
+            }
+            Sublist.RemoveRange(list.ToSublist(index)); // removes dangling items
+            Assert.IsTrue(Sublist.IsSet(list.ToSublist()), "Did not build a valid set.");
         }
 
         #endregion
@@ -103,8 +122,9 @@ namespace NDex.Tests
         public void TestIsSet_EmptyList_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>());
-            bool isSet = Sublist.IsSet(list);
-            Assert.IsTrue(isSet, "An empty list should be a valid set.");
+            var result = Sublist.IsSet(list);
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Success, "An empty list is a valid set.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -115,8 +135,9 @@ namespace NDex.Tests
         public void TestIsSet_SizeOfOne_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            bool isSet = Sublist.IsSet(list);
-            Assert.IsTrue(isSet, "A list of size one should be a valid set.");
+            var result = Sublist.IsSet(list);
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Success, "A list with one item is a valid set.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -127,8 +148,9 @@ namespace NDex.Tests
         public void TestIsSet_SizeOfTwo()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2 });
-            bool isSet = Sublist.IsSet(list, Comparer<int>.Default);
-            Assert.IsTrue(isSet, "The list should have been a valid set.");
+            var result = Sublist.IsSet(list, Comparer<int>.Default);
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Success, "The list should have been a set.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -140,8 +162,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 4, 3, 2, 1 });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            bool isSet = Sublist.IsSet(list, comparison);
-            Assert.IsTrue(isSet, "The list should have been a valid set.");
+            var result = Sublist.IsSet(list, comparison);
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Success, "The list should have been a set.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -152,8 +175,9 @@ namespace NDex.Tests
         public void TestIsSet_ContainsDuplicates_ReturnsFalse()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 3, });
-            bool isSet = Sublist.IsSet(list);
-            Assert.IsFalse(isSet, "The list was not a valid set.");
+            var result = Sublist.IsSet(list);
+            Assert.AreEqual(3, result.Index, "The wrong index was returned.");
+            Assert.IsFalse(result.Success, "The list should not have been a set.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -163,9 +187,10 @@ namespace NDex.Tests
         [TestMethod]
         public void TestIsSet_OutOfOrder_ReturnsFalse()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 4, 3, });
-            bool isSet = Sublist.IsSet(list);
-            Assert.IsFalse(isSet, "The list was not a valid set.");
+            var list = TestHelper.Wrap(new List<int>() { 1, 2, 4, 3, }); // 3's the trouble maker, not 4!
+            var result = Sublist.IsSet(list);
+            Assert.AreEqual(3, result.Index, "The wrong index was returned.");
+            Assert.IsFalse(result.Success, "The list should not have been a set.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

@@ -720,7 +720,7 @@ namespace NDex.Tests
             var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
 
-            source = Sublist.Replace(source, sequence, sequence);
+            source = Sublist.Replace(source, sequence, sequence, EqualityComparer<int>.Default);
 
             int[] expected = new int[] { 1, 2, 3, 4, 5 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), source), "The wrong values were added to the destination.");
@@ -738,7 +738,7 @@ namespace NDex.Tests
             var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
             var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
 
-            source = Sublist.Replace(source, sequence, sequence);
+            source = Sublist.Replace(source, sequence, sequence, EqualityComparer<int>.Default.Equals);
 
             int[] expected = new int[] { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), source), "The wrong values were added to the destination.");

@@ -27,13 +27,15 @@ namespace NDex.Tests
             // partition the odds to the end
             Sublist.Partition(list.ToSublist(), i => i % 2 == 0); // odds to the end
 
-            bool isPartitioned = Sublist.IsPartitioned(list.ToSublist(), i => i % 2 == 0);
-            Assert.IsTrue(isPartitioned, "The list was not partitioned.");
+            var result = Sublist.IsPartitioned(list.ToSublist(), i => i % 2 == 0);
+            Assert.IsTrue(result.Success, "The list was not partitioned.");
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
 
             // force a bad partition
             list[list.Count - 1] = 0;
-            isPartitioned = Sublist.IsPartitioned(list.ToSublist(), i => i % 2 == 0);
-            Assert.IsFalse(isPartitioned, "The list should not have been partitioned.");
+            result = Sublist.IsPartitioned(list.ToSublist(), i => i % 2 == 0);
+            Assert.IsFalse(result.Success, "The list should not have been partitioned.");
+            Assert.AreEqual(list.Count - 1, result.Index, "The wrong index was returned.");
         }
 
         #endregion
@@ -67,55 +69,75 @@ namespace NDex.Tests
         #endregion
 
         /// <summary>
-        /// If every item in the list satisfies the predicate, then the list is partitioned.
+        /// The length of a list should be returned if it is empty.
         /// </summary>
         [TestMethod]
-        public void TestIsPartitioned_AllMatch_ReturnsTrue()
+        public void TestIsPartitioned_EmptyList_ReturnsCount()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, });
-            Func<int, bool> predicate = i => true;
-
-            bool isPartitioned = Sublist.IsPartitioned(list, predicate);
-            Assert.IsTrue(isPartitioned, "The list should have been partitioned.");
-        }
-
-        /// <summary>
-        /// If no item in the list satisfies the predicate, then the list is partitioned.
-        /// </summary>
-        [TestMethod]
-        public void TestIsPartitioned_NoMatches_ReturnsTrue()
-        {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, });
-            Func<int, bool> predicate = i => false;
-
-            bool isPartitioned = Sublist.IsPartitioned(list, predicate);
-            Assert.IsTrue(isPartitioned, "The list should have been partitioned.");
-        }
-
-        /// <summary>
-        /// If the list is partitioned, then the method should return true.
-        /// </summary>
-        [TestMethod]
-        public void TestIsPartitioned_Partitioned_ReturnsTrue()
-        {
-            var list = TestHelper.Wrap(new List<int>() { 0, 2, 1, 3 });
+            var list = TestHelper.Wrap(new List<int>());
             Func<int, bool> predicate = i => i % 2 == 0;
-
-            bool isPartitioned = Sublist.IsPartitioned(list, predicate);
-            Assert.IsTrue(isPartitioned, "The list should have been partitioned.");
+            var result = Sublist.IsPartitioned(list, predicate);
+            Assert.IsTrue(result.Success, "An empty list should be partitioned.");
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            TestHelper.CheckHeaderAndFooter(list);
         }
 
         /// <summary>
-        /// If an item satisfying the predicate is found after one that doesn't, the list is not partitioned.
+        /// A list with one item is partitioned until the end.
         /// </summary>
         [TestMethod]
-        public void TestIsPartitioned_NotPartitioned_ReturnsFalse()
+        public void TestIsPartitioned_SizeOfOne_ReturnsCount()
         {
-            var list = TestHelper.Wrap(new List<int>() { 0, 2, 1, 4 });
+            var list = TestHelper.Wrap(new List<int>() { 1 });
             Func<int, bool> predicate = i => i % 2 == 0;
+            var result = Sublist.IsPartitioned(list, predicate);
+            Assert.IsTrue(result.Success, "A list with one item should be partitioned.");
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            TestHelper.CheckHeaderAndFooter(list);
+        }
 
-            bool isPartitioned = Sublist.IsPartitioned(list, predicate);
-            Assert.IsFalse(isPartitioned, "The list should not have been partitioned.");
+        /// <summary>
+        /// A list with two items, one satisfying the condition and the other not,
+        /// should be partitioned to the end.
+        /// </summary>
+        [TestMethod]
+        public void TestIsPartitioned_FirstSatisfiesSecondDoesNot_ReturnsCount()
+        {
+            var list = TestHelper.Wrap(new List<int>() { 2, 1 });
+            Func<int, bool> predicate = i => i % 2 == 0; // is it even?
+            var result = Sublist.IsPartitioned(list, predicate);
+            Assert.IsTrue(result.Success, "The list should have been partitioned.");
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            TestHelper.CheckHeaderAndFooter(list);
+        }
+
+        /// <summary>
+        /// A list with one item, failing the condition, is still partitioned.
+        /// </summary>
+        [TestMethod]
+        public void TestIsPartitioned_FirstFails_ReturnsCount()
+        {
+            var list = TestHelper.Wrap(new List<int>() { 1 });
+            Func<int, bool> predicate = i => i % 2 == 0; // is it even?
+            var result = Sublist.IsPartitioned(list, predicate);
+            Assert.IsTrue(result.Success, "A list with one item should always be partitioned.");
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            TestHelper.CheckHeaderAndFooter(list);
+        }
+
+        /// <summary>
+        /// If we have two items and the first fails the condition, but the second satisfies, 
+        /// the index of the last item should be returned.
+        /// </summary>
+        [TestMethod]
+        public void TestIsPartitioned_FirstFailsSecondSucceeds_ReturnsLastIndex()
+        {
+            var list = TestHelper.Wrap(new List<int>() { 1, 2 });
+            Func<int, bool> predicate = i => i % 2 == 0; // is it even?
+            var result = Sublist.IsPartitioned(list, predicate);
+            Assert.IsFalse(result.Success, "The list should not have been partitioned.");
+            Assert.AreEqual(1, result.Index, "The wrong index was returned.");
+            TestHelper.CheckHeaderAndFooter(list);
         }
     }
 }

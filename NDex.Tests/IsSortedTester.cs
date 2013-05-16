@@ -13,11 +13,10 @@ namespace NDex.Tests
         #region Real World Example
 
         /// <summary>
-        /// If we know a list is likely to be sorted, it can be quicker to check first before blindly calling sort.
-        /// We will use IsSorted to find the largest range in a list of random numbers that are sorted.
+        /// We'll use IsSorted to break a list into sorted ranges, then we'll merge the values to sort the entire list.
         /// </summary>
         [TestMethod]
-        public void TestIsSorted_FindLongestSortedRange()
+        public void TestIsSorted_BreakListIntoSortedRanges_ThenMerge()
         {
             Random random = new Random();
 
@@ -25,25 +24,31 @@ namespace NDex.Tests
             var list = new List<int>(100);
             Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(0, 100));
 
-            int maxIndex = 0;
-            int maxLength = 1;
-            for (int index = 0; index < list.Count - maxLength; ++index)
+            // find all of the sorted ranges
+            int index = 0;
+            var ranges = new List<IMutableSublist<List<int>, int>>();
+            while (index != list.Count)
             {
-                for (int length = maxLength; length < list.Count - index; ++length)
+                var remaining = list.ToSublist(index);
+                int nextIndex = Sublist.IsSorted(remaining);
+                var range = list.ToSublist(index, nextIndex);
+                ranges.Add(range);
+                index += nextIndex;
+            }
+
+            // now merge the ranges to sort the list
+            int[] buffer = new int[list.Count];
+            if (ranges.Count > 1)
+            {
+                for (int next = 1; next != ranges.Count; ++next)
                 {
-                    var sublist = list.ToSublist(index, length);
-                    if (Sublist.IsSorted(sublist))
-                    {
-                        maxIndex = index;
-                        maxLength = length;
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    var nextRange = ranges[next];
+                    var firstRange = list.ToSublist(0, nextRange.Offset);
+                    int count = Sublist.CopyMerged(firstRange, nextRange, buffer.ToSublist()); // merge into buffer
+                    Sublist.Copy(buffer.ToSublist(0, count), list.ToSublist()); // move back to original list, sorted
                 }
             }
-            Assert.IsTrue(Sublist.IsSorted(list.ToSublist(maxIndex, maxLength)), "The longest range was not sorted.");
+            Assert.IsTrue(Sublist.IsSorted(list.ToSublist()), "The list was not sorted.");
         }
 
         #endregion
@@ -118,8 +123,9 @@ namespace NDex.Tests
         public void TestIsSorted_EmptyList_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>());
-            bool isSorted = Sublist.IsSorted(list);
-            Assert.IsTrue(isSorted, "An empty list should be sorted.");
+            var result = Sublist.IsSorted(list);
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Success, "An empty list should be sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -130,8 +136,9 @@ namespace NDex.Tests
         public void TestIsSorted_ListOfOne_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            bool isSorted = Sublist.IsSorted(list);
-            Assert.IsTrue(isSorted, "A list with one item should be sorted.");
+            var result = Sublist.IsSorted(list);
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Success, "A list with one item should be sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -142,8 +149,9 @@ namespace NDex.Tests
         public void TestIsSorted_Reversed_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 4, 3, 2, 1 });
-            bool isSorted = Sublist.IsSorted(list, (x, y) => Comparer<int>.Default.Compare(y, x));
-            Assert.IsTrue(isSorted, "A reversed list should be sorted with the correct comparer.");
+            var result = Sublist.IsSorted(list, (x, y) => Comparer<int>.Default.Compare(y, x));
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Success, "A list should have been sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -151,11 +159,12 @@ namespace NDex.Tests
         /// An unsorted list should cause the method to return false.
         /// </summary>
         [TestMethod]
-        public void TestIsSorted_Unsorted_ReturnsFalse()
+        public void TestIsSorted_Unsorted()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 4, 2 });
-            bool isSorted = Sublist.IsSorted(list, Comparer<int>.Default.Compare);
-            Assert.IsFalse(isSorted, "An unsorted list should not be sorted.");
+            var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 4, 2 }); // 4 is the problem, not 5!
+            var result = Sublist.IsSorted(list, Comparer<int>.Default);
+            Assert.AreEqual(3, result.Index, "The wrong index was returned.");
+            Assert.IsFalse(result.Success, "A list should not have been sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

@@ -38,7 +38,7 @@ namespace NDex.Tests
             // now let's remove it
             Sublist.HeapRemove(list.ToSublist());
             Assert.AreEqual(100, list[list.Count - 1], "The value not moved to the bottom of the heap.");
-            Assert.AreEqual(list.Count - 1, Sublist.IsHeapUntil(list.ToSublist()), "Could not find the end of the heap.");
+            Assert.AreEqual(list.Count - 1, Sublist.IsHeap(list.ToSublist()), "Could not find the end of the heap.");
             list.RemoveAt(list.Count - 1);
             Assert.IsTrue(Sublist.IsHeap(list.ToSublist()), "The list is not a heap.");
 

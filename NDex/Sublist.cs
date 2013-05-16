@@ -43,72 +43,6 @@ namespace NDex
 
     #endregion
 
-    #region BinarySearchResult
-
-    /// <summary>
-    /// Holds the results of the BinarySearch methods.
-    /// </summary>
-    public sealed class BinarySearchResult
-    {
-        /// <summary>
-        /// Initializes a new instance of a BinarySearchResult.
-        /// </summary>
-        internal BinarySearchResult()
-        {
-        }
-
-        /// <summary>
-        /// Gets the first index where the search value was found, if it exists, or belongs, if it does not exist.
-        /// </summary>
-        public int Index
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Gets whether the value was found in the list.
-        /// </summary>
-        public bool Exists
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Implicitly converts the result to a boolean, representing whether the search value was found
-        /// by the BinarySearch algorithm.
-        /// </summary>
-        /// <param name="result">The BinarySearchResult to convert.</param>
-        /// <returns>True if the given BinarySearchResult indicates that the value was found; otherwise, false.</returns>
-        public static implicit operator bool(BinarySearchResult result)
-        {
-            return result.Exists;
-        }
-
-        /// <summary>
-        /// Implicitly converts the result to an integer, representing the first index of the value, if it exists, 
-        /// or where it would belong, if it does not exist.
-        /// </summary>
-        /// <param name="result">The BinarySearchResult to convert.</param>
-        /// <returns>True if the given BinarySearchResult indicates that the value was found; otherwise, false.</returns>
-        public static implicit operator int(BinarySearchResult result)
-        {
-            return result.Index;
-        }
-
-        /// <summary>
-        /// Gets the string representation of the result.
-        /// </summary>
-        /// <returns>The string representation of the result.</returns>
-        public override string ToString()
-        {
-            return String.Format(CultureInfo.CurrentCulture, "Exists = {0}, Index = {1}", Exists, Index);
-        }
-    }
-
-    #endregion
-
     #region CopyResult
 
     /// <summary>
@@ -252,47 +186,47 @@ namespace NDex
 
     #endregion
 
-    #region FindResult
+    #region CheckResult
 
     /// <summary>
-    /// Holds the results of a find method.
+    /// Holds the results of an algorithm that checks whether a list satisfies a condition.
     /// </summary>
-    public sealed class FindResult
+    public sealed class CheckResult
     {
         /// <summary>
-        /// Initializes a new instance of a FindResult.
+        /// Initializes a new instance of a CheckResult.
         /// </summary>
-        internal FindResult()
+        internal CheckResult()
         {
         }
 
         /// <summary>
-        /// Gets the index where the search value was found.
+        /// Gets the index where the list stopped satisfying the condition.
         /// </summary>
         public int Index { get; internal set; }
 
         /// <summary>
-        /// Gets or sets whether the search value existed.
+        /// Gets or sets whether the full list satisfied the condition.
         /// </summary>
-        public bool Exists { get; internal set; }
+        public bool Success { get; internal set; }
 
         /// <summary>
-        /// Implicitly converts the result to a boolean, representing whether the search value was found.
+        /// Implicitly converts the result to a boolean, representing whether the entire list satisfied the condition.
         /// </summary>
-        /// <param name="result">The FindResult to convert.</param>
-        /// <returns>True if the given result indicates that the value was found; otherwise, false.</returns>
-        public static implicit operator bool(FindResult result)
+        /// <param name="result">The result to convert.</param>
+        /// <returns>True if the given result indicates the entire list satisfies the condition; otherwise, false.</returns>
+        public static implicit operator bool(CheckResult result)
         {
-            return result.Exists;
+            return result.Success;
         }
 
         /// <summary>
-        /// Implicitly converts the result to an integer, representing the first index of the value, if it exists,
-        /// or an index past the end of the list if it is missing.
+        /// Implicitly converts the result to an integer, representing the index where the list stopped
+        /// satisfying the condition.
         /// </summary>
-        /// <param name="result">The FindResult to convert.</param>
-        /// <returns>True if the given result indicates that the value was found; otherwise, false.</returns>
-        public static implicit operator int(FindResult result)
+        /// <param name="result">The result to convert.</param>
+        /// <returns>The index where the list stopped satisfying the condition.</returns>
+        public static implicit operator int(CheckResult result)
         {
             return result.Index;
         }
@@ -303,7 +237,7 @@ namespace NDex
         /// <returns>The string representation of the result.</returns>
         public override string ToString()
         {
-            return String.Format(CultureInfo.CurrentCulture, "Exists = {0}, Index = {1}", Exists, Index);
+            return String.Format(CultureInfo.CurrentCulture, "Success = {0}, Index = {1}", Success, Index);
         }
     }
 
@@ -391,6 +325,63 @@ namespace NDex
         public override string ToString()
         {
             return String.Format(CultureInfo.CurrentCulture, "Minimum Index = {0}, Maximum Index = {1}", MinimumIndex, MaximumIndex);
+        }
+    }
+
+    #endregion
+
+    #region SearchResult
+
+    /// <summary>
+    /// Holds the results of a search method.
+    /// </summary>
+    public sealed class SearchResult
+    {
+        /// <summary>
+        /// Initializes a new instance of a SearchResult.
+        /// </summary>
+        internal SearchResult()
+        {
+        }
+
+        /// <summary>
+        /// Gets the index where the search value was found.
+        /// </summary>
+        public int Index { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets whether the search value existed.
+        /// </summary>
+        public bool Exists { get; internal set; }
+
+        /// <summary>
+        /// Implicitly converts the result to a boolean, representing whether the search value was found.
+        /// </summary>
+        /// <param name="result">The result to convert.</param>
+        /// <returns>True if the given result indicates that the value was found; otherwise, false.</returns>
+        public static implicit operator bool(SearchResult result)
+        {
+            return result.Exists;
+        }
+
+        /// <summary>
+        /// Implicitly converts the result to an integer, representing the first index of the value, if it exists,
+        /// or an index past the end of the list if it is missing.
+        /// </summary>
+        /// <param name="result">The result to convert.</param>
+        /// <returns>The index where the value was found -or- the index past the end of the list.</returns>
+        public static implicit operator int(SearchResult result)
+        {
+            return result.Index;
+        }
+
+        /// <summary>
+        /// Gets the string representation of the result.
+        /// </summary>
+        /// <returns>The string representation of the result.</returns>
+        public override string ToString()
+        {
+            return String.Format(CultureInfo.CurrentCulture, "Exists = {0}, Index = {1}", Exists, Index);
         }
     }
 
@@ -3306,7 +3297,7 @@ namespace NDex
         /// <remarks>
         /// This algorithm assumes that the list is sorted according to the default order of the items.
         /// </remarks>
-        public static BinarySearchResult BinarySearch<TList, T>(IReadOnlySublist<TList, T> list, T value)
+        public static SearchResult BinarySearch<TList, T>(IReadOnlySublist<TList, T> list, T value)
             where TList : IList<T>
         {
             if (list == null)
@@ -3331,7 +3322,7 @@ namespace NDex
         /// This algorithm assumes that the list is sorted using a meaningful ordering and that the
         /// comparer respects that order.
         /// </remarks>
-        public static BinarySearchResult BinarySearch<TList, T>(IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
+        public static SearchResult BinarySearch<TList, T>(IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -3361,7 +3352,7 @@ namespace NDex
         /// This algorithm assumes that the list is sorted using a meaningful ordering and that the
         /// comparison delegate respects that order.
         /// </remarks>
-        public static BinarySearchResult BinarySearch<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
+        public static SearchResult BinarySearch<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -3375,7 +3366,7 @@ namespace NDex
             return binarySearch<TList, T, TSearch>(list, value, comparison);
         }
 
-        private static BinarySearchResult binarySearch<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
+        private static SearchResult binarySearch<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
             where TList : IList<T>
         {
             int lowerBound = binarySearch<TList, T, TSearch>(
@@ -3384,11 +3375,11 @@ namespace NDex
                 comparison);
             if (lowerBound < 0)
             {
-                return new BinarySearchResult() { Exists = false, Index = ~lowerBound - list.Offset };
+                return new SearchResult() { Exists = false, Index = ~lowerBound - list.Offset };
             }
             else
             {
-                return new BinarySearchResult { Exists = true, Index = lowerBound - list.Offset };
+                return new SearchResult { Exists = true, Index = lowerBound - list.Offset };
             }
         }
 
@@ -6158,7 +6149,7 @@ namespace NDex
         /// <param name="value">The value to search for.</param>
         /// <returns>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static FindResult Find<TList, T>(IReadOnlySublist<TList, T> list, T value)
+        public static SearchResult Find<TList, T>(IReadOnlySublist<TList, T> list, T value)
             where TList : IList<T>
         {
             if (list == null)
@@ -6179,7 +6170,7 @@ namespace NDex
         /// <returns>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static FindResult Find<TList, T>(IReadOnlySublist<TList, T> list, T value, IEqualityComparer<T> comparer)
+        public static SearchResult Find<TList, T>(IReadOnlySublist<TList, T> list, T value, IEqualityComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -6205,7 +6196,7 @@ namespace NDex
         /// <returns>>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static FindResult Find<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
+        public static SearchResult Find<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -6219,12 +6210,12 @@ namespace NDex
             return find<TList, T, TSearch>(list, value, comparison);
         }
 
-        private static FindResult find<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
+        private static SearchResult find<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
             int index = indexOf<TList, T, TSearch>(list.List, list.Offset, past, value, comparison);
-            FindResult result = new FindResult();
+            SearchResult result = new SearchResult();
             result.Index = index - list.Offset;
             result.Exists = index != past;
             return result;
@@ -6253,7 +6244,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static FindResult Find<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
+        public static SearchResult Find<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
             where TList : IList<T>
         {
             if (list == null)
@@ -6266,7 +6257,7 @@ namespace NDex
             }
             int past = list.Offset + list.Count;
             int index = indexOf<TList, T>(list.List, list.Offset, past, predicate);
-            FindResult result = new FindResult();
+            SearchResult result = new SearchResult();
             result.Index = index - list.Offset;
             result.Exists = index != past;
             return result;
@@ -6310,7 +6301,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static FindResult FindAny<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static SearchResult FindAny<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -6341,7 +6332,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static FindResult FindAny<TList1, TList2, T>(
+        public static SearchResult FindAny<TList1, TList2, T>(
             IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IEqualityComparer<T> comparer)
@@ -6380,7 +6371,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static FindResult FindAny<TList1, T1, TList2, T2>(
+        public static SearchResult FindAny<TList1, T1, TList2, T2>(
             IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, bool> comparison)
@@ -6402,7 +6393,7 @@ namespace NDex
             return findAny<TList1, T1, TList2, T2>(list1, list2, comparison);
         }
 
-        private static FindResult findAny<TList1, T1, TList2, T2>(
+        private static SearchResult findAny<TList1, T1, TList2, T2>(
             IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, bool> comparison)
@@ -6414,7 +6405,7 @@ namespace NDex
                 list1.List, list1.Offset, past,
                 list2.List, list2.Offset, list2.Offset + list2.Count,
                 comparison);
-            FindResult result = new FindResult();
+            SearchResult result = new SearchResult();
             result.Index = index - list1.Offset;
             result.Exists = index != past;
             return result;
@@ -6456,7 +6447,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>The list must be sorted according to the default order of the items.</remarks>
-        public static FindResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list)
+        public static SearchResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -6479,7 +6470,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
         /// <remarks>The list must be sorted such that equivalent items are adjacent.</remarks>
-        public static FindResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list, IEqualityComparer<T> comparer)
+        public static SearchResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list, IEqualityComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -6506,7 +6497,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         /// <remarks>The list must be sorted such that equivalent items are adjacent.</remarks>
-        public static FindResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
+        public static SearchResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -6520,12 +6511,12 @@ namespace NDex
             return findDuplicates<TList, T>(list, comparison);
         }
 
-        private static FindResult findDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
+        private static SearchResult findDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
             int index = indexOfDuplicates<TList, T>(list.List, list.Offset, past, comparison);
-            FindResult result = new FindResult();
+            SearchResult result = new SearchResult();
             result.Index = index - list.Offset;
             result.Exists = index != past;
             return result;
@@ -6565,7 +6556,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        public static FindResult FindSequence<TList1, TList2, T>(IReadOnlySublist<TList1, T> list, IReadOnlySublist<TList2, T> sequence)
+        public static SearchResult FindSequence<TList1, TList2, T>(IReadOnlySublist<TList1, T> list, IReadOnlySublist<TList2, T> sequence)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -6596,7 +6587,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static FindResult FindSequence<TList1, TList2, T>(
+        public static SearchResult FindSequence<TList1, TList2, T>(
             IReadOnlySublist<TList1, T> list,
             IReadOnlySublist<TList2, T> sequence,
             IEqualityComparer<T> comparer)
@@ -6635,7 +6626,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static FindResult FindSequence<TList1, T1, TList2, T2>(
+        public static SearchResult FindSequence<TList1, T1, TList2, T2>(
             IReadOnlySublist<TList1, T1> list,
             IReadOnlySublist<TList2, T2> sequence,
             Func<T1, T2, bool> comparison)
@@ -6657,7 +6648,7 @@ namespace NDex
             return findSequence<TList1, T1, TList2, T2>(list, sequence, comparison);
         }
 
-        private static FindResult findSequence<TList1, T1, TList2, T2>(
+        private static SearchResult findSequence<TList1, T1, TList2, T2>(
             IReadOnlySublist<TList1, T1> list,
             IReadOnlySublist<TList2, T2> sequence,
             Func<T1, T2, bool> comparison)
@@ -6669,7 +6660,7 @@ namespace NDex
                 list.List, list.Offset, past,
                 sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
                 comparison);
-            FindResult result = new FindResult();
+            SearchResult result = new SearchResult();
             result.Index = index - list.Offset;
             result.Exists = index != past;
             return result;
@@ -7125,14 +7116,16 @@ namespace NDex
         #region IsHeap
 
         /// <summary>
-        /// Determines whether the given list is a valid heap.
+        /// Finds the index in which the list stops being a valid heap.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
-        /// <returns>True if the list represents a valid heap; otherwise, false.</returns>
+        /// <param name="list">The list to search.</param>
+        /// <returns>
+        /// The index in which the list stops being a valid heap -or- an index past the last item in the list, if the entire list is a valid heap.
+        /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static bool IsHeap<TList, T>(IReadOnlySublist<TList, T> list)
+        public static CheckResult IsHeap<TList, T>(IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -7143,16 +7136,18 @@ namespace NDex
         }
 
         /// <summary>
-        /// Determines whether the given list is a valid heap.
+        /// Finds the index in which the list stops being a valid heap.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
+        /// <param name="list">The list to search.</param>
         /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>True if the list represents a valid heap; otherwise, false.</returns>
+        /// <returns>
+        /// The index in which the list stops being a valid heap -or- an index past the last item in the list, if the entire list is a valid heap.
+        /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool IsHeap<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static CheckResult IsHeap<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -7167,16 +7162,18 @@ namespace NDex
         }
 
         /// <summary>
-        /// Determines whether the given list is a valid heap.
+        /// Finds the index in which the list stops being a valid heap.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
+        /// <param name="list">The list to search.</param>
         /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <returns>True if the list represents a valid heap; otherwise, false.</returns>
+        /// <returns>
+        /// The index in which the list stops being a valid heap -or- an index past the last item in the list, if the entire list is a valid heap.
+        /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool IsHeap<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        public static CheckResult IsHeap<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -7190,95 +7187,14 @@ namespace NDex
             return isHeap<TList, T>(list, comparison);
         }
 
-        private static bool isHeap<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        private static CheckResult isHeap<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
-            int result = isHeapUntil<TList, T>(list.List, list.Offset, past, comparison);
-            return result == past;
-        }
-
-        #endregion
-
-        #region IsHeapUntil
-
-        /// <summary>
-        /// Finds the index in which the list stops being a valid heap.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <returns>
-        /// The index in which the list stops being a valid heap -or- an index past the last item in the list, if the entire list is a valid heap.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static int IsHeapUntil<TList, T>(IReadOnlySublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return isHeapUntil<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Finds the index in which the list stops being a valid heap.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>
-        /// The index in which the list stops being a valid heap -or- an index past the last item in the list, if the entire list is a valid heap.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static int IsHeapUntil<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return isHeapUntil<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Finds the index in which the list stops being a valid heap.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <returns>
-        /// The index in which the list stops being a valid heap -or- an index past the last item in the list, if the entire list is a valid heap.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static int IsHeapUntil<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return isHeapUntil<TList, T>(list, comparison);
-        }
-
-        private static int isHeapUntil<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            int result = isHeapUntil<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            result -= list.Offset;
+            int index = isHeapUntil<TList, T>(list.List, list.Offset, past, comparison);
+            CheckResult result = new CheckResult();
+            result.Index = index - list.Offset;
+            result.Success = index == past;
             return result;
         }
 
@@ -7306,40 +7222,6 @@ namespace NDex
         #region IsPartitioned
 
         /// <summary>
-        /// Determines whether a list is partitioned.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
-        /// <param name="predicate">The predicate to check if the list is partitioned.</param>
-        /// <returns>True if the list is partitioned by the given predicate; otherwise, false.</returns>
-        /// <remarks>The algorithm expects that the list is partitioned such that the items satisfying the predicate appear first.</remarks>
-        public static bool IsPartitioned<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            return isPartitioned<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
-        }
-
-        private static bool isPartitioned<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            int index = isPartitionedUntil<TList, T>(list, first, past, predicate);
-            return index == past;
-        }
-
-        #endregion
-
-        #region IsPartitionedUntil
-
-        /// <summary>
         /// Finds the index in which the list stops being partitioned.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
@@ -7351,7 +7233,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static int IsPartitionedUntil<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
+        public static CheckResult IsPartitioned<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
             where TList : IList<T>
         {
             if (list == null)
@@ -7362,8 +7244,11 @@ namespace NDex
             {
                 throw new ArgumentNullException("predicate");
             }
-            int result = isPartitionedUntil<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
-            result -= list.Offset;
+            int past = list.Offset + list.Count;
+            int index = isPartitionedUntil<TList, T>(list.List, list.Offset, past, predicate);
+            CheckResult result = new CheckResult();
+            result.Index = index - list.Offset;
+            result.Success = index == past;
             return result;
         }
 
@@ -7380,14 +7265,16 @@ namespace NDex
         #region IsSet
 
         /// <summary>
-        /// Determines whether the list is a valid ordered set.
+        /// Finds the index in which the list stops being a valid set.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
-        /// <returns>True if the list is a valid ordered set; otherwise, false.</returns>
+        /// <param name="list">The list to search.</param>
+        /// <returns>
+        /// The index in which the list stops being a valid set -or- an index past the last item in the list, if the entire list is a set.
+        /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static bool IsSet<TList, T>(IReadOnlySublist<TList, T> list)
+        public static CheckResult IsSet<TList, T>(IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -7398,16 +7285,18 @@ namespace NDex
         }
 
         /// <summary>
-        /// Determines whether the list is a valid ordered set.
+        /// Finds the index in which the list stops being a valid set.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
+        /// <param name="list">The list to search.</param>
         /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>True if the list is a valid ordered set; otherwise, false.</returns>
+        /// <returns>
+        /// The index in which the list stops being a valid set -or- an index past the last item in the list, if the entire list is a set.
+        /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool IsSet<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static CheckResult IsSet<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -7422,16 +7311,18 @@ namespace NDex
         }
 
         /// <summary>
-        /// Determines whether the list is a valid ordered set.
+        /// Finds the index in which the list stops being a valid set.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
+        /// <param name="list">The list to search.</param>
         /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <returns>True if the list is a valid ordered set; otherwise, false.</returns>
+        /// <returns>
+        /// The index in which the list stops being a valid set -or- an index past the last item in the list, if the entire list is a set.
+        /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool IsSet<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        public static CheckResult IsSet<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -7445,95 +7336,14 @@ namespace NDex
             return isSet<TList, T>(list, comparison);
         }
 
-        private static bool isSet<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        private static CheckResult isSet<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
-            int result = isSetUntil<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            return result == past;
-        }
-
-        #endregion
-
-        #region IsSetUntil
-
-        /// <summary>
-        /// Finds the index in which the list stops being a valid set.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <returns>
-        /// The index in which the list stops being a valid set -or- an index past the last item in the list, if the entire list is a set.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static int IsSetUntil<TList, T>(IReadOnlySublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return isSetUntil<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Finds the index in which the list stops being a valid set.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>
-        /// The index in which the list stops being a valid set -or- an index past the last item in the list, if the entire list is a set.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static int IsSetUntil<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return isSetUntil<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Finds the index in which the list stops being a valid set.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <returns>
-        /// The index in which the list stops being a valid set -or- an index past the last item in the list, if the entire list is a set.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static int IsSetUntil<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return isSetUntil<TList, T>(list, comparison);
-        }
-
-        private static int isSetUntil<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            int result = isSetUntil<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            result -= list.Offset;
+            int index = isSetUntil<TList, T>(list.List, list.Offset, past, comparison);
+            CheckResult result = new CheckResult();
+            result.Index = index - list.Offset;
+            result.Success = index == past;
             return result;
         }
 
@@ -7573,7 +7383,7 @@ namespace NDex
         /// This algorithm assumes that both lists are sorted according to the default order of the items. 
         /// Both lists must contain distinct values.
         /// </remarks>
-        public static bool IsSubset<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static CheckResult IsSubset<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -7605,7 +7415,7 @@ namespace NDex
         /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
         /// comparison delegate respects that order. Both lists must contain distinct values.
         /// </remarks>
-        public static bool IsSubset<TList1, TList2, T>(
+        public static CheckResult IsSubset<TList1, TList2, T>(
             IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IComparer<T> comparer)
@@ -7645,7 +7455,7 @@ namespace NDex
         /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
         /// comparison delegate respects that order. Both lists must contain distinct values.
         /// </remarks>
-        public static bool IsSubset<TList1, T1, TList2, T2>(
+        public static CheckResult IsSubset<TList1, T1, TList2, T2>(
             IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, int> comparison)
@@ -7667,146 +7477,22 @@ namespace NDex
             return isSubset<TList1, T1, TList2, T2>(list1, list2, comparison);
         }
 
-        private static bool isSubset<TList1, T1, TList2, T2>(
+        private static CheckResult isSubset<TList1, T1, TList2, T2>(
             IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, int> comparison)
             where TList1 : IList<T1>
             where TList2 : IList<T2>
         {
-            int past2 = list2.Offset + list2.Count;
+            int past = list2.Offset + list2.Count;
             int index = isSubsetUntil<TList1, T1, TList2, T2>(
                 list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, past2,
+                list2.List, list2.Offset, past,
                 comparison);
-            return index == past2;
-        }
-
-        #endregion
-
-        #region IsSubsetUntil
-
-        /// <summary>
-        /// Determines whether all of the items in the second list appear in the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <returns>True if all of the items in the second list appear in the first list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that both lists are sorted according to the default order of the items. 
-        /// Both lists must contain distinct values.
-        /// </remarks>
-        public static int IsSubsetUntil<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            return isSubsetUntil<TList1, T, TList2, T>(list1, list2, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Determines whether all of the items in the second list appear in the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparer">The comparison delegate to use to compare items from the lists.</param>
-        /// <returns>True if all of the items in the second list have an equivilent item in the first list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
-        /// comparison delegate respects that order. Both lists must contain distinct values.
-        /// </remarks>
-        public static int IsSubsetUntil<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
-            IReadOnlySublist<TList2, T> list2,
-            IComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return isSubsetUntil<TList1, T, TList2, T>(list1, list2, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Determines whether all of the items in the second list appear in the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items from the lists.</param>
-        /// <returns>True if all of the items in the second list have an equivilent item in the first list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
-        /// comparison delegate respects that order. Both lists must contain distinct values.
-        /// </remarks>
-        public static int IsSubsetUntil<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, int> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return isSubsetUntil<TList1, T1, TList2, T2>(list1, list2, comparison);
-        }
-
-        private static int isSubsetUntil<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, int> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            int index = isSubsetUntil<TList1, T1, TList2, T2>(
-                list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, list2.Offset + list2.Count,
-                comparison);
-            return index - list2.Offset;
+            CheckResult result = new CheckResult();
+            result.Index = index - list2.Offset;
+            result.Success = index == past;
+            return result;
         }
 
         private static int isSubsetUntil<TList1, T1, TList2, T2>(
@@ -7841,14 +7527,14 @@ namespace NDex
         #region IsSorted
 
         /// <summary>
-        /// Determines whether a list is sorted.
+        /// Finds the index in which the list stops being sorted.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
-        /// <returns>True if the list is sorted; otherwise, false.</returns>
+        /// <param name="list">The list to search.</param>
+        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static bool IsSorted<TList, T>(IReadOnlySublist<TList, T> list)
+        public static CheckResult IsSorted<TList, T>(IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -7859,16 +7545,16 @@ namespace NDex
         }
 
         /// <summary>
-        /// Determines whether a list is sorted.
+        /// Finds the index in which the list stops being sorted.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
+        /// <param name="list">The list to search.</param>
         /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>True if the list is sorted; otherwise, false.</returns>
+        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool IsSorted<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static CheckResult IsSorted<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -7883,16 +7569,16 @@ namespace NDex
         }
 
         /// <summary>
-        /// Determines whether a list is sorted.
+        /// Finds the index in which the list stops being sorted.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <returns>True if the list is sorted; otherwise, false.</returns>
+        /// <param name="list">The list to search.</param>
+        /// <param name="comparison">The comparison delegate to use to comparer items in the list.</param>
+        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool IsSorted<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        public static CheckResult IsSorted<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -7906,89 +7592,14 @@ namespace NDex
             return isSorted<TList, T>(list, comparison);
         }
 
-        private static bool isSorted<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        private static CheckResult isSorted<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
-            int result = isSortedUntil<TList, T>(list.List, list.Offset, past, comparison);
-            return result == past;
-        }
-
-        #endregion
-
-        #region IsSortUntil
-
-        /// <summary>
-        /// Finds the index in which the list stops being sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static int IsSortedUntil<TList, T>(IReadOnlySublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return isSortedUntil<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Finds the index in which the list stops being sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static int IsSortedUntil<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return isSortedUntil<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Finds the index in which the list stops being sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparison">The comparison delegate to use to comparer items in the list.</param>
-        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static int IsSortedUntil<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return isSortedUntil<TList, T>(list, comparison);
-        }
-
-        private static int isSortedUntil<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            int result = isSortedUntil<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            result -= list.Offset;
+            int index = isSortedUntil<TList, T>(list.List, list.Offset, past, comparison);
+            CheckResult result = new CheckResult();
+            result.Index = index - list.Offset;
+            result.Success = index == past;
             return result;
         }
 

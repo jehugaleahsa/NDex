@@ -28,11 +28,13 @@ namespace NDex.Tests
             var fours = new List<int>();
             Sublist.AddGenerated(fours.ToSublist(), 100, i => random.Next(100) * 4);
             Sublist.QuickSort(fours.ToSublist()); // items must be sorted
-            Sublist.RemoveRange(fours.ToSublist(Sublist.RemoveDuplicates(fours.ToSublist()))); // items must be distinct.
+            int garbageIndex = Sublist.RemoveDuplicates(fours.ToSublist());
+            var garbage = fours.ToSublist(garbageIndex);
+            Sublist.RemoveRange(garbage); // items must be distinct.
 
             // there shouldn't be a multiple of four that isn't also a multiple of two
-            bool result = Sublist.IsSubset(evens.ToSublist(), fours.ToSublist());
-            Assert.IsTrue(result, "Found a multiple of four that wasn't a multiple of two.");
+            var result = Sublist.IsSubset(evens.ToSublist(), fours.ToSublist());
+            Assert.IsTrue(result.Success, "Found a multiple of four that wasn't a multiple of two.");
         }
 
         #endregion
@@ -151,8 +153,9 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>());
-            bool result = Sublist.IsSubset(list1, list2, Comparer<int>.Default.Compare);
-            Assert.IsTrue(result, "An empty list was not a subset of another.");
+            var result = Sublist.IsSubset(list1, list2, Comparer<int>.Default.Compare);
+            Assert.AreEqual(list2.Count, result.Index, "An empty list was not a subset of another.");
+            Assert.IsTrue(result.Success, "An empty list should always be a valid subset.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -165,8 +168,9 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>());
             var list2 = TestHelper.Wrap(new List<int>());
-            bool result = Sublist.IsSubset(list1, list2, Comparer<int>.Default.Compare);
-            Assert.IsTrue(result, "An empty list was not a subset of another.");
+            var result = Sublist.IsSubset(list1, list2, Comparer<int>.Default.Compare);
+            Assert.AreEqual(list2.Count, result.Index, "An empty list was not a subset of another.");
+            Assert.IsTrue(result.Success, "An empty list should always be a valid subset.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -179,8 +183,9 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            bool result = Sublist.IsSubset(list1, list2, Comparer<int>.Default);
-            Assert.IsFalse(result, "Not all items were in the parent, but still succeeded.");
+            var result = Sublist.IsSubset(list1, list2, Comparer<int>.Default);
+            Assert.AreEqual(0, result.Index, "Not all items were in the parent, but still succeeded.");
+            Assert.IsFalse(result.Success, "The list should not have been a valid subset.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -193,8 +198,9 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 2, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            bool result = Sublist.IsSubset(list1, list2, Comparer<int>.Default.Compare);
-            Assert.IsFalse(result, "Not all items were in the parent, but still succeeded.");
+            var result = Sublist.IsSubset(list1, list2, Comparer<int>.Default.Compare);
+            Assert.AreEqual(2, result.Index, "Not all items were in the parent, but still succeeded.");
+            Assert.IsFalse(result.Success, "The list should not have been a valid subset.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -207,8 +213,24 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            bool result = Sublist.IsSubset(list1, list2, Comparer<int>.Default);
-            Assert.IsFalse(result, "Not all items were in the parent, but still succeeded.");
+            var result = Sublist.IsSubset(list1, list2, Comparer<int>.Default);
+            Assert.AreEqual(1, result.Index, "Not all items were in the parent, but still succeeded.");
+            Assert.IsFalse(result.Success, "The list should not have been a valid subset.");
+            TestHelper.CheckHeaderAndFooter(list1);
+            TestHelper.CheckHeaderAndFooter(list2);
+        }
+
+        /// <summary>
+        /// The subset can be intermingled within the set.
+        /// </summary>
+        [TestMethod]
+        public void TestIsSubset_List2Intermingled_ReturnsTrue()
+        {
+            var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4, 5, 6 });
+            var list2 = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
+            var result = Sublist.IsSubset(list1, list2, Comparer<int>.Default);
+            Assert.AreEqual(list2.Count, result.Index, "Not all items were in the parent, but still succeeded.");
+            Assert.IsTrue(result.Success, "The list should have been a valid subset.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
