@@ -221,7 +221,7 @@ If you need to compare two lists, you should use the `AreEqual`, `Compare` and `
 
 The `Compare` method will compare two lists in the same way `string`s are compared, using a [lexicographical comparison](http://en.wikipedia.org/wiki/Lexicographical_order). It will return `-1` if the first list is smaller or has an item smaller than what's in same position in the second list. It will return `1` if the first list is larger or has an item larger than what's in the same position in the second list. If the two lists are the same size and have the same items, it will return `0`.
 
-Finally, `Mismatch` will return the index where two lists differ. If one list is shorter than the other, it will return the index past the end of the shorter list. If the items at a particular index are different, that index is returned. If all the items are the same and the lists are the same size, an index past the end of both lists will be returned. Both `AreEqual` and `Compare` are implemented in terms of `Mismatch`.
+Finally, `Mismatch` will return the index where two lists differ. If one list is shorter than the other, it will return the index past the end of the shorter list. If the items at a particular index are different, that index is returned. If all the items are the same and the lists are the same size, an index past the end of both lists will be returned.
 
 ### Sorting Algorithms
 The sorting algorithms are pretty straight-forward. What might surprise you is that there are multiple sort algorithms. Sorting algorithms have multiple properties:
