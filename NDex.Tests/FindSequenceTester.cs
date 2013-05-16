@@ -5,10 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the IndexOfSequence methods.
+    /// Tests the FindSequence methods.
     /// </summary>
     [TestClass]
-    public class IndexOfSequenceTester
+    public class FindSequenceTester
     {
         #region Real World Example
 
@@ -16,7 +16,7 @@ namespace NDex.Tests
         /// We'll look within a randomly generated string for a randomly generated sequence.
         /// </summary>
         [TestMethod]
-        public void TestIndexOfSequence_SearchText()
+        public void TestFindSequence_SearchText()
         {
             Random random = new Random();
             char[] keys = { 'A', 'C', 'G', 'T' };
@@ -32,11 +32,11 @@ namespace NDex.Tests
             // force a find
             Sublist.Add(list2.ToSublist(), list1.ToSublist(random.Next(list1.Count + 1), 0));
 
-            int index = Sublist.IndexOfSequence(list1.ToSublist(), list2.ToSublist());
-            Assert.AreNotEqual(list1.Count, index, "The sequence was not found.");
-            Assert.IsTrue(list1.Count - index > list2.Length, "The index was too close to the end.");
+            var result = Sublist.FindSequence(list1.ToSublist(), list2.ToSublist());
+            Assert.IsTrue(result.Exists, "The sequence was not found.");
+            Assert.IsTrue(list1.Count - result.Index > list2.Length, "The index was too close to the end.");
 
-            var actual = list1.ToSublist(index, list2.Length);
+            var actual = list1.ToSublist(result.Index, list2.Length);
             Assert.IsTrue(Sublist.AreEqual(list2.ToSublist(), actual), "The index was not pointing to the beginning of a matching sequence.");
         }
 
@@ -49,11 +49,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfSequence_NullList1_Throws()
+        public void TestFindSequence_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.IndexOfSequence(list1, list2);
+            Sublist.FindSequence(list1, list2);
         }
 
         /// <summary>
@@ -61,12 +61,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfSequence_WithComparer_NullList1_Throws()
+        public void TestFindSequence_WithComparer_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.IndexOfSequence(list1, list2, comparer);
+            Sublist.FindSequence(list1, list2, comparer);
         }
 
         /// <summary>
@@ -74,12 +74,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfSequence_WithComparison_NullList1_Throws()
+        public void TestFindSequence_WithComparison_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.IndexOfSequence(list1, list2, comparison);
+            Sublist.FindSequence(list1, list2, comparison);
         }
 
         /// <summary>
@@ -87,11 +87,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfSequence_NullList2_Throws()
+        public void TestFindSequence_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.IndexOfSequence(list1, list2);
+            Sublist.FindSequence(list1, list2);
         }
 
         /// <summary>
@@ -99,12 +99,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfSequence_WithComparer_NullList2_Throws()
+        public void TestFindSequence_WithComparer_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.IndexOfSequence(list1, list2, comparer);
+            Sublist.FindSequence(list1, list2, comparer);
         }
 
         /// <summary>
@@ -112,12 +112,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfSequence_WithComparison_NullList2_Throws()
+        public void TestFindSequence_WithComparison_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.IndexOfSequence(list1, list2, comparison);
+            Sublist.FindSequence(list1, list2, comparison);
         }
 
         /// <summary>
@@ -125,12 +125,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfSequence_NullComparer_Throws()
+        public void TestFindSequence_NullComparer_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.IndexOfSequence(list1, list2, comparer);
+            Sublist.FindSequence(list1, list2, comparer);
         }
 
         /// <summary>
@@ -138,12 +138,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfSequence_NullComparison_Throws()
+        public void TestFindSequence_NullComparison_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.IndexOfSequence(list1, list2, comparison);
+            Sublist.FindSequence(list1, list2, comparison);
         }
 
         #endregion
@@ -152,14 +152,15 @@ namespace NDex.Tests
         /// If the sequence does not exist, false should be returned.
         /// </summary>
         [TestMethod]
-        public void TestIndexOfSequence_DoesNotExist_ReturnsFalse()
+        public void TestFindSequence_DoesNotExist_ReturnsFalse()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 0, 1, 0, 1, 2, 0, 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4 });
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
 
-            int index = Sublist.IndexOfSequence(list1, list2, comparison);
-            Assert.AreEqual(list1.Count, index, "The index was wrong.");
+            var result = Sublist.FindSequence(list1, list2, comparison);
+            Assert.AreEqual(list1.Count, result.Index, "The index was wrong.");
+            Assert.IsFalse(result.Exists, "The sequence should not have been found.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -169,14 +170,15 @@ namespace NDex.Tests
         /// If the sequence appears at the beginning, true should be returned.
         /// </summary>
         [TestMethod]
-        public void TestIndexOfSequence_InFront_ReturnsTrue()
+        public void TestFindSequence_InFront_ReturnsTrue()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4 });
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
 
-            int index = Sublist.IndexOfSequence(list1, list2, comparer);
-            Assert.AreEqual(0, index, "The index was wrong.");
+            var result = Sublist.FindSequence(list1, list2, comparer);
+            Assert.AreEqual(0, result.Index, "The index was wrong.");
+            Assert.IsTrue(result.Exists, "The sequence should have been found.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -186,14 +188,15 @@ namespace NDex.Tests
         /// If the sequence appears at the end, true should be returned.
         /// </summary>
         [TestMethod]
-        public void TestIndexOfSequence_InBack_ReturnsTrue()
+        public void TestFindSequence_InBack_ReturnsTrue()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
 
-            int index = Sublist.IndexOfSequence(list1, list2, comparison);
-            Assert.AreEqual(1, index, "The index was wrong.");
+            var result = Sublist.FindSequence(list1, list2, comparison);
+            Assert.AreEqual(1, result.Index, "The index was wrong.");
+            Assert.IsTrue(result.Exists, "The sequence should have been found.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -203,13 +206,14 @@ namespace NDex.Tests
         /// If the sequence appears in the middle, true should be returned.
         /// </summary>
         [TestMethod]
-        public void TestIndexOfSequence_InMiddle_ReturnsTrue()
+        public void TestFindSequence_InMiddle_ReturnsTrue()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
 
-            int index = Sublist.IndexOfSequence(list1, list2);
-            Assert.AreEqual(1, index, "The index was wrong.");
+            var result = Sublist.FindSequence(list1, list2);
+            Assert.AreEqual(1, result.Index, "The index was wrong.");
+            Assert.IsTrue(result.Exists, "The sequence should have been found.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -219,12 +223,13 @@ namespace NDex.Tests
         /// If the lists are equal, true should be returned.
         /// </summary>
         [TestMethod]
-        public void TestIndexOfSequence_ListsEqual_ReturnsTrue()
+        public void TestFindSequence_ListsEqual_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
 
-            int index = Sublist.IndexOfSequence(list, list);
-            Assert.AreEqual(0, index, "The index was wrong.");
+            var result = Sublist.FindSequence(list, list);
+            Assert.AreEqual(0, result.Index, "The index was wrong.");
+            Assert.IsTrue(result.Exists, "The sequence should have been found.");
 
             TestHelper.CheckHeaderAndFooter(list);
         }

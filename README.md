@@ -67,7 +67,7 @@ There is a useful trick you can perform using a `Sublist` with a `Count` of zero
     var destination = values.ToSublist(3, 0);  // Count of zero
     Sublist.Add(source, destination);  // 1, 2, 3, 4, 5, 6, 7, 8, 9
     
-Those familiar with data structures might be concerned about the performance implications of inserting into the middle of a list. This is less of a concern with NDex - it is optimized to handle inserting multiple items into the middle of a list efficiently (at the cost of a single shift in items). Of course, you won't see any benefit at all if you call `Add` for each item individually. In that case, it might be more efficient to first create a second list and then insert it. Even more efficient would be to add to the end of the list and perform a `RotateLeft`.
+Those familiar with data structures might be concerned about the performance implications of inserting into the middle of a list. This is less of a concern with NDex - it is optimized to handle inserting multiple items into the middle of a list efficiently (at the cost of a single shift in items). Of course, you won't see any benefit at all if you call `Add` many, many times. In that case, it might be more efficient to first create a second list and then insert it. Even more efficient would be to add to the end of the list and perform a `RotateLeft`.
 
 ### IReadOnlySublist, IMutableSublist and IExpandableSublist
 There are three interfaces returned by the `ToSublist` method. The `IReadOnlySublist` interface prevents any modification to the underlying list whatsoever. The `IMutableSublist` allows a value to be replaced at a particular index. Finally, `IExpandableSublist` allows items to be added to or removed from the underlying list.
@@ -84,7 +84,7 @@ If you want to manipulate `string`s, you will need to first convert your `string
     var greeting = "Hello, World";
     var substring = greeting.ToSubstring();
     var sequence = "World".ToSubstring();
-    int index = Sublist.IndexOfSequence(substring, sequence);
+    int index = Sublist.FindSequence(substring, sequence);
     List<char> list = new List<char>();
     Sublist.Add(greeting.Nest(0, index), list.ToSublist());  // "Hello, "
     Sublist.Add("Bob".ToSubstring(), list.ToSublist());  // "Hello, Bob"
@@ -120,11 +120,11 @@ What's cool is that the `Reversed` extension method is smart and will return a n
 `Reversed` will return the original, underlying list if you try to reverse a reversed list. This is a good thing because you don't want to add a bunch of unnecessary layers on top of your lists. But wait! What if you reverse a sublist and then reverse it again?!?! Don't worry, NDex handles that, too. Essentially, calling `Reversed` two times in a row is a no-op.
 
 ### Translating Indicies
-Some algorithms will return an index, such as `IndexOf`. You can find the last index of a value simply by calling `Reversed` on this list first. The only problem is that the index is in terms of the reversed list, not the underlying list. In order to get the index into the underlying list, just call the `BaseIndex` method on the `ReversedList`.
+Some algorithms will return an index, such as `Find`. You can find the last index of a value simply by calling `Reversed` on this list first. The only problem is that the index is in terms of the reversed list, not the underlying list. In order to get the index into the underlying list, just call the `BaseIndex` method on the `ReversedList`.
 
     int[] values = new int[] { 1, 2, 3, 4 };
     var reversed = values.Reversed();
-    int index = Sublist.IndexOf(reversed.ToSublist(), 3);  // 1
+    int index = Sublist.Find(reversed.ToSublist(), 3);  // 1
     index = reversed.BaseIndex(index);  // 2
 
 You have to be a little more careful when searching for the last duplicate items or sub-sequence. For example, here is the correct way to find the last sub-sequence in a list:
@@ -133,7 +133,7 @@ You have to be a little more careful when searching for the last duplicate items
     int[] values = new int[] { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
     var reversed = values.ToSublist().Reversed();
     var sequence = new int[] { 1, 2, 3 }.ToSublist().Reversed();
-    int index = Sublist.IndexOfSequence(reversed, sequence);  // returns 7, not 9!
+    int index = Sublist.FindSequence(reversed, sequence);  // returns 7, not 9!
     var lastSeqReversed = reversed.Nest(index, sequence.Count);  // wrap 3, 2, 1
     var lastSeq = lastSeqReversed.Reversed();  // restore it to 1, 2, 3
     index = lastSeq.Offset;  // 6
@@ -177,7 +177,7 @@ Basically, you must call `RemoveRange` to actually shrink the list. You might be
 When a .NET search algorithm can't find a value, it returns `-1`. NDex does something completely differently. It will instead return an index past the end of the `Sublist`. For example:
 
     int[] values = new int[] { 1, 2, 4, 5 };
-    int index = Sublist.IndexOf(values.ToSublist(), 3);  // 4
+    int index = Sublist.Find(values.ToSublist(), 3);  // 4
     
 You can always check to see if the match was a success by checking if the returned index equals the `Count` of the `Sublist`.
 
@@ -189,11 +189,13 @@ Returning an index past the end of the list actually makes for cleaner code. Ret
     while (index < values.Count)
     {
         var sublist = values.ToSublist(index);
-        index += Sublist.IndexOfSequence(values.ToSublist(index), sequence.ToSublist());
+        index += Sublist.FindSequence(values.ToSublist(index), sequence.ToSublist());
         var garbage = values.ToSublist(index, 0);  // avoid assuming length
         garbage = garbage.Resize(sequence.Length, false);  // will do nothing if at end
         Sublist.RemoveRange(garbage);
     }
+    
+All of the `Find*` algorithms return a `FindResult` object. This object contains two properties: `Index` and `Exists`. These will tell you where the search value was found and whether it was found at all. The `FindResult` class will automatically convert to an `int` or a `bool` representing the two properties.
     
 #### BinarySearch, LowerBound and UpperBound
 If you have a sorted list, you can perform quick look-ups using the `BinarySearch`, `LowerBound` and `UpperBound` algorithms. There's also a `LowerAndUpperBound` method that finds both bounds in one go.
@@ -290,3 +292,23 @@ There are a handful of additional algorithms:
 * `NextPermutation` and `PreviousPermutation` - Reorder the items into every unique combination.
 * `SwapRanges` - Swap the items between two lists.
 * `TrueForAll` - Check to see if all the items in a list satisfy a condition.
+
+## Combining Add and Copy Algorithms
+The `Copy*` algorithms return one or more indexes because they will stop prematurely if they detect that there isn't enough room in the destination(s) to continue. These indexes represent where in the list(s) the algorithm stopped. Most algorithms attempt to exit in a way that you can switch over to using an `Add*` algorithm to complete the task.
+
+For instance, `CopyCombined` will combine the items from two lists and store them in the destination. If the destination is too small, the indexes into the two source lists where the algorithm stopped will be available:
+
+    var values = new int[] { 1, 2, 3, 4, 5 }.ToSublist();
+    var multipliers = new int[] { 2, 2, 2, 2, 2 }.ToSublist();
+    var results = new List<int>() { 0, 0 }.ToSublist();  // initial size of two
+    var indexes = Sublist.CopyCombined(values, multipliers, results, (i, j) => i * j);  // 2, 4
+    values = values.Nest(indexes.SourceOffset1);
+    multipiers = multipliers.Nest(indexes.SourceOffset2);
+    results = results.Nest(0, indexes.DestinationOffset);
+    results = Sublist.AddCombined(values, multipliers, results, (i, j) => i * j);  // 2, 4, 6, 8, 10
+    
+Notice that I didn't have to check whether the `CopyCombined` algorithm ran to completion or whether it stopped prematurely. I know that if it stopped normally, `SourceOffset1` or `SourceOffset2` will be past the end of their respective lists and the `AddCombined` algorithm would do nothing. I make sure to `Nest` the `results` list, as well, since the algorithm might have stopped before completely filling the `results` list (perhaps in a less contrived example).
+
+You typically wouldn't use this technique to simply avoid clearing a list. Clearing a list will have little impact on performance. What little impact it does have probably isn't worth the added complexity. This technique might pay off if you're doing a lot of manipulation in the middle of a list, where clearing and adding items results in shifts of items further back in the list. Even in this scenario, it may more performant to simply build a separate list, clear the gap and add it after it's finished.
+
+It's important to be aware of the behavior of the `Copy*` algorithms. From the previous example, if there wasn't a multiplier for each value, you may want to assume a multiplier of `1`. In this case, you could simply `Copy` *and* `Add` the remaining values into the `results` list. The code above could easily be modified so that it would have this behavior. And the code still wouldn't need to check the offsets!

@@ -29,7 +29,7 @@ namespace NDex.Tests
 
             // the set should be sorted and have all unique values
             Assert.IsTrue(Sublist.IsSorted(list.ToSublist()), "The list was not sorted.");
-            Assert.IsFalse(Sublist.ContainsDuplicates(list.ToSublist()), "The list had duplicates.");
+            Assert.IsFalse(Sublist.FindDuplicates(list.ToSublist()), "The list had duplicates.");
         }
 
         #endregion

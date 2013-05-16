@@ -32,6 +32,39 @@ namespace NDex.Tests
             Assert.IsTrue(Sublist.TrueForAll(destination.ToSublist(), i => i >= 0), "Not all values were positive.");
         }
 
+        /// <summary>
+        /// If you want to replace a sequence of values, you can specify the old sequence and a 
+        /// replacement sequence.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_ReplaceMisspelledWords()
+        {
+            string source = "This mesage has mispelled wordz.";
+            List<char> destination = new List<char>();
+            const string mesage = "mesage";
+            const string message = "message";
+
+            Sublist.AddReplaced(source.ToSubstring(), mesage.ToSubstring(), message.ToSubstring(), destination.ToSublist());
+            source = new String(destination.ToArray());
+
+            const string mispelled = "mispelled";
+            const string misspelled = "misspelled";
+
+            destination.Clear();
+            Sublist.AddReplaced(source.ToSubstring(), mispelled.ToSubstring(), misspelled.ToSubstring(), destination.ToSublist());
+            source = new String(destination.ToArray());
+
+            const string wordz = "wordz";
+            const string words = "words";
+
+            destination.Clear();
+            Sublist.AddReplaced(source.ToSubstring(), wordz.ToSubstring(), words.ToSubstring(), destination.ToSublist());
+            source = new String(destination.ToArray());
+
+            const string expected = "This message has misspelled words.";
+            Assert.AreEqual(expected, source, "The words were not replaced as expected.");
+        }
+
         #endregion
 
         #region Argument Checking
@@ -134,6 +167,256 @@ namespace NDex.Tests
             Sublist.AddReplaced(list, destination, predicate, generator);
         }
 
+        /// <summary>
+        /// If we try to pass a null source, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_SourceNull_Throws()
+        {
+            Sublist<List<int>, int> source = null;
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            Sublist.AddReplaced(source, sequence, replacement, destination);
+        }
+
+        /// <summary>
+        /// If we try to pass a null sequence, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_SequenceNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = null;
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            Sublist.AddReplaced(source, sequence, replacement, destination);
+        }
+
+        /// <summary>
+        /// If we try to pass an empty sequence, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestAddReplaced_SequenceEmpty_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>();
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            Sublist.AddReplaced(source, sequence, replacement, destination);
+        }
+
+        /// <summary>
+        /// If we try to pass a null replacement, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_ReplacementNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = null;
+            Sublist<List<int>, int> destination = new List<int>();
+            Sublist.AddReplaced(source, sequence, replacement, destination);
+        }
+
+        /// <summary>
+        /// If we try to pass a null destination, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_DestinationNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = null;
+            Sublist.AddReplaced(source, sequence, replacement, destination);
+        }
+
+        /// <summary>
+        /// If we try to pass a null source, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparer_SourceNull_Throws()
+        {
+            Sublist<List<int>, int> source = null;
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparer);
+        }
+
+        /// <summary>
+        /// If we try to pass a null sequence, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparer_SequenceNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = null;
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparer);
+        }
+
+        /// <summary>
+        /// If we try to pass an empty sequence, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestAddReplaced_WithComparer_SequenceEmpty_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>();
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparer);
+        }
+
+        /// <summary>
+        /// If we try to pass a null replacement, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparer_ReplacementNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = null;
+            Sublist<List<int>, int> destination = new List<int>();
+            IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparer);
+        }
+
+        /// <summary>
+        /// If we try to pass a null destination, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparer_DestinationNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = null;
+            IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparer);
+        }
+
+        /// <summary>
+        /// If we try to pass a null comparer, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparer_ComparerNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            IEqualityComparer<int> comparer = null;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparer);
+        }
+
+        /// <summary>
+        /// If we try to pass a null source, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparison_SourceNull_Throws()
+        {
+            Sublist<List<int>, int> source = null;
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparison);
+        }
+
+        /// <summary>
+        /// If we try to pass a null sequence, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparison_SequenceNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = null;
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparison);
+        }
+
+        /// <summary>
+        /// If we try to pass an empty sequence, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestAddReplaced_WithComparison_SequenceEmpty_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>();
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparison);
+        }
+
+        /// <summary>
+        /// If we try to pass a null replacement, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparison_ReplacementNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = null;
+            Sublist<List<int>, int> destination = new List<int>();
+            Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparison);
+        }
+
+        /// <summary>
+        /// If we try to pass a null destination, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparison_DestinationNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = null;
+            Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparison);
+        }
+
+        /// <summary>
+        /// If we try to pass a null comparer, an exception will be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestAddReplaced_WithComparison_ComparerNull_Throws()
+        {
+            Sublist<List<int>, int> source = new List<int>();
+            Sublist<List<int>, int> sequence = new List<int>() { 1 };
+            Sublist<List<int>, int> replacement = new List<int>();
+            Sublist<List<int>, int> destination = new List<int>();
+            Func<int, int, bool> comparison = null;
+            Sublist.AddReplaced(source, sequence, replacement, destination, comparison);
+        }
+
         #endregion
 
         /// <summary>
@@ -167,6 +450,432 @@ namespace NDex.Tests
             int[] expected = { 1, 3, 3, 5 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence that equals the source with an empty replacement,
+        /// nothing will be added.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceEqualsSource_ReplacementEmpty_AddsNothing()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var replacement = TestHelper.Wrap(new List<int>());
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing at the front of the source with an empty replacement,
+        /// the front of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInFront_ReplacementEmpty_RemovesFrontOfList()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var replacement = TestHelper.Wrap(new List<int>());
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 4, 5 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing at the back of the source with an empty replacement,
+        /// the back of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInBack_ReplacementEmpty_RemovesBackOfList()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
+            var replacement = TestHelper.Wrap(new List<int>());
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 2 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing in the middle of the source with an empty replacement,
+        /// the middle of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInMiddle_ReplacementEmpty_RemovesMiddleOfList()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
+            var replacement = TestHelper.Wrap(new List<int>());
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 5 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing in multiple locations of the source with an empty replacement,
+        /// all occurrences should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInMultipleLocations_ReplacementEmpty_RemovesAllOccurrences()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
+            var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
+            var replacement = TestHelper.Wrap(new List<int>());
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 4, 4, 5, 1 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence that equals the source with a smaller replacement,
+        /// only the replacement will be added.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceEqualsSource_ReplacementSmaller_AddsReplacement()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 9, 9 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing at the front of the source with a smaller replacement,
+        /// the front of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInFront_ReplacementSmaller_ReplacesValues()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 9, 9, 4, 5 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing at the back of the source with a smaller replacement,
+        /// the back of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInBack_ReplacementSmaller_ReplacesValues()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 2, 9, 9 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing in the middle of the source with a smaller replacement,
+        /// the middle of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInMiddle_ReplacementSmaller_ReplacesValues()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 9, 9, 5 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing in multiple locations of the source with a smaller replacement,
+        /// all occurrences should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInMultipleLocations_ReplacementSmaller_RemovesAllOccurrences()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
+            var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 9, 9, 4, 9, 9, 4, 5, 9, 9, 1 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence that equals the source with a larger replacement,
+        /// only the replacement will be added.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceEqualsSource_ReplacementLarger_AddsReplacement()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9, 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            Assert.IsTrue(Sublist.AreEqual(replacement, destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing at the front of the source with a larger replacement,
+        /// the front of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInFront_ReplacementLarger_ReplacesValues()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 9, 9, 9, 9, 4, 5 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing at the back of the source with a larger replacement,
+        /// the back of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInBack_ReplacementLarger_ReplacesValues()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 2, 9, 9, 9, 9 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing in the middle of the source with a larger replacement,
+        /// the middle of the list should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInMiddle_ReplacementLarger_ReplacesValues()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 9, 9, 9, 9, 5 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence appearing in multiple locations of the source with a larger replacement,
+        /// all occurrences should be removed.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInMultipleLocations_ReplacementLarger_RemovesAllOccurrences()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
+            var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
+            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, replacement, destination);
+
+            int[] expected = new int[] { 1, 9, 9, 9, 9, 4, 9, 9, 9, 9, 4, 5, 9, 9, 9, 9, 1 };
+            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(replacement);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence that equals the source that equals the replacement,
+        /// the destination should equal the source.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceEqualsSource_ReplacementEqualsSequence_NoChange()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, sequence, destination);
+
+            Assert.IsTrue(Sublist.AreEqual(sequence, destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence that equals the front of the source that equals the replacement,
+        /// the destination should equal the source.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInFront_ReplacementEqualsSequence_NoChange()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, sequence, destination);
+
+            Assert.IsTrue(Sublist.AreEqual(source, destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence that equals the back of the source that equals the replacement,
+        /// the destination should equal the source.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInBack_ReplacementEqualsSequence_NoChange()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
+            var destination = TestHelper.Wrap(new List<int>());
+
+            destination = Sublist.AddReplaced(source, sequence, sequence, destination);
+
+            Assert.IsTrue(Sublist.AreEqual(source, destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence that equals the middle of the source that equals the replacement,
+        /// the destination should equal the source.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInMiddle_ReplacementEqualsSequence_NoChange()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
+            var destination = TestHelper.Wrap(new List<int>());
+            IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
+
+            destination = Sublist.AddReplaced(source, sequence, sequence, destination, comparer);
+
+            Assert.IsTrue(Sublist.AreEqual(source, destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If we replace a sequence that appears in multiple in the source with itself,
+        /// the destination should equal the source.
+        /// </summary>
+        [TestMethod]
+        public void TestAddReplaced_SequenceInMultipleLocations_ReplacementEqualsSequence_NoChange()
+        {
+            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
+            var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
+            var destination = TestHelper.Wrap(new List<int>());
+            Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
+
+            destination = Sublist.AddReplaced(source, sequence, sequence, destination, comparison);
+
+            Assert.IsTrue(Sublist.AreEqual(source, destination), "The wrong values were added to the destination.");
+            TestHelper.CheckHeaderAndFooter(source);
+            TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
         }
     }

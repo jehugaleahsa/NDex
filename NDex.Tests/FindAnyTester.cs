@@ -5,10 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the IndexOfAny methods.
+    /// Tests the FindAny methods.
     /// </summary>
     [TestClass]
-    public class IndexOfAnyTester
+    public class FindAnyTester
     {
         #region Real World Example
 
@@ -16,7 +16,7 @@ namespace NDex.Tests
         /// We may want to find out if a random string contains any special characters.
         /// </summary>
         [TestMethod]
-        public void TestIndexOfAny_FindSpecialCharacters()
+        public void TestFindAny_FindSpecialCharacters()
         {
             Random random = new Random();
 
@@ -29,11 +29,11 @@ namespace NDex.Tests
             char[] exclusions = { '<', '>', '[', ']', '{', '}', '(', ')' };
 
             // see if the password contains an invalid character
-            int index = Sublist.IndexOfAny(password.ToSublist(), exclusions.ToSublist());
-            Assert.AreNotEqual(password.Count, index, "No special characters were found.");
+            var result = Sublist.FindAny(password.ToSublist(), exclusions.ToSublist());
+            Assert.IsTrue(result.Exists, "No special characters were found.");
 
-            char actual = password[index];
-            Assert.IsTrue(Sublist.Contains(exclusions.ToSublist(), actual), "The character found was not in the exclusions list.");
+            char actual = password[result.Index];
+            Assert.IsTrue(Sublist.Find(exclusions.ToSublist(), actual), "The character found was not in the exclusions list.");
         }
 
         #endregion
@@ -45,11 +45,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfAny_NullList1_Throws()
+        public void TestFindAny_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.IndexOfAny(list1, list2);
+            Sublist.FindAny(list1, list2);
         }
 
         /// <summary>
@@ -57,12 +57,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfAny_WithComparer_NullList1_Throws()
+        public void TestFindAny_WithComparer_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.IndexOfAny(list1, list2, comparer);
+            Sublist.FindAny(list1, list2, comparer);
         }
 
         /// <summary>
@@ -70,12 +70,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfAny_WithComparison_NullList1_Throws()
+        public void TestFindAny_WithComparison_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.IndexOfAny(list1, list2, comparison);
+            Sublist.FindAny(list1, list2, comparison);
         }
 
         /// <summary>
@@ -83,11 +83,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfAny_NullList2_Throws()
+        public void TestFindAny_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.IndexOfAny(list1, list2);
+            Sublist.FindAny(list1, list2);
         }
 
         /// <summary>
@@ -95,12 +95,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfAny_WithComparer_NullList2_Throws()
+        public void TestFindAny_WithComparer_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.IndexOfAny(list1, list2, comparer);
+            Sublist.FindAny(list1, list2, comparer);
         }
 
         /// <summary>
@@ -108,12 +108,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfAny_WithComparison_NullList2_Throws()
+        public void TestFindAny_WithComparison_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.IndexOfAny(list1, list2, comparison);
+            Sublist.FindAny(list1, list2, comparison);
         }
 
         /// <summary>
@@ -121,12 +121,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfAny_NullComparer_Throws()
+        public void TestFindAny_NullComparer_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.IndexOfAny(list1, list2, comparer);
+            Sublist.FindAny(list1, list2, comparer);
         }
 
         /// <summary>
@@ -134,12 +134,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestIndexOfAny_NullComparison_Throws()
+        public void TestFindAny_NullComparison_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.IndexOfAny(list1, list2, comparison);
+            Sublist.FindAny(list1, list2, comparison);
         }
 
         #endregion
@@ -148,12 +148,13 @@ namespace NDex.Tests
         /// We shouldn't find anything if there's nothing to find.
         /// </summary>
         [TestMethod]
-        public void TestIndexOfAny_List2Empty_ReturnFalse()
+        public void TestFindAny_List2Empty_ReturnFalse()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>());
-            int index = Sublist.IndexOfAny(list1, list2, EqualityComparer<int>.Default.Equals);
-            Assert.AreEqual(list1.Count, index, "The wrong index was returned.");
+            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default.Equals);
+            Assert.AreEqual(list1.Count, result.Index, "The wrong index was returned.");
+            Assert.IsFalse(result.Exists, "Nothing should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -162,12 +163,13 @@ namespace NDex.Tests
         /// If the first item is the first thing we're looking for...
         /// </summary>
         [TestMethod]
-        public void TestIndexOfAny_FirstItem_FirstItem_ReturnTrue()
+        public void TestFindAny_FirstItem_FirstItem_ReturnTrue()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1 });
-            int index = Sublist.IndexOfAny(list1, list2, EqualityComparer<int>.Default);
-            Assert.AreEqual(0, index, "The wrong index was returned.");
+            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default);
+            Assert.AreEqual(0, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Exists, "A value should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -176,12 +178,13 @@ namespace NDex.Tests
         /// If the first item is the last thing we're looking for...
         /// </summary>
         [TestMethod]
-        public void TestIndexOfAny_FirstItem_LastItem_ReturnTrue()
+        public void TestFindAny_FirstItem_LastItem_ReturnTrue()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 1 });
-            int index = Sublist.IndexOfAny(list1, list2, EqualityComparer<int>.Default.Equals);
-            Assert.AreEqual(0, index, "The wrong index was returned.");
+            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default.Equals);
+            Assert.AreEqual(0, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Exists, "A value should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -190,12 +193,13 @@ namespace NDex.Tests
         /// If the last item is the first thing we're looking for...
         /// </summary>
         [TestMethod]
-        public void TestIndexOfAny_LastItem_FirstItem_ReturnTrue()
+        public void TestFindAny_LastItem_FirstItem_ReturnTrue()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 3 });
-            int index = Sublist.IndexOfAny(list1, list2, EqualityComparer<int>.Default.Equals);
-            Assert.AreEqual(2, index, "The wrong index was returned.");
+            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default.Equals);
+            Assert.AreEqual(2, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Exists, "A value should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -204,12 +208,13 @@ namespace NDex.Tests
         /// If the last item is the last thing we're looking for...
         /// </summary>
         [TestMethod]
-        public void TestIndexOfAny_LastItem_LastItem_ReturnTrue()
+        public void TestFindAny_LastItem_LastItem_ReturnTrue()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 3 });
-            int index = Sublist.IndexOfAny(list1, list2, EqualityComparer<int>.Default.Equals);
-            Assert.AreEqual(2, index, "The wrong index was returned.");
+            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default.Equals);
+            Assert.AreEqual(2, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Exists, "A value should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }

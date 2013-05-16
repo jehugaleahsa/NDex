@@ -41,7 +41,7 @@ namespace NDex.Tests
             Assert.IsTrue(Sublist.IsSorted(set.ToSublist()), "The set is not sorted.");
             bool hasValues = Sublist.IsSubset(list.ToSublist(), set.ToSublist());
             Assert.IsTrue(hasValues, "Not all of the values were copied.");
-            Assert.IsFalse(Sublist.ContainsDuplicates(set.ToSublist()), "A duplicate was found.");
+            Assert.IsFalse(Sublist.FindDuplicates(set.ToSublist()), "A duplicate was found.");
         }
 
         #endregion

@@ -33,7 +33,7 @@ namespace NDex.Tests
 
             // make sure the same value doesn't occur multiple times
             Sublist.QuickSort(samples.ToSublist());
-            Assert.IsFalse(Sublist.ContainsDuplicates(samples.ToSublist()), "The same value was picked multiple times.");
+            Assert.IsFalse(Sublist.FindDuplicates(samples.ToSublist()), "The same value was picked multiple times.");
 
             // make sure the samples are a subset of the original values.
             bool result = Sublist.IsSubset(list.ToSublist(), samples.ToSublist());

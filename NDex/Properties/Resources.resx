@@ -135,6 +135,9 @@
   <data name="ListChanged" xml:space="preserve">
     <value>The underlying collection has changed since the enumeration started.</value>
   </data>
+  <data name="ReplaceEmptySequence" xml:space="preserve">
+    <value>An attempt was made to replace an empty sequence in a list.</value>
+  </data>
   <data name="TooSmall" xml:space="preserve">
     <value>The given value cannot be less than {0}.</value>
   </data>

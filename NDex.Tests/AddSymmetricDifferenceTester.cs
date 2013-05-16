@@ -38,7 +38,7 @@ namespace NDex.Tests
             var intersection = new List<int>();
             Sublist.AddIntersection(list1.ToSublist(), list2.ToSublist(), intersection.ToSublist());
 
-            bool result = Sublist.ContainsAny(intersection.ToSublist(), difference.ToSublist());
+            bool result = Sublist.FindAny(intersection.ToSublist(), difference.ToSublist());
             Assert.IsFalse(result, "Found items in common in the intersection and symmetric difference.");
         }
 

@@ -26,7 +26,7 @@ namespace NDex.Tests
 
             // see if they are all even
             bool allEven = Sublist.TrueForAll(list.ToSublist(), i => i % 2 == 0);
-            bool anyOdd = Sublist.Contains(list.ToSublist(), i => i % 2 != 0);
+            bool anyOdd = Sublist.Find(list.ToSublist(), i => i % 2 != 0);
             Assert.AreNotEqual(anyOdd, allEven, "Detected odds when saying all items were even.");
         }
 

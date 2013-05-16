@@ -25,7 +25,7 @@ namespace NDex.Tests
             Sublist.AddGenerated(list.ToSublist(), 5, i => random.Next(0, 100));
 
             bool isSorted = Sublist.IsSorted(list.ToSublist());
-            bool hasDuplicates = Sublist.ContainsDuplicates(list.ToSublist());
+            bool hasDuplicates = Sublist.FindDuplicates(list.ToSublist());
             bool expected = isSorted && !hasDuplicates;
             bool actual = Sublist.IsSet(list.ToSublist());
             Assert.AreEqual(expected, actual, "A sorted list without duplicates is a set.");

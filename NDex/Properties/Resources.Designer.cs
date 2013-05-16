@@ -115,6 +115,15 @@ namespace NDex.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An attempt was made to replace an empty sequence in a list..
+        /// </summary>
+        internal static string ReplaceEmptySequence {
+            get {
+                return ResourceManager.GetString("ReplaceEmptySequence", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The given value cannot be less than {0}..
         /// </summary>
         internal static string TooSmall {

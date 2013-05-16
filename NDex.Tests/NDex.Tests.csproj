@@ -66,10 +66,6 @@
     <Compile Include="BinarySearchTester.cs" />
     <Compile Include="BubbleSortTester.cs" />
     <Compile Include="CompareTester.cs" />
-    <Compile Include="ContainsAnyTester.cs" />
-    <Compile Include="ContainsDuplicatesTester.cs" />
-    <Compile Include="ContainsSequenceTester.cs" />
-    <Compile Include="ContainsTester.cs" />
     <Compile Include="AddGeneratedTester.cs" />
     <Compile Include="IsSubsetUntilTester.cs" />
     <Compile Include="CopyCombinedTester.cs" />
@@ -95,10 +91,10 @@
     <Compile Include="HeapRemoveTester.cs" />
     <Compile Include="HeapSortTester.cs" />
     <Compile Include="HeapTester.cs" />
-    <Compile Include="IndexOfAnyTester.cs" />
-    <Compile Include="IndexOfDuplicatesTester.cs" />
-    <Compile Include="IndexOfSequenceTester.cs" />
-    <Compile Include="IndexOfTester.cs" />
+    <Compile Include="FindAnyTester.cs" />
+    <Compile Include="FindDuplicatesTester.cs" />
+    <Compile Include="FindSequenceTester.cs" />
+    <Compile Include="FindTester.cs" />
     <Compile Include="InsertionSortTester.cs" />
     <Compile Include="IsHeapTester.cs" />
     <Compile Include="IsHeapUntilTester.cs" />

@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the ContainsDuplicates methods.
+    /// Tests the FindDuplicates methods.
     /// </summary>
     [TestClass]
-    public class ContainsDuplicatesTester
+    public class FindDuplicatesTester
     {
         #region Real World Example
 
         /// <summary>
-        /// We can determine if a list has unique values.
+        /// We can use FindDuplicates to find duplicates in a list.
         /// </summary>
         [TestMethod]
-        public void TestContainsDuplicates_DetectDuplicates()
+        public void TestFindDuplicates_DetectDuplicates()
         {
             Random random = new Random();
 
@@ -24,17 +25,20 @@ namespace NDex.Tests
             var list = new List<int>(100);
             Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
 
-            // force duplicates
-            int[] duplicates = new int[2];
-            Sublist.CopyGenerated(duplicates.ToSublist(), 4);
-            Sublist.Add(duplicates.ToSublist(), list.ToSublist()); // add the duplicates
-
-            // requires list to be sorted
+            // duplicates must appear next to each other
             Sublist.QuickSort(list.ToSublist());
 
-            Assert.IsTrue(Sublist.ContainsDuplicates(list.ToSublist()), "Did not detect the duplicates.");
-            Sublist.RemoveRange(list.ToSublist(Sublist.RemoveDuplicates(list.ToSublist())));
-            Assert.IsFalse(Sublist.ContainsDuplicates(list.ToSublist()), "Found a duplicate.");
+            var result = Sublist.FindDuplicates(list.ToSublist());
+            if (!result.Exists)
+            {
+                Assert.AreEqual(list.Count, list.GroupBy(i => i).Count(), "Duplicates were not detected.");
+            }
+            else
+            {
+                var actual = list.ToSublist(result.Index, 2);
+                int[] expected = new int[2] { list[result.Index], list[result.Index] };
+                Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), actual), "No duplicates were not found.");
+            }
         }
 
         #endregion
@@ -46,10 +50,10 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestContainsDuplicates_NullList_Throws()
+        public void TestFindDuplicates_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.ContainsDuplicates(list);
+            Sublist.FindDuplicates(list);
         }
 
         /// <summary>
@@ -57,11 +61,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestContainsDuplicates_WithComparer_NullList_Throws()
+        public void TestFindDuplicates_WithComparer_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.ContainsDuplicates(list, comparer);
+            Sublist.FindDuplicates(list, comparer);
         }
 
         /// <summary>
@@ -69,11 +73,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestContainsDuplicates_WithComparison_NullList_Throws()
+        public void TestFindDuplicates_WithComparison_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.ContainsDuplicates(list, comparison);
+            Sublist.FindDuplicates(list, comparison);
         }
 
         /// <summary>
@@ -81,11 +85,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestContainsDuplicates_NullComparer_Throws()
+        public void TestFindDuplicates_NullComparer_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.ContainsDuplicates(list, comparer);
+            Sublist.FindDuplicates(list, comparer);
         }
 
         /// <summary>
@@ -93,23 +97,25 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestContainsDuplicates_NullComparison_Throws()
+        public void TestFindDuplicates_NullComparison_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.ContainsDuplicates(list, comparison);
+            Sublist.FindDuplicates(list, comparison);
         }
 
         #endregion
 
         /// <summary>
-        /// False should be returned if there are no duplicates.
+        /// An index past the end of the list should be returned if there are no duplicates.
         /// </summary>
         [TestMethod]
-        public void TestContainsDuplicates_NoDuplicates_ReturnsFalse()
+        public void TestFindDuplicates_NoDuplicates_ReturnsCount()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, });
-            Assert.IsFalse(Sublist.ContainsDuplicates(list), "Did not find the duplicates.");
+            var result = Sublist.FindDuplicates(list);
+            Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
+            Assert.IsFalse(result.Exists, "No duplicates should have been found.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -117,12 +123,13 @@ namespace NDex.Tests
         /// We should be able to find reoccurrences at the beginning of a list.
         /// </summary>
         [TestMethod]
-        public void TestContainsDuplicates_AtBeginning()
+        public void TestFindDuplicates_AtBeginning()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 3, 4, });
-            IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
 
-            Assert.IsTrue(Sublist.ContainsDuplicates(list, comparer), "Did not find the duplicates.");
+            var result = Sublist.FindDuplicates(list);
+            Assert.AreEqual(0, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Exists, "Duplicates should have been found.");
 
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -131,12 +138,13 @@ namespace NDex.Tests
         /// We should be able to find reoccurrences at the end of a list.
         /// </summary>
         [TestMethod]
-        public void TestContainsDuplicates_AtEnd()
+        public void TestFindDuplicates_AtEnd()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 3, });
-            Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
 
-            Assert.IsTrue(Sublist.ContainsDuplicates(list, comparison), "Did not find the duplicates.");
+            var result = Sublist.FindDuplicates(list, EqualityComparer<int>.Default);
+            Assert.AreEqual(2, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Exists, "Duplicates should have been found.");
 
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -145,11 +153,28 @@ namespace NDex.Tests
         /// We should be able to find reoccurrences in the middle of a list.
         /// </summary>
         [TestMethod]
-        public void TestContainsDuplicates_InMiddle()
+        public void TestFindDuplicates_InMiddle()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, });
 
-            Assert.IsTrue(Sublist.ContainsDuplicates(list), "Did not find the duplicates.");
+            var result = Sublist.FindDuplicates(list, EqualityComparer<int>.Default.Equals);
+            Assert.AreEqual(1, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Exists, "Duplicates should have been found.");
+
+            TestHelper.CheckHeaderAndFooter(list);
+        }
+
+        /// <summary>
+        /// The index of the first duplicates should be returned.
+        /// </summary>
+        [TestMethod]
+        public void TestFindDuplicates_MultipleDuplicates_ReturnsLast()
+        {
+            var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, 4, 4, 5 });
+
+            var result = Sublist.FindDuplicates(list, EqualityComparer<int>.Default.Equals);
+            Assert.AreEqual(1, result.Index, "The wrong index was returned.");
+            Assert.IsTrue(result.Exists, "Duplicates should have been found.");
 
             TestHelper.CheckHeaderAndFooter(list);
         }

@@ -252,6 +252,63 @@ namespace NDex
 
     #endregion
 
+    #region FindResult
+
+    /// <summary>
+    /// Holds the results of a find method.
+    /// </summary>
+    public sealed class FindResult
+    {
+        /// <summary>
+        /// Initializes a new instance of a FindResult.
+        /// </summary>
+        internal FindResult()
+        {
+        }
+
+        /// <summary>
+        /// Gets the index where the search value was found.
+        /// </summary>
+        public int Index { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets whether the search value existed.
+        /// </summary>
+        public bool Exists { get; internal set; }
+
+        /// <summary>
+        /// Implicitly converts the result to a boolean, representing whether the search value was found.
+        /// </summary>
+        /// <param name="result">The FindResult to convert.</param>
+        /// <returns>True if the given result indicates that the value was found; otherwise, false.</returns>
+        public static implicit operator bool(FindResult result)
+        {
+            return result.Exists;
+        }
+
+        /// <summary>
+        /// Implicitly converts the result to an integer, representing the first index of the value, if it exists,
+        /// or an index past the end of the list if it is missing.
+        /// </summary>
+        /// <param name="result">The FindResult to convert.</param>
+        /// <returns>True if the given result indicates that the value was found; otherwise, false.</returns>
+        public static implicit operator int(FindResult result)
+        {
+            return result.Index;
+        }
+
+        /// <summary>
+        /// Gets the string representation of the result.
+        /// </summary>
+        /// <returns>The string representation of the result.</returns>
+        public override string ToString()
+        {
+            return String.Format(CultureInfo.CurrentCulture, "Exists = {0}, Index = {1}", Exists, Index);
+        }
+    }
+
+    #endregion
+
     #region LowerAndUpperBoundResult
 
     /// <summary>
@@ -2026,6 +2083,222 @@ namespace NDex
             return indexes.Item2;
         }
 
+        /// <summary>
+        /// Adds the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
+        /// <typeparam name="TSequence">The type of the sequence list.</typeparam>
+        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
+        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="source">The source of the items to add to the destination.</param>
+        /// <param name="sequence">The sequence of items to replace.</param>
+        /// <param name="replacement">The replacement items.</param>
+        /// <param name="destination">The list to add the values to.</param>
+        /// <returns>A new sublist wrapping the destination and the new items.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
+        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
+        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T>(
+            IReadOnlySublist<TSourceList, T> source,
+            IReadOnlySublist<TSequence, T> sequence,
+            IReadOnlySublist<TReplacement, T> replacement,
+            IExpandableSublist<TDestinationList, T> destination)
+            where TSourceList : IList<T>
+            where TSequence : IList<T>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            return addReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T, T>(
+                source, 
+                sequence, 
+                replacement, 
+                destination, 
+                EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Adds the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
+        /// <typeparam name="TSequence">The type of the sequence list.</typeparam>
+        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
+        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="source">The source of the items to add to the destination.</param>
+        /// <param name="sequence">The sequence of items to replace.</param>
+        /// <param name="replacement">The replacement items.</param>
+        /// <param name="destination">The list to add the values to.</param>
+        /// <param name="comparer">The comparer to use to find the sequences.</param>
+        /// <returns>A new sublist wrapping the destination and the new items.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
+        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T>(
+            IReadOnlySublist<TSourceList, T> source,
+            IReadOnlySublist<TSequence, T> sequence,
+            IReadOnlySublist<TReplacement, T> replacement,
+            IExpandableSublist<TDestinationList, T> destination,
+            IEqualityComparer<T> comparer)
+            where TSourceList : IList<T>
+            where TSequence : IList<T>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return addReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T, T>(source, sequence, replacement, destination, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Adds the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
+        /// <typeparam name="TSequenceList">The type of the sequence list.</typeparam>
+        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
+        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSequence">The type of the items in the sequence.</typeparam>
+        /// <param name="source">The source of the items to add to the destination.</param>
+        /// <param name="sequence">The sequence of items to replace.</param>
+        /// <param name="replacement">The replacement items.</param>
+        /// <param name="destination">The list to add the values to.</param>
+        /// <param name="comparison">The function to use to find the sequences.</param>
+        /// <returns>A new sublist wrapping the destination and the new items.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
+        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
+        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
+            IReadOnlySublist<TSourceList, T> source,
+            IReadOnlySublist<TSequenceList, TSequence> sequence,
+            IReadOnlySublist<TReplacement, T> replacement,
+            IExpandableSublist<TDestinationList, T> destination,
+            Func<T, TSequence, bool> comparison)
+            where TSourceList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return addReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(source, sequence, replacement, destination, comparison);
+        }
+
+        private static IExpandableSublist<TDestinationList, T> addReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
+            IReadOnlySublist<TSourceList, T> source,
+            IReadOnlySublist<TSequenceList, TSequence> sequence,
+            IReadOnlySublist<TReplacement, T> replacement,
+            IExpandableSublist<TDestinationList, T> destination,
+            Func<T, TSequence, bool> comparison)
+            where TSourceList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            int result = addReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
+                source.List, source.Offset, source.Offset + source.Count,
+                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
+                replacement.List, replacement.Offset, replacement.Offset + replacement.Count,
+                destination.List, destination.Offset + destination.Count,
+                comparison);
+            return destination.Resize(result - destination.Offset, true);
+        }
+
+        private static int addReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
+            TSourceList source, int first, int past,
+            TSequenceList sequence, int sequenceFirst, int sequencePast,
+            TReplacement replacement, int replacementFirst, int replacementPast,
+            TDestinationList destination, int destinationPast,
+            Func<T, TSequence, bool> comparison)
+            where TSourceList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            int sequenceCount = sequencePast - sequenceFirst;
+            int index = indexOfSequence<TSourceList, T, TSequenceList, TSequence>(source, first, past, sequence, sequenceFirst, sequencePast, comparison);
+            destinationPast = add<TSourceList, TDestinationList, T>(source, first, index, destination, destinationPast);
+
+            while (index != past)
+            {
+                destinationPast = add<TReplacement, TDestinationList, T>(replacement, replacementFirst, replacementPast, destination, destinationPast);
+                index += sequenceCount;
+                int next = indexOfSequence<TSourceList, T, TSequenceList, TSequence>(source, index, past, sequence, sequenceFirst, sequencePast, comparison);
+                destinationPast = add<TSourceList, TDestinationList, T>(source, index, next, destination, destinationPast);
+                index = next;
+            }
+            return destinationPast;
+        }
+
         #endregion
 
         #region AddReversed
@@ -3381,426 +3654,6 @@ namespace NDex
                 ++first2;
             }
             return first1 == past1 ? first2 == past2 ? 0 : -1 : 1;
-        }
-
-        #endregion
-
-        #region Contains
-
-        /// <summary>
-        /// Determines whether a list contains a value.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="value">The value to search for.</param>
-        /// <returns>True if the value is found in the list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static bool Contains<TList, T>(IReadOnlySublist<TList, T> list, T value)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return contains<TList, T, T>(list, value, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether a list contains a value.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="value">The value to search for.</param>
-        /// <param name="comparer">The comparer to use to determine if an item in the list matches the search value.</param>
-        /// <returns>True if the value is found in the list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool Contains<TList, T>(IReadOnlySublist<TList, T> list, T value, IEqualityComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return contains<TList, T, T>(list, value, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether a list contains a value.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <typeparam name="TSearch">The type of the value being search for.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="value">The value to search for.</param>
-        /// <param name="comparison">The comparison delegate to use to determine if an item in the list matches the search value.</param>
-        /// <returns>True if the value is found in the list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool Contains<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return contains<TList, T, TSearch>(list, value, comparison);
-        }
-
-        private static bool contains<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
-            where TList : IList<T>
-        {
-            int past = list.Offset + list.Count;
-            int result = indexOf<TList, T, TSearch>(list.List, list.Offset, past, value, comparison);
-            return result != past;
-        }
-
-        /// <summary>
-        /// Determines whether an item in a list satisfies a predicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="predicate">The condition an item must satisfy.</param>
-        /// <returns>True if any items satisfy the predicate; otherwise, false.</returns>
-        public static bool Contains<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int past = list.Offset + list.Count;
-            int result = indexOf<TList, T>(list.List, list.Offset, past, predicate);
-            return result != past;
-        }
-
-        #endregion
-
-        #region ContainsAny
-
-        /// <summary>
-        /// Determines whether any of the items in the second list are in the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <returns>True if any items in the second list are in the first list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static bool ContainsAny<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            return containsAny<TList1, T, TList2, T>(list1, list2, EqualityComparer<T>.Default.Equals);
-
-        }
-
-        /// <summary>
-        /// Determines whether any of the items in the second list are in the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparer">The comparer to use to determine if an item in the first list matches an item in the second.</param>
-        /// <returns>True if any items in the second list are in the first list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool ContainsAny<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
-            IReadOnlySublist<TList2, T> list2,
-            IEqualityComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return containsAny<TList1, T, TList2, T>(list1, list2, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether any of the items in the second list are in the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparison">The comparison delegate to use to determine if an item in the first list matches an item in the second.</param>
-        /// <returns>True if any items in the second list are in the first list; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool ContainsAny<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return containsAny<TList1, T1, TList2, T2>(list1, list2, comparison);
-        }
-
-        private static bool containsAny<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            int past = list1.Offset + list1.Count;
-            int result = indexOfAny<TList1, T1, TList2, T2>(
-                list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, list2.Offset + list2.Count,
-                comparison);
-            return result != past;
-        }
-
-        #endregion
-
-        #region ContainsDuplicates
-
-        /// <summary>
-        /// Determines whether any equivalent items reoccur next to each other in a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <returns>True if there are duplicates; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>The items are expected tp be sorted according to the default order of the items.</remarks>
-        public static bool ContainsDuplicates<TList, T>(IReadOnlySublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return containsDuplicates<TList, T>(list, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether any equivalent items reoccur next to each other in a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparer">The comparer to use to determine whether two items are equivalent.</param>
-        /// <returns>True if there are duplicates; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>The list is expected to be sorted such that equivalent item are adjacent.</remarks>
-        public static bool ContainsDuplicates<TList, T>(IReadOnlySublist<TList, T> list, IEqualityComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return containsDuplicates<TList, T>(list, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether any equivalent items reoccur next to each other in a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparison">The comparison delegate to use to determine whether two items are equivalent.</param>
-        /// <returns>True if there are duplicates; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>The list is expected to be sorted such that equivalent item are adjacent.</remarks>
-        public static bool ContainsDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return containsDuplicates<TList, T>(list, comparison);
-        }
-
-        private static bool containsDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            int past = list.Offset + list.Count;
-            int result = indexOfDuplicates<TList, T>(list.List, list.Offset, past, comparison);
-            return result != past;
-        }
-
-        #endregion
-
-        #region ContainsSequence
-
-        /// <summary>
-        /// Determines whether the items in the second list appear in the same order inside the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list">The list of items to search within.</param>
-        /// <param name="sequence">The list of items to search for.</param>
-        /// <returns>True if the items in the second list appear in the same order in the first list.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static bool ContainsSequence<TList1, TList2, T>(IReadOnlySublist<TList1, T> list, IReadOnlySublist<TList2, T> sequence)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            return containsSequence<TList1, T, TList2, T>(list, sequence, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether the items in the second list appear in the same order inside the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list">The list of items to search within.</param>
-        /// <param name="sequence">The list of items to search for.</param>
-        /// <param name="comparer">The comparer to use to compare items in the lists.</param>
-        /// <returns>True if the items in the second list appear in the same order in the first list.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool ContainsSequence<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list,
-            IReadOnlySublist<TList2, T> sequence,
-            IEqualityComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return containsSequence<TList1, T, TList2, T>(list, sequence, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether the items in the second list appear in the same order inside the first list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list">The list of items to search within.</param>
-        /// <param name="sequence">The list of items to search for.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the lists.</param>
-        /// <returns>True if the items in the second list appear in the same order in the first list.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool ContainsSequence<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list,
-            IReadOnlySublist<TList2, T2> sequence,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return containsSequence<TList1, T1, TList2, T2>(list, sequence, comparison);
-        }
-
-        private static bool containsSequence<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list,
-            IReadOnlySublist<TList2, T2> sequence,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            int past = list.Offset + list.Count;
-            int result = indexOfSequence<TList1, T1, TList2, T2>(
-                list.List, list.Offset, past,
-                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
-                comparison);
-            return result != past;
         }
 
         #endregion
@@ -5342,6 +5195,219 @@ namespace NDex
             return new Tuple<int, int>(first, destinationFirst);
         }
 
+        /// <summary>
+        /// Copies the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
+        /// <typeparam name="TSequence">The type of the sequence list.</typeparam>
+        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
+        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="source">The source of the items to copy to the destination.</param>
+        /// <param name="sequence">The sequence of items to replace.</param>
+        /// <param name="replacement">The replacement items.</param>
+        /// <param name="destination">The list to copy the values to.</param>
+        /// <returns>A result holding the indexes into the source and destination where the copying stopped.</returns>
+        public static CopyResult CopyReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T>(
+            IReadOnlySublist<TSourceList, T> source,
+            IReadOnlySublist<TSequence, T> sequence,
+            IReadOnlySublist<TReplacement, T> replacement,
+            IMutableSublist<TDestinationList, T> destination)
+            where TSourceList : IList<T>
+            where TSequence : IList<T>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            return copyReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T, T>(
+                source,
+                sequence,
+                replacement,
+                destination,
+                EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Copies the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
+        /// <typeparam name="TSequence">The type of the sequence list.</typeparam>
+        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
+        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="source">The source of the items to copy to the destination.</param>
+        /// <param name="sequence">The sequence of items to replace.</param>
+        /// <param name="replacement">The replacement items.</param>
+        /// <param name="destination">The list to copy the values to.</param>
+        /// <param name="comparer">The comparer to use to find the sequences.</param>
+        /// <returns>A result holding the indexes into the source and destination where the copying stopped.</returns>
+        public static CopyResult CopyReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T>(
+            IReadOnlySublist<TSourceList, T> source,
+            IReadOnlySublist<TSequence, T> sequence,
+            IReadOnlySublist<TReplacement, T> replacement,
+            IMutableSublist<TDestinationList, T> destination,
+            IEqualityComparer<T> comparer)
+            where TSourceList : IList<T>
+            where TSequence : IList<T>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return copyReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T, T>(source, sequence, replacement, destination, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Copies the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
+        /// <typeparam name="TSequenceList">The type of the sequence list.</typeparam>
+        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
+        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSequence">The type of the items in the sequence.</typeparam>
+        /// <param name="source">The source of the items to copy to the destination.</param>
+        /// <param name="sequence">The sequence of items to replace.</param>
+        /// <param name="replacement">The replacement items.</param>
+        /// <param name="destination">The list to copy the values to.</param>
+        /// <param name="comparison">The function to use to find the sequences.</param>
+        /// <returns>A result holding the indexes into the source and destination where the copying stopped.</returns>
+        public static CopyResult CopyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
+            IReadOnlySublist<TSourceList, T> source,
+            IReadOnlySublist<TSequenceList, TSequence> sequence,
+            IReadOnlySublist<TReplacement, T> replacement,
+            IMutableSublist<TDestinationList, T> destination,
+            Func<T, TSequence, bool> comparison)
+            where TSourceList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            if (destination == null)
+            {
+                throw new ArgumentNullException("destination");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return copyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(source, sequence, replacement, destination, comparison);
+        }
+
+        private static CopyResult copyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
+            IReadOnlySublist<TSourceList, T> source,
+            IReadOnlySublist<TSequenceList, TSequence> sequence,
+            IReadOnlySublist<TReplacement, T> replacement,
+            IMutableSublist<TDestinationList, T> destination,
+            Func<T, TSequence, bool> comparison)
+            where TSourceList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            Tuple<int, int> indexes = copyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
+                source.List, source.Offset, source.Offset + source.Count,
+                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
+                replacement.List, replacement.Offset, replacement.Offset + replacement.Count,
+                destination.List, destination.Offset, destination.Offset + destination.Count,
+                comparison);
+            CopyResult result = new CopyResult();
+            result.SourceOffset = indexes.Item1 - source.Offset;
+            result.DestinationOffset = indexes.Item2 - destination.Offset;
+            return result;
+        }
+
+        private static Tuple<int, int> copyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
+            TSourceList source, int first, int past,
+            TSequenceList sequence, int sequenceFirst, int sequencePast,
+            TReplacement replacement, int replacementFirst, int replacementPast,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<T, TSequence, bool> comparison)
+            where TSourceList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacement : IList<T>
+            where TDestinationList : IList<T>
+        {
+            int sequenceCount = sequencePast - sequenceFirst;
+            int replacementCount = replacementPast - replacementFirst;
+
+            int index = indexOfSequence<TSourceList, T, TSequenceList, TSequence>(source, first, past, sequence, sequenceFirst, sequencePast, comparison);
+            Tuple<int, int> indexes = copy<TSourceList, TDestinationList, T>(source, first, index, destination, destinationFirst, destinationPast);
+            first = indexes.Item1;
+            destinationFirst = indexes.Item2;
+
+            while (index != past && destinationFirst + replacementCount <= destinationPast)
+            {
+                indexes = copy<TReplacement, TDestinationList, T>(replacement, replacementFirst, replacementPast, destination, destinationFirst, destinationPast);
+                destinationFirst = indexes.Item2;
+                index += sequenceCount;
+
+                int next = indexOfSequence<TSourceList, T, TSequenceList, TSequence>(source, index, past, sequence, sequenceFirst, sequencePast, comparison);
+                indexes = copy<TSourceList, TDestinationList, T>(source, index, next, destination, destinationFirst, destinationPast);
+                first = indexes.Item1;
+                destinationFirst = indexes.Item2;
+                index = next;
+            }
+            return new Tuple<int,int>(first, destinationFirst);
+        }
+
         #endregion
 
         #region CopyReversed
@@ -6081,6 +6147,564 @@ namespace NDex
 
         #endregion
 
+        #region Find
+
+        /// <summary>
+        /// Gets the index of the given value within a list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="value">The value to search for.</param>
+        /// <returns>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        public static FindResult Find<TList, T>(IReadOnlySublist<TList, T> list, T value)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            return find<TList, T, T>(list, value, EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Gets the index of the given value within a list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="value">The value to search for.</param>
+        /// <param name="comparer">The comparer to use to compare items in the list to the search value.</param>
+        /// <returns>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        public static FindResult Find<TList, T>(IReadOnlySublist<TList, T> list, T value, IEqualityComparer<T> comparer)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return find<TList, T, T>(list, value, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Gets the index of the given value within a list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <typeparam name="TSearch">The type of the value being searched for.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="value">The value to search for.</param>
+        /// <param name="comparison">The comparison delegate used for comparing items in the list to the search value.</param>
+        /// <returns>>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        public static FindResult Find<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return find<TList, T, TSearch>(list, value, comparison);
+        }
+
+        private static FindResult find<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
+            where TList : IList<T>
+        {
+            int past = list.Offset + list.Count;
+            int index = indexOf<TList, T, TSearch>(list.List, list.Offset, past, value, comparison);
+            FindResult result = new FindResult();
+            result.Index = index - list.Offset;
+            result.Exists = index != past;
+            return result;
+        }
+
+        private static int indexOf<TList, T, TSearch>(TList list, int first, int past, TSearch value, Func<T, TSearch, bool> comparison)
+            where TList : IList<T>
+        {
+            while (first != past && !comparison(list[first], value))
+            {
+                ++first;
+            }
+            return first;
+        }
+
+        /// <summary>
+        /// Finds the index in a list of the first item satisfying the predicate.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="predicate">The condition that must be satisfied.</param>
+        /// <returns>
+        /// The index of the first item satisfying the predicate 
+        /// -or- an index past the last item in the list, if the value is not found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
+        public static FindResult Find<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("predicate");
+            }
+            int past = list.Offset + list.Count;
+            int index = indexOf<TList, T>(list.List, list.Offset, past, predicate);
+            FindResult result = new FindResult();
+            result.Index = index - list.Offset;
+            result.Exists = index != past;
+            return result;
+        }
+
+        private static int indexOf<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
+            where TList : IList<T>
+        {
+            while (first != past && !predicate(list[first]))
+            {
+                ++first;
+            }
+            return first;
+        }
+
+        private static int indexOfNot<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
+            where TList : IList<T>
+        {
+            while (first != past && predicate(list[first]))
+            {
+                ++first;
+            }
+            return first;
+        }
+
+        #endregion
+
+        #region FindAny
+
+        /// <summary>
+        /// Finds the first index in a list of a value that appears in another list.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The list to search.</param>
+        /// <param name="list2">The list of values to search for.</param>
+        /// <returns>
+        /// The first index into the list of a value that appears in the other list 
+        /// -or- an index past the last item in the list, if none of the values are found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        public static FindResult FindAny<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            return findAny<TList1, T, TList2, T>(list1, list2, EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Finds the first index in a list of a value that appears in another list.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The list to search.</param>
+        /// <param name="list2">The list of values to search for.</param>
+        /// <param name="comparer">The comparer to use to comparer items between the lists.</param>
+        /// <returns>
+        /// The first index into the list of a value that appears in the other list 
+        /// -or- an index past the last item in the list, if none of the values are found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        public static FindResult FindAny<TList1, TList2, T>(
+            IReadOnlySublist<TList1, T> list1,
+            IReadOnlySublist<TList2, T> list2,
+            IEqualityComparer<T> comparer)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return findAny<TList1, T, TList2, T>(list1, list2, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Finds the first index in a list of a value that appears in another list.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
+        /// <param name="list1">The list to search.</param>
+        /// <param name="list2">The list of values to search for.</param>
+        /// <param name="comparison">The comparison delegate to use to compare items between the lists.</param>
+        /// <returns>
+        /// The first index into the list of a value that appears in the other list 
+        /// -or- an index past the last item in the list, if none of the values are found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        public static FindResult FindAny<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return findAny<TList1, T1, TList2, T2>(list1, list2, comparison);
+        }
+
+        private static FindResult findAny<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            int past = list1.Offset + list1.Count;
+            int index = indexOfAny<TList1, T1, TList2, T2>(
+                list1.List, list1.Offset, past,
+                list2.List, list2.Offset, list2.Offset + list2.Count,
+                comparison);
+            FindResult result = new FindResult();
+            result.Index = index - list1.Offset;
+            result.Exists = index != past;
+            return result;
+        }
+
+        private static int indexOfAny<TList1, T1, TList2, T2>(
+            TList1 list1, int first1, int past1,
+            TList2 list2, int first2, int past2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            while (first1 != past1)
+            {
+                for (int next = first2; next != past2; ++next)
+                {
+                    if (comparison(list1[first1], list2[next]))
+                    {
+                        return first1;
+                    }
+                }
+                ++first1;
+            }
+            return first1;
+        }
+
+        #endregion
+
+        #region FindDuplicates
+
+        /// <summary>
+        /// Finds the index of the first occurrence of equivilent, adjacent items in a list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <returns>
+        /// The index at the beginning of the equivilent items -or- an index past the end of the list, if no duplicates are found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <remarks>The list must be sorted according to the default order of the items.</remarks>
+        public static FindResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            return findDuplicates<TList, T>(list, EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Finds the index of the first occurrence of equivilent, adjacent items in a list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="comparer">The comparer to use to determine if two items are equivalent.</param>
+        /// <returns>
+        /// The index at the beginning of the equivilent items -or- an index past the end of the list, if no duplicates are found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        /// <remarks>The list must be sorted such that equivalent items are adjacent.</remarks>
+        public static FindResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list, IEqualityComparer<T> comparer)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return findDuplicates<TList, T>(list, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Finds the index of the first occurrence of equivilent, adjacent items in a list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="comparison">The comparison delegate to use to determine if two items are equivalent.</param>
+        /// <returns>
+        /// The index at the beginning of the equivilent items -or- an index past the end of the list, if no duplicates are found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        /// <remarks>The list must be sorted such that equivalent items are adjacent.</remarks>
+        public static FindResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return findDuplicates<TList, T>(list, comparison);
+        }
+
+        private static FindResult findDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
+            where TList : IList<T>
+        {
+            int past = list.Offset + list.Count;
+            int index = indexOfDuplicates<TList, T>(list.List, list.Offset, past, comparison);
+            FindResult result = new FindResult();
+            result.Index = index - list.Offset;
+            result.Exists = index != past;
+            return result;
+        }
+
+        private static int indexOfDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
+            where TList : IList<T>
+        {
+            if (first != past)
+            {
+                for (int next = first + 1; next != past; first = next, ++next)
+                {
+                    if (comparison(list[first], list[next]))
+                    {
+                        return first;
+                    }
+                }
+            }
+            return past;
+        }
+
+        #endregion
+
+        #region FindSequence
+
+        /// <summary>
+        /// Finds the index in a list of the first occurrence of the given sequence.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="sequence">The sequence to search for.</param>
+        /// <returns>
+        /// The index in a list of the first occurrence of the given sequence 
+        /// -or- the index past the last item in the list, if the sequence wasn't found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        public static FindResult FindSequence<TList1, TList2, T>(IReadOnlySublist<TList1, T> list, IReadOnlySublist<TList2, T> sequence)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            return findSequence<TList1, T, TList2, T>(list, sequence, EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Finds the index in a list of the first occurrence of the given sequence.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="sequence">The sequence to search for.</param>
+        /// <param name="comparer">The comparer to use to compare items in the list to those in the sequence.</param>
+        /// <returns>
+        /// The index in a list of the first occurrence of the given sequence
+        /// -or- the index past the last item in the list, if the sequence wasn't found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        public static FindResult FindSequence<TList1, TList2, T>(
+            IReadOnlySublist<TList1, T> list,
+            IReadOnlySublist<TList2, T> sequence,
+            IEqualityComparer<T> comparer)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return findSequence<TList1, T, TList2, T>(list, sequence, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Finds the index in a list of the first occurrence of the given sequence.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="sequence">The sequence to search for.</param>
+        /// <param name="comparison">The comparison delegate to use to compare items in the list to those in the sequence.</param>
+        /// <returns>
+        /// The index in a list of the first occurrence of the given sequence
+        /// -or- the index past the last item in the list, if the sequence wasn't found.
+        /// </returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        public static FindResult FindSequence<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list,
+            IReadOnlySublist<TList2, T2> sequence,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return findSequence<TList1, T1, TList2, T2>(list, sequence, comparison);
+        }
+
+        private static FindResult findSequence<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list,
+            IReadOnlySublist<TList2, T2> sequence,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            int past = list.Offset + list.Count;
+            int index = indexOfSequence<TList1, T1, TList2, T2>(
+                list.List, list.Offset, past,
+                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
+                comparison);
+            FindResult result = new FindResult();
+            result.Index = index - list.Offset;
+            result.Exists = index != past;
+            return result;
+        }
+
+        private static int indexOfSequence<TList1, T1, TList2, T2>(
+            TList1 list1, int first1, int past1,
+            TList2 list2, int first2, int past2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            int count1 = past1 - first1;
+            int count2 = past2 - first2;
+            while (count2 <= count1)
+            {
+                int middle1 = first1;
+                int middle2 = first2;
+                while (middle2 != past2 && comparison(list1[middle1], list2[middle2]))
+                {
+                    ++middle1;
+                    ++middle2;
+                }
+                if (middle2 == past2)
+                {
+                    return first1;
+                }
+                ++first1;
+                --count1;
+            }
+            return past1;
+        }
+
+        #endregion
+
         #region ForEach
 
         /// <summary>
@@ -6394,547 +7018,6 @@ namespace NDex
                 heapRemove<TList, T>(list, first, past, comparison);
                 --past;
             }
-        }
-
-        #endregion
-
-        #region IndexOf
-
-        /// <summary>
-        /// Gets the index of the given value within a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="value">The value to search for.</param>
-        /// <returns>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static int IndexOf<TList, T>(IReadOnlySublist<TList, T> list, T value)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return indexOf<TList, T, T>(list, value, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Gets the index of the given value within a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="value">The value to search for.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list to the search value.</param>
-        /// <returns>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static int IndexOf<TList, T>(IReadOnlySublist<TList, T> list, T value, IEqualityComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return indexOf<TList, T, T>(list, value, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Gets the index of the given value within a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <typeparam name="TSearch">The type of the value being searched for.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="value">The value to search for.</param>
-        /// <param name="comparison">The comparison delegate used for comparing items in the list to the search value.</param>
-        /// <returns>>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static int IndexOf<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return indexOf<TList, T, TSearch>(list, value, comparison);
-        }
-
-        private static int indexOf<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
-            where TList : IList<T>
-        {
-            int result = indexOf<TList, T, TSearch>(list.List, list.Offset, list.Offset + list.Count, value, comparison);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int indexOf<TList, T, TSearch>(TList list, int first, int past, TSearch value, Func<T, TSearch, bool> comparison)
-            where TList : IList<T>
-        {
-            while (first != past && !comparison(list[first], value))
-            {
-                ++first;
-            }
-            return first;
-        }
-
-        /// <summary>
-        /// Finds the index in a list of the first item satisfying the predicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="predicate">The condition that must be satisfied.</param>
-        /// <returns>
-        /// The index of the first item satisfying the predicate 
-        /// -or- an index past the last item in the list, if the value is not found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static int IndexOf<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int result = indexOf<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int indexOf<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            while (first != past && !predicate(list[first]))
-            {
-                ++first;
-            }
-            return first;
-        }
-
-        private static int indexOfNot<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            while (first != past && predicate(list[first]))
-            {
-                ++first;
-            }
-            return first;
-        }
-
-        #endregion
-
-        #region IndexOfAny
-
-        /// <summary>
-        /// Finds the first index in a list of a value that appears in another list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The list to search.</param>
-        /// <param name="list2">The list of values to search for.</param>
-        /// <returns>
-        /// The first index into the list of a value that appears in the other list 
-        /// -or- an index past the last item in the list, if none of the values are found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static int IndexOfAny<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            return indexOfAny<TList1, T, TList2, T>(list1, list2, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Finds the first index in a list of a value that appears in another list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The list to search.</param>
-        /// <param name="list2">The list of values to search for.</param>
-        /// <param name="comparer">The comparer to use to comparer items between the lists.</param>
-        /// <returns>
-        /// The first index into the list of a value that appears in the other list 
-        /// -or- an index past the last item in the list, if none of the values are found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static int IndexOfAny<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
-            IReadOnlySublist<TList2, T> list2,
-            IEqualityComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return indexOfAny<TList1, T, TList2, T>(list1, list2, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Finds the first index in a list of a value that appears in another list.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list1">The list to search.</param>
-        /// <param name="list2">The list of values to search for.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items between the lists.</param>
-        /// <returns>
-        /// The first index into the list of a value that appears in the other list 
-        /// -or- an index past the last item in the list, if none of the values are found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static int IndexOfAny<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return indexOfAny<TList1, T1, TList2, T2>(list1, list2, comparison);
-        }
-
-        private static int indexOfAny<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            int result = indexOfAny<TList1, T1, TList2, T2>(
-                list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, list2.Offset + list2.Count,
-                comparison);
-            result -= list1.Offset;
-            return result;
-        }
-
-        private static int indexOfAny<TList1, T1, TList2, T2>(
-            TList1 list1, int first1, int past1,
-            TList2 list2, int first2, int past2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            while (first1 != past1)
-            {
-                for (int next = first2; next != past2; ++next)
-                {
-                    if (comparison(list1[first1], list2[next]))
-                    {
-                        return first1;
-                    }
-                }
-                ++first1;
-            }
-            return first1;
-        }
-
-        #endregion
-
-        #region IndexOfDuplicates
-
-        /// <summary>
-        /// Finds the index of the first occurrence of equivilent, adjacent items in a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <returns>
-        /// The index at the beginning of the equivilent items -or- an index past the end of the list, if no duplicates are found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>The list must be sorted according to the default order of the items.</remarks>
-        public static int IndexOfDuplicates<TList, T>(IReadOnlySublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return indexOfDuplicates<TList, T>(list, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Finds the index of the first occurrence of equivilent, adjacent items in a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparer">The comparer to use to determine if two items are equivalent.</param>
-        /// <returns>
-        /// The index at the beginning of the equivilent items -or- an index past the end of the list, if no duplicates are found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>The list must be sorted such that equivalent items are adjacent.</remarks>
-        public static int IndexOfDuplicates<TList, T>(IReadOnlySublist<TList, T> list, IEqualityComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return indexOfDuplicates<TList, T>(list, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Finds the index of the first occurrence of equivilent, adjacent items in a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparison">The comparison delegate to use to determine if two items are equivalent.</param>
-        /// <returns>
-        /// The index at the beginning of the equivilent items -or- an index past the end of the list, if no duplicates are found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>The list must be sorted such that equivalent items are adjacent.</remarks>
-        public static int IndexOfDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return indexOfDuplicates<TList, T>(list, comparison);
-        }
-
-        private static int indexOfDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            int result = indexOfDuplicates<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int indexOfDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            if (first != past)
-            {
-                for (int next = first + 1; next != past; first = next, ++next)
-                {
-                    if (comparison(list[first], list[next]))
-                    {
-                        return first;
-                    }
-                }
-            }
-            return past;
-        }
-
-        #endregion
-
-        #region IndexOfSequence
-
-        /// <summary>
-        /// Finds the index in a list of the first occurrence of the given sequence.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="sequence">The sequence to search for.</param>
-        /// <returns>
-        /// The index in a list of the first occurrence of the given sequence 
-        /// -or- the index past the last item in the list, if the sequence wasn't found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        public static int IndexOfSequence<TList1, TList2, T>(IReadOnlySublist<TList1, T> list, IReadOnlySublist<TList2, T> sequence)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            return indexOfSequence<TList1, T, TList2, T>(list, sequence, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Finds the index in a list of the first occurrence of the given sequence.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="sequence">The sequence to search for.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list to those in the sequence.</param>
-        /// <returns>
-        /// The index in a list of the first occurrence of the given sequence
-        /// -or- the index past the last item in the list, if the sequence wasn't found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static int IndexOfSequence<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list,
-            IReadOnlySublist<TList2, T> sequence,
-            IEqualityComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return indexOfSequence<TList1, T, TList2, T>(list, sequence, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Finds the index in a list of the first occurrence of the given sequence.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="sequence">The sequence to search for.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list to those in the sequence.</param>
-        /// <returns>
-        /// The index in a list of the first occurrence of the given sequence
-        /// -or- the index past the last item in the list, if the sequence wasn't found.
-        /// </returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static int IndexOfSequence<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list,
-            IReadOnlySublist<TList2, T2> sequence,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return indexOfSequence<TList1, T1, TList2, T2>(list, sequence, comparison);
-        }
-
-        private static int indexOfSequence<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list,
-            IReadOnlySublist<TList2, T2> sequence,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            int result = indexOfSequence<TList1, T1, TList2, T2>(
-                list.List, list.Offset, list.Offset + list.Count,
-                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
-                comparison);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int indexOfSequence<TList1, T1, TList2, T2>(
-            TList1 list1, int first1, int past1,
-            TList2 list2, int first2, int past2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            int count1 = past1 - first1;
-            int count2 = past2 - first2;
-            for (; count2 <= count1; ++first1, --count1)
-            {
-                int middle1 = first1;
-                int middle2 = first2;
-                while (middle2 != past2 && comparison(list1[middle1], list2[middle2]))
-                {
-                    ++middle1;
-                    ++middle2;
-                }
-                if (middle2 == past2)
-                {
-                    return first1;
-                }
-            }
-            return past1;
         }
 
         #endregion
@@ -10386,6 +10469,203 @@ namespace NDex
                 }
                 ++first;
             }
+        }
+
+        /// <summary>
+        /// Replaces each occurrence of the given sequence with the replacement sequence.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list to replace the sequences in.</typeparam>
+        /// <typeparam name="TSequenceList">The type of the list to find the sequence in.</typeparam>
+        /// <typeparam name="TReplacementList">The type of the replacement list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to replace the sequences in.</param>
+        /// <param name="sequence">The sequence to search for.</param>
+        /// <param name="replacement">The sequence to use as a replacement.</param>
+        /// <returns>A new sublist wrapping the list with all of its replacements.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
+        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
+        public static IExpandableSublist<TList, T> Replace<TList, TSequenceList, TReplacementList, T>(
+            IExpandableSublist<TList, T> list,
+            IReadOnlySublist<TSequenceList, T> sequence,
+            IReadOnlySublist<TReplacementList, T> replacement)
+            where TList : IList<T>
+            where TSequenceList : IList<T>
+            where TReplacementList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            return replace<TList, TSequenceList, TReplacementList, T, T>(list, sequence, replacement, EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Replaces each occurrence of the given sequence with the replacement sequence.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list to replace the sequences in.</typeparam>
+        /// <typeparam name="TSequenceList">The type of the list to find the sequence in.</typeparam>
+        /// <typeparam name="TReplacementList">The type of the replacement list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to replace the sequences in.</param>
+        /// <param name="sequence">The sequence to search for.</param>
+        /// <param name="replacement">The sequence to use as a replacement.</param>
+        /// <param name="comparer">An equality comparer to comparer values in the list and in the sequence.</param>
+        /// <returns>A new sublist wrapping the list with all of its replacements.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
+        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        public static IExpandableSublist<TList, T> Replace<TList, TSequenceList, TReplacementList, T>(
+            IExpandableSublist<TList, T> list,
+            IReadOnlySublist<TSequenceList, T> sequence,
+            IReadOnlySublist<TReplacementList, T> replacement,
+            IEqualityComparer<T> comparer)
+            where TList : IList<T>
+            where TSequenceList : IList<T>
+            where TReplacementList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return replace<TList, TSequenceList, TReplacementList, T, T>(list, sequence, replacement, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Replaces each occurrence of the given sequence with the replacement sequence.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list to replace the sequences in.</typeparam>
+        /// <typeparam name="TSequenceList">The type of the list to find the sequence in.</typeparam>
+        /// <typeparam name="TReplacementList">The type of the replacement list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <typeparam name="TSequence">The type of the items in the sequence list.</typeparam>
+        /// <param name="list">The list to replace the sequences in.</param>
+        /// <param name="sequence">The sequence to search for.</param>
+        /// <param name="replacement">The sequence to use as a replacement.</param>
+        /// <param name="comparison">A function to compare values in the list and in the sequence.</param>
+        /// <returns>A new sublist wrapping the list with all of its replacements.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
+        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
+        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
+        public static IExpandableSublist<TList, T> Replace<TList, TSequenceList, TReplacementList, T, TSequence>(
+            IExpandableSublist<TList, T> list,
+            IReadOnlySublist<TSequenceList, TSequence> sequence,
+            IReadOnlySublist<TReplacementList, T> replacement,
+            Func<T, TSequence, bool> comparison)
+            where TList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacementList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (sequence == null)
+            {
+                throw new ArgumentNullException("sequence");
+            }
+            if (sequence.Count == 0)
+            {
+                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
+            }
+            if (replacement == null)
+            {
+                throw new ArgumentNullException("replacement");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return replace<TList, TSequenceList, TReplacementList, T, TSequence>(list, sequence, replacement, comparison);
+        }
+
+        private static IExpandableSublist<TList, T> replace<TList, TSequenceList, TReplacementList, T, TSequence>(
+            IExpandableSublist<TList, T> list,
+            IReadOnlySublist<TSequenceList, TSequence> sequence,
+            IReadOnlySublist<TReplacementList, T> replacement,
+            Func<T, TSequence, bool> comparison)
+            where TList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacementList : IList<T>
+        {
+            int past = replace<TList, TSequenceList, TReplacementList, T, TSequence>(
+                list.List, list.Offset, list.Offset + list.Count,
+                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
+                replacement.List, replacement.Offset, replacement.Offset + replacement.Count,
+                comparison);
+            return list.Resize(past - list.Offset, true);
+        }
+
+        private static int replace<TList, TSequenceList, TReplacementList, T, TSequence>(
+            TList list, int first, int past, 
+            TSequenceList sequence, int sequenceFirst, int sequencePast, 
+            TReplacementList replacement, int replacementFirst, int replacementPast, 
+            Func<T, TSequence, bool> comparison)
+            where TList : IList<T>
+            where TSequenceList : IList<TSequence>
+            where TReplacementList : IList<T>
+        {
+            int temp = past;
+            int sequenceCount = sequencePast - sequenceFirst;
+            int replacementCount = replacementPast - replacementFirst;
+            first = indexOfSequence<TList, T, TSequenceList, TSequence>(list, first, past, sequence, sequenceFirst, sequencePast, comparison);
+
+            while (first != past)
+            {
+                if (sequenceCount < replacementCount)
+                {
+                    int difference = replacementCount - sequenceCount;
+                    growAndShift<TList, T>(list, first, difference);
+                    past += difference;
+                }
+                else if (sequenceCount > replacementCount)
+                {
+                    int index = first + sequenceCount;
+                    int difference = sequenceCount - replacementCount;
+                    copy<TList, TList, T>(list, index, past, list, index - difference, past);
+                    past -= difference;
+                }
+                first = copy<TReplacementList, TList, T>(replacement, replacementFirst, replacementPast, list, first, past).Item2;
+                first = indexOfSequence<TList, T, TSequenceList, TSequence>(list, first, past, sequence, sequenceFirst, sequencePast, comparison);
+            }
+            if (past < temp)
+            {
+                removeRange<TList, T>(list, past, temp);
+            }
+            return past;
         }
 
         #endregion
