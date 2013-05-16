@@ -293,7 +293,7 @@ There are a handful of additional algorithms:
 * `SwapRanges` - Swap the items between two lists.
 * `TrueForAll` - Check to see if all the items in a list satisfy a condition.
 
-## Combining Add and Copy Algorithms
+### Combining Add and Copy Algorithms
 The `Copy*` algorithms return one or more indexes because they will stop prematurely if they detect that there isn't enough room in the destination(s) to continue. These indexes represent where in the list(s) the algorithm stopped. Most algorithms attempt to exit in a way that you can switch over to using an `Add*` algorithm to complete the task.
 
 For instance, `CopyCombined` will combine the items from two lists and store them in the destination. If the destination is too small, the indexes into the two source lists where the algorithm stopped will be available:
