@@ -30,7 +30,7 @@ namespace NDex.Tests
             Sublist.CopyGenerated(list2.ToSublist(), () => keys[random.Next(4)]);
 
             // force a find
-            Sublist.Add(list2.ToSublist(), list1.ToSublist(random.Next(list1.Count + 1), 0));
+            Sublist.AddTo(list2.ToSublist(), list1.ToSublist(random.Next(list1.Count + 1), 0));
 
             var result = Sublist.FindSequence(list1.ToSublist(), list2.ToSublist());
             Assert.IsTrue(result.Exists, "The sequence was not found.");

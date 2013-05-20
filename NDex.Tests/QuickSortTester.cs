@@ -159,7 +159,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.AddGenerated(list, 200, i => i + 1);
-            list = Sublist.Add(new int[] { 0 }, list);
+            list = Sublist.AddTo(new int[] { 0 }, list);
             Sublist.QuickSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -173,7 +173,7 @@ namespace NDex.Tests
         public void TestQuickSort_FirstMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(new int[] { 200 }, list);
+            list = Sublist.AddTo(new int[] { 200 }, list);
             list = Sublist.AddGenerated(list, 201, i => i - 1);
             Sublist.QuickSort(list);
             bool result = Sublist.IsSorted(list);

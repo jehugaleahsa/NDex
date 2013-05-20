@@ -5,10 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the AddConverted methods.
+    /// Tests the SelectAdd methods.
     /// </summary>
     [TestClass]
-    public class AddConvertedTester
+    public class SelectAddTester
     {
         #region Real World Example
 
@@ -16,7 +16,7 @@ namespace NDex.Tests
         /// We can convert a group of numeric-strings.
         /// </summary>
         [TestMethod]
-        public void TestAddConverted_BetweenStringAndDouble()
+        public void TestSelectAdd_BetweenStringAndDouble()
         {
             Random random = new Random();
 
@@ -26,11 +26,11 @@ namespace NDex.Tests
 
             // convert to a list of strings
             var strings = new List<string>(100);
-            Sublist.AddConverted(numbers.ToSublist(), strings.ToSublist(), i => i.ToString());
+            numbers.ToSublist().Select(i => i.ToString()).AddTo(strings.ToSublist());
 
             // convert back to a list of doubles
             var converted = new List<double>(100);
-            Sublist.AddConverted(strings.ToSublist(), converted.ToSublist(), s => Double.Parse(s));
+            strings.ToSublist().Select(s => Double.Parse(s)).AddTo(converted.ToSublist());
 
             // check that the numbers are mostly the same
             // numbers will change a little due to precision issues
@@ -47,12 +47,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddConverted_NullList_Throws()
+        public void TestSelectAdd_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int> converter = i => i;
-            Sublist.AddConverted(list, destination, converter);
+            list.Select(converter);
         }
 
         /// <summary>
@@ -60,12 +59,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddConverted_NullDestination_Throws()
+        public void TestSelectAdd_NullDestination_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int> converter = i => i;
-            Sublist.AddConverted(list, destination, converter);
+            list.Select(converter).AddTo(destination);
         }
 
         /// <summary>
@@ -73,12 +72,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddConverted_NullConverter_Throws()
+        public void TestSelectAdd_NullConverter_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int> converter = null;
-            Sublist.AddConverted(list, destination, converter);
+            list.Select(converter);
         }
 
         #endregion
@@ -87,11 +85,11 @@ namespace NDex.Tests
         /// We will make sure we can use convert to double a list of numbers.
         /// </summary>
         [TestMethod]
-        public void TestAddConverted_DoubleValues()
+        public void TestSelectAdd_DoubleValues()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddConverted(list, destination, i => i * 2);
+            destination = list.Select(i => i * 2).AddTo(destination);
             int[] expected = { 2, 4, 6, };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "Not all of the items were added as expected.");
             TestHelper.CheckHeaderAndFooter(list);

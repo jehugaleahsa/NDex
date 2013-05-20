@@ -40,7 +40,7 @@ namespace NDex.Tests
                     int size = index - location;
                     var backend = list.ToSublist(location, size);
                     var offset = list.ToSublist(location + 1, size);
-                    Sublist.Copy(backend.Reversed(), offset.Reversed());
+                    Sublist.CopyTo(backend.Reversed(), offset.Reversed());
                     //copyBackward(backend, offset);
                     list[location] = value;
                     ++index; // the set grew

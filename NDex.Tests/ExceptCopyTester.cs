@@ -5,10 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the CopyDifference methods.
+    /// Tests the ExceptCopy methods.
     /// </summary>
     [TestClass]
-    public class CopyDifferenceTester
+    public class ExceptCopyTester
     {
         #region Real World Example
 
@@ -16,7 +16,7 @@ namespace NDex.Tests
         /// Say we wanted to get a list of odd numbers that aren't divisible by three.
         /// </summary>
         [TestMethod]
-        public void TestCopyDifference_EliminateSetIntersections()
+        public void TestExceptCopy_EliminateSetIntersections()
         {
             Random random = new Random();
 
@@ -36,7 +36,7 @@ namespace NDex.Tests
             var destination = new List<int>(100);
             Sublist.AddGenerated(destination.ToSublist(), 100, 0);
 
-            int result = Sublist.CopyDifference(odds.ToSublist(), threes.ToSublist(), destination.ToSublist());
+            int result = odds.ToSublist().Except(threes.ToSublist()).CopyTo(destination.ToSublist());
             Sublist.RemoveRange(destination.ToSublist(result)); // throw away the back end
             Assert.IsTrue(Sublist.TrueForAll(destination.ToSublist(), i => i % 3 != 0), "Some numbers were still divisible by three.");
         }
@@ -50,12 +50,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_NullList1_Throws()
+        public void TestExceptCopy_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyDifference(list1, list2, destination);
+            list1.Except(list2);
         }
 
         /// <summary>
@@ -63,13 +62,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_WithComparer_NullList1_Throws()
+        public void TestExceptCopy_WithComparer_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer);
         }
 
         /// <summary>
@@ -77,13 +75,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_WithComparison_NullList1_Throws()
+        public void TestExceptCopy_WithComparison_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison);
         }
 
         /// <summary>
@@ -91,12 +88,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_NullList2_Throws()
+        public void TestExceptCopy_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyDifference(list1, list2, destination);
+            list1.Except(list2);
         }
 
         /// <summary>
@@ -104,13 +100,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_WithComparer_NullList2_Throws()
+        public void TestExceptCopy_WithComparer_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer);
         }
 
         /// <summary>
@@ -118,13 +113,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_WithComparison_NullList2_Throws()
+        public void TestExceptCopy_WithComparison_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison);
         }
 
         /// <summary>
@@ -132,12 +126,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_NullDestination_Throws()
+        public void TestExceptCopy_NullDestination_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.CopyDifference(list1, list2, destination);
+            list1.Except(list2).CopyTo(destination);
         }
 
         /// <summary>
@@ -145,13 +139,13 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_WithComparer_NullDestination_Throws()
+        public void TestExceptCopy_WithComparer_NullDestination_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer).CopyTo(destination);
         }
 
         /// <summary>
@@ -159,13 +153,13 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_WithComparison_NullDestination_Throws()
+        public void TestExceptCopy_WithComparison_NullDestination_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison).CopyTo(destination);
         }
 
         /// <summary>
@@ -173,13 +167,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_NullComparer_Throws()
+        public void TestExceptCopy_NullComparer_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.CopyDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer);
         }
 
         /// <summary>
@@ -187,13 +180,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyDifference_NullComparison_Throws()
+        public void TestExceptCopy_NullComparison_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.CopyDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison);
         }
 
         #endregion
@@ -203,13 +195,13 @@ namespace NDex.Tests
         /// the algorithms stops prematurely.
         /// </summary>
         [TestMethod]
-        public void TestCopyDifference_DestinationTooSmall_StopsPrematurely()
+        public void TestExceptCopy_DestinationTooSmall_StopsPrematurely()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            CopyTwoSourcesResult result = Sublist.CopyDifference(list1, list2, destination, comparison);
+            var result = list1.Except(list2, comparison).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(0, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong index was returned.");
@@ -225,13 +217,13 @@ namespace NDex.Tests
         /// left over at the end.
         /// </summary>
         [TestMethod]
-        public void TestCopyDifference_DestinationLarger_SpaceLeftOver()
+        public void TestExceptCopy_DestinationLarger_SpaceLeftOver()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             IComparer<int> comparer = Comparer<int>.Default;
-            CopyTwoSourcesResult result = Sublist.CopyDifference(list1, list2, destination, comparer);
+            var result = list1.Except(list2, comparer).CopyTo(destination);
             Assert.AreEqual(3, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(2, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The wrong destination index was returned.");
@@ -246,12 +238,12 @@ namespace NDex.Tests
         /// Nothing should be copied if the first and second list have the same items.
         /// </summary>
         [TestMethod]
-        public void TestCopyDifference_DifferenceEqualsNullSet()
+        public void TestExceptCopy_DifferenceEqualsNullSet()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
-            CopyTwoSourcesResult result = Sublist.CopyDifference(list1, list2, destination);
+            var result = list1.Except(list2).CopyTo(destination);
             Assert.AreEqual(3, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(3, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(0, result.DestinationOffset, "The wrong destination index was returned.");

@@ -411,7 +411,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.AddGenerated(list, 200, i => i + 1);
-            list = Sublist.Add(new int[] { 0 }, list);
+            list = Sublist.AddTo(new int[] { 0 }, list);
             Sublist.MergeSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -427,7 +427,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             list = Sublist.AddGenerated(list, 100, i => i);
-            list = Sublist.Add(new int[] { -1 }, list);
+            list = Sublist.AddTo(new int[] { -1 }, list);
             buffer = Sublist.AddGenerated(buffer, 25, 0);
             Sublist.MergeSort(list, buffer);
             bool result = Sublist.IsSorted(list);
@@ -445,7 +445,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             list = Sublist.AddGenerated(list, 101, i => i);
-            list = Sublist.Add(new int[] { -1 }, list);
+            list = Sublist.AddTo(new int[] { -1 }, list);
             buffer = Sublist.AddGenerated(buffer, 3, 0);
             Sublist.MergeSort(list, buffer);
             bool result = Sublist.IsSorted(list);
@@ -461,7 +461,7 @@ namespace NDex.Tests
         public void TestMergeSort_FirstMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(new int[] { 200 }, list);
+            list = Sublist.AddTo(new int[] { 200 }, list);
             list = Sublist.AddGenerated(list, 201, i => i - 1);
             Sublist.MergeSort(list);
             bool result = Sublist.IsSorted(list);
@@ -477,7 +477,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(new int[] { 100 }, list);
+            list = Sublist.AddTo(new int[] { 100 }, list);
             list = Sublist.AddGenerated(list, 101, i => i - 1);
             buffer = Sublist.AddGenerated(buffer, 25, 0);
             Sublist.MergeSort(list, buffer);
@@ -495,7 +495,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.Add(new int[] { 100 }, list);
+            list = Sublist.AddTo(new int[] { 100 }, list);
             list = Sublist.AddGenerated(list, 101, i => i - 1);
             buffer = Sublist.AddGenerated(buffer, 3, 0);
             Sublist.MergeSort(list, buffer);

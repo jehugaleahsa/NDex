@@ -39,12 +39,12 @@ namespace NDex.Tests
             // since the lists will probably not be the same size, we'll have to copy the trailing items
             if (offset != nonEvens.Count)
             {
-                Sublist.Add(nonEvens.Nest(offset), nonOdds);
+                Sublist.AddTo(nonEvens.Nest(offset), nonOdds);
                 Sublist.RemoveRange(nonEvens.Nest(offset));
             }
             else if (offset != nonOdds.Count)
             {
-                Sublist.Add(nonOdds.Nest(offset), nonEvens);
+                Sublist.AddTo(nonOdds.Nest(offset), nonEvens);
                 Sublist.RemoveRange(nonOdds.Nest(offset));
             }
 

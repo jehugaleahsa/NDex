@@ -5,10 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the CopyCombined methods.
+    /// Tests the ZipCopyTo methods.
     /// </summary>
     [TestClass]
-    public class CopyCombinedTester
+    public class ZipCopyTester
     {
         #region Real World Example
 
@@ -16,7 +16,7 @@ namespace NDex.Tests
         /// We'll use combine to generate the products of two lists.
         /// </summary>
         [TestMethod]
-        public void TestCopyCombined_MultiplyTwoLists()
+        public void TestZipCopyTo_MultiplyTwoLists()
         {
             Random random = new Random();
             
@@ -32,7 +32,7 @@ namespace NDex.Tests
             Sublist.AddGenerated(destination.ToSublist(), 100, 0);
 
             // multiply the values at each index together
-            int destinationIndex = Sublist.CopyCombined(list1.ToSublist(), list2.ToSublist(), destination.ToSublist(), (i, j) => i * j);
+            int destinationIndex = list1.ToSublist().Zip(list2.ToSublist(), (i, j) => i * j).CopyTo(destination.ToSublist());
             Assert.AreEqual(destination.Count, destinationIndex, "Not all the values were multiplied.");
 
             // check that each value in the destination is the product
@@ -52,13 +52,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyCombined_NullList1_Throws()
+        public void TestZipCopyTo_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> combiner = (i, j) => i + j;
-            Sublist.CopyCombined(list1, list2, destination, combiner);
+            list1.Zip(list2, combiner);
         }
 
         /// <summary>
@@ -66,13 +65,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyCombined_NullList2_Throws()
+        public void TestZipCopyTo_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> combiner = (i, j) => i + j;
-            Sublist.CopyCombined(list1, list2, destination, combiner);
+            list1.Zip(list2, combiner);
         }
 
         /// <summary>
@@ -80,13 +78,13 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyCombined_NullDestination_Throws()
+        public void TestZipCopyTo_NullDestination_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> combiner = (i, j) => i + j;
-            Sublist.CopyCombined(list1, list2, destination, combiner);
+            list1.Zip(list2, combiner).CopyTo(destination);
         }
 
         /// <summary>
@@ -94,13 +92,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyCombined_NullCombiner_Throws()
+        public void TestZipCopyTo_NullCombiner_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> combiner = null;
-            Sublist.CopyCombined(list1, list2, destination, combiner);
+            list1.Zip(list2, combiner);
         }
 
         #endregion
@@ -109,12 +106,12 @@ namespace NDex.Tests
         /// If the destination is too small, it will be filled as much as possible.
         /// </summary>
         [TestMethod]
-        public void TestCopyCombined_DestinationTooSmall_StopsPrematurely()
+        public void TestZipCopyTo_DestinationTooSmall_StopsPrematurely()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 4, 3, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
-            CopyTwoSourcesResult result = Sublist.CopyCombined(list1, list2, destination, (i, j) => i + j);
+            var result = list1.Zip(list2, (i, j) => i + j).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset1, "The first source index is wrong.");
             Assert.AreEqual(2, result.SourceOffset2, "The second source index is wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were stored in the destination.");
@@ -129,12 +126,12 @@ namespace NDex.Tests
         /// If a list is smaller than the other, the destination will be filled as much as possible.
         /// </summary>
         [TestMethod]
-        public void TestCopyCombined_ListsDifferentSizes_StopsPrematurely()
+        public void TestZipCopyTo_ListsDifferentSizes_StopsPrematurely()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 4, 3, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
-            CopyTwoSourcesResult result = Sublist.CopyCombined(list1, list2, destination, (i, j) => i + j);
+            var result = list1.Zip(list2, (i, j) => i + j).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset1, "The first source index is wrong.");
             Assert.AreEqual(2, result.SourceOffset2, "The second source index is wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The wrong number of items were stored in the destination.");

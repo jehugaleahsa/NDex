@@ -96,7 +96,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            list = Sublist.Add(new int[] { 4 }, list);
+            list = Sublist.AddTo(new int[] { 4 }, list);
             Sublist.HeapAdd(list, comparison);
             Assert.IsTrue(Sublist.IsHeap(list, comparison), "The list was not a heap.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -112,7 +112,7 @@ namespace NDex.Tests
             list = Sublist.AddGenerated(list, 10, i => i); // 0..9
             Sublist.MakeHeap(list);
 
-            list = Sublist.Add(new int[] { 10 }, list);
+            list = Sublist.AddTo(new int[] { 10 }, list);
             Sublist.HeapAdd(list);
 
             Assert.IsTrue(Sublist.IsHeap(list), "The list was not a heap.");
@@ -130,7 +130,7 @@ namespace NDex.Tests
             list = Sublist.AddGenerated(list, 10, i => i + 1); // 1..10
             Sublist.MakeHeap(list);
 
-            list = Sublist.Add(new int[] { 0 }, list);
+            list = Sublist.AddTo(new int[] { 0 }, list);
             Sublist.HeapAdd(list);
 
             Assert.IsTrue(Sublist.IsHeap(list), "The list was not a heap.");
@@ -147,7 +147,7 @@ namespace NDex.Tests
             list = Sublist.AddGenerated(list, 10, i => i + (i > 4 ? 1 : 0)); // 0..4, 6..10
             Sublist.MakeHeap(list);
 
-            list = Sublist.Add(new int[] { 5 }, list);
+            list = Sublist.AddTo(new int[] { 5 }, list);
             Sublist.HeapAdd(list);
 
             Assert.IsTrue(Sublist.IsHeap(list), "The list was not a heap.");

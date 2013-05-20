@@ -45,7 +45,7 @@ namespace NDex.Tests
                     var nextRange = ranges[next];
                     var firstRange = list.ToSublist(0, nextRange.Offset);
                     int count = Sublist.CopyMerged(firstRange, nextRange, buffer.ToSublist()); // merge into buffer
-                    Sublist.Copy(buffer.ToSublist(0, count), list.ToSublist()); // move back to original list, sorted
+                    Sublist.CopyTo(buffer.ToSublist(0, count), list.ToSublist()); // move back to original list, sorted
                 }
             }
             Assert.IsTrue(Sublist.IsSorted(list.ToSublist()), "The list was not sorted.");

@@ -41,7 +41,7 @@ namespace NDex
             get
             {
                 T[] items = new T[_sublist.Count];
-                Sublist.Copy<TList, T[], T>(_sublist, items.ToSublist());
+                Sublist.CopyTo<TList, T[], T>(_sublist, items.ToSublist());
                 return items;
             }
         }

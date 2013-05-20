@@ -43,9 +43,9 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AddCombinedTester.cs" />
-    <Compile Include="AddConvertedTester.cs" />
-    <Compile Include="AddDifferenceTester.cs" />
+    <Compile Include="ZipAddTester.cs" />
+    <Compile Include="SelectAddTester.cs" />
+    <Compile Include="ExceptAddTester.cs" />
     <Compile Include="AddIfTester.cs" />
     <Compile Include="AddIntersectionTester.cs" />
     <Compile Include="AddMergedTester.cs" />
@@ -69,9 +69,9 @@
     <Compile Include="CheckResultTester.cs" />
     <Compile Include="SearchResultTester.cs" />
     <Compile Include="IsSubsetTester.cs" />
-    <Compile Include="CopyCombinedTester.cs" />
-    <Compile Include="CopyConvertedTester.cs" />
-    <Compile Include="CopyDifferenceTester.cs" />
+    <Compile Include="ZipCopyTester.cs" />
+    <Compile Include="SelectCopyTester.cs" />
+    <Compile Include="ExceptCopyTester.cs" />
     <Compile Include="CopyIfTester.cs" />
     <Compile Include="CopyIntersectionTester.cs" />
     <Compile Include="CopyMergedTester.cs" />

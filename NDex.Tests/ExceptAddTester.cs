@@ -5,10 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the AddDifference methods.
+    /// Tests the ExceptAdd methods.
     /// </summary>
     [TestClass]
-    public class AddDifferenceTester
+    public class ExceptAddTester
     {
         #region Real World Example
 
@@ -16,7 +16,7 @@ namespace NDex.Tests
         /// Say we wanted to get a list of odd numbers that aren't divisible by three.
         /// </summary>
         [TestMethod]
-        public void TestAddDifference_EliminateSetIntersections()
+        public void TestExceptAdd_EliminateSetIntersections()
         {
             Random random = new Random();
 
@@ -34,7 +34,7 @@ namespace NDex.Tests
             // now remove the threes and make sure none remain
             var destination = new List<int>(100);
 
-            Sublist.AddDifference(odds.ToSublist(), threes.ToSublist(), destination.ToSublist());
+            odds.ToSublist().Except(threes.ToSublist()).AddTo(destination.ToSublist());
             Assert.IsTrue(Sublist.TrueForAll(destination.ToSublist(), i => i % 3 != 0), "Some numbers were still divisible by three.");
         }
 
@@ -47,12 +47,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_NullList1_Throws()
+        public void TestExceptAdd_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddDifference(list1, list2, destination);
+            list1.Except(list2);
         }
 
         /// <summary>
@@ -60,13 +59,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_WithComparer_NullList1_Throws()
+        public void TestExceptAdd_WithComparer_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer);
         }
 
         /// <summary>
@@ -74,13 +72,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_WithComparison_NullList1_Throws()
+        public void TestExceptAdd_WithComparison_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison);
         }
 
         /// <summary>
@@ -88,12 +85,11 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_NullList2_Throws()
+        public void TestExceptAdd_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddDifference(list1, list2, destination);
+            list1.Except(list2);
         }
 
         /// <summary>
@@ -101,13 +97,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_WithComparer_NullList2_Throws()
+        public void TestExceptAdd_WithComparer_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer);
         }
 
         /// <summary>
@@ -115,13 +110,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_WithComparison_NullList2_Throws()
+        public void TestExceptAdd_WithComparison_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison);
         }
 
         /// <summary>
@@ -129,12 +123,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_NullDestination_Throws()
+        public void TestExceptAdd_NullDestination_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.AddDifference(list1, list2, destination);
+            list1.Except(list2).AddTo(destination);
         }
 
         /// <summary>
@@ -142,13 +136,13 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_WithComparer_NullDestination_Throws()
+        public void TestExceptAdd_WithComparer_NullDestination_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer).AddTo(destination);
         }
 
         /// <summary>
@@ -156,13 +150,13 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_WithComparison_NullDestination_Throws()
+        public void TestExceptAdd_WithComparison_NullDestination_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison).AddTo(destination);
         }
 
         /// <summary>
@@ -170,13 +164,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_NullComparer_Throws()
+        public void TestExceptAdd_NullComparer_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.AddDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer);
         }
 
         /// <summary>
@@ -184,13 +177,12 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestAddDifference_NullComparison_Throws()
+        public void TestExceptAdd_NullComparison_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.AddDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison);
         }
 
         #endregion
@@ -199,12 +191,12 @@ namespace NDex.Tests
         /// Nothing should be copied if the first and second list have the same items.
         /// </summary>
         [TestMethod]
-        public void TestAddDifference_ItemsInFirstNotInSecond_RemainingAdded()
+        public void TestExceptAdd_ItemsInFirstNotInSecond_RemainingAdded()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddDifference(list1, list2, destination);
+            destination = list1.Except(list2).AddTo(destination);
             int[] expected = { 3 };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -216,13 +208,13 @@ namespace NDex.Tests
         /// Nothing should be copied if the first and second list have the same items.
         /// </summary>
         [TestMethod]
-        public void TestAddDifference_WithComparer_DifferenceEqualsNullSet()
+        public void TestExceptAdd_WithComparer_DifferenceEqualsNullSet()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer= Comparer<int>.Default;
-            Sublist.AddDifference(list1, list2, destination, comparer);
+            list1.Except(list2, comparer).AddTo(destination);
             int[] expected = { };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -234,13 +226,13 @@ namespace NDex.Tests
         /// Nothing should be copied if the first and second list have the same items.
         /// </summary>
         [TestMethod]
-        public void TestAddDifference_WithComparison_DifferenceEqualsNullSet()
+        public void TestExceptAdd_WithComparison_DifferenceEqualsNullSet()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddDifference(list1, list2, destination, comparison);
+            list1.Except(list2, comparison).AddTo(destination);
             int[] expected = { };
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);

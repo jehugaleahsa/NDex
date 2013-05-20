@@ -35,7 +35,7 @@ namespace NDex.Tests
             Sublist.AddGenerated(values.ToSublist(), 10, defaultDate); // change default to today
 
             DateTime[] expected = new DateTime[10];
-            Sublist.CopyConverted(expected.ToSublist(), expected.ToSublist(), i => defaultDate); // replace all with default
+            expected.ToSublist().Select(i => defaultDate).CopyTo(expected.ToSublist()); // replace all with default
 
             Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), values.ToSublist()), "The items were not set as expected.");
         }

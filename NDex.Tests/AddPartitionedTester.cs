@@ -41,8 +41,8 @@ namespace NDex.Tests
             Assert.IsTrue(allOdd, "Some evens were added to the wrong list.");
 
             var combined = new List<int>(100);
-            Sublist.Add(evens.ToSublist(), combined.ToSublist());
-            Sublist.Add(odds.ToSublist(), combined.ToSublist());
+            Sublist.AddTo(evens.ToSublist(), combined.ToSublist());
+            Sublist.AddTo(odds.ToSublist(), combined.ToSublist());
             Sublist.QuickSort(combined.ToSublist());
             bool hasAllItems = Sublist.AreEqual(list.ToSublist(), combined.ToSublist());
             Assert.IsTrue(hasAllItems, "Not all items were partitioned.");
