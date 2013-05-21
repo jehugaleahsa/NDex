@@ -210,7 +210,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0 });
             IComparer<int> comparer = Comparer<int>.Default;
-            CopyTwoSourcesResult result = Sublist.CopyMerged(list1, list2, destination, comparer);
+            var result = Sublist.CopyMerged(list1, list2, destination, comparer);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were added.");
@@ -230,7 +230,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 5, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-            CopyTwoSourcesResult result = Sublist.CopyMerged(list1, list2, destination);
+            var result = Sublist.CopyMerged(list1, list2, destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were added.");
@@ -251,7 +251,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 7, 5, 3, 1 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            CopyTwoSourcesResult result = Sublist.CopyMerged(list1, list2, destination, comparison);
+            var result = Sublist.CopyMerged(list1, list2, destination, comparison);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were added.");
@@ -271,7 +271,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, });
-            CopyTwoSourcesResult result = Sublist.CopyMerged(list1, list2, destination);
+            var result = Sublist.CopyMerged(list1, list2, destination);
             Assert.AreEqual(1, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(2, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were added.");

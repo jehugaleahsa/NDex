@@ -211,7 +211,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, });
             IComparer<int> comparer = Comparer<int>.Default;
 
-            CopyTwoSourcesResult result = Sublist.CopySymmetricDifference(list, list, destination, comparer);
+            var result = Sublist.CopySymmetricDifference(list, list, destination, comparer);
             Assert.AreEqual(list.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(0, result.DestinationOffset, "The destination offset was wrong.");
@@ -232,7 +232,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
-            CopyTwoSourcesResult result = Sublist.CopySymmetricDifference(list1, list2, destination);
+            var result = Sublist.CopySymmetricDifference(list1, list2, destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong index was returned.");
@@ -254,7 +254,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, });
 
-            CopyTwoSourcesResult result = Sublist.CopySymmetricDifference(list1, list2, destination);
+            var result = Sublist.CopySymmetricDifference(list1, list2, destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The wrong index was returned.");
@@ -276,7 +276,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            CopyTwoSourcesResult result = Sublist.CopySymmetricDifference(list1, list2, destination);
+            var result = Sublist.CopySymmetricDifference(list1, list2, destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The wrong index was returned.");
@@ -299,7 +299,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
 
-            CopyTwoSourcesResult result = Sublist.CopySymmetricDifference(list1, list2, destination, comparison);
+            var result = Sublist.CopySymmetricDifference(list1, list2, destination, comparison);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The wrong index was returned.");
@@ -321,7 +321,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
 
-            CopyTwoSourcesResult result = Sublist.CopySymmetricDifference(list1, list2, destination);
+            var result = Sublist.CopySymmetricDifference(list1, list2, destination);
             Assert.AreEqual(2, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(1, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong index was returned.");

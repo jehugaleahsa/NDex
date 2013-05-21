@@ -8,17 +8,17 @@ using NDex.Properties;
 
 namespace NDex
 {
-    #region AddPartitionedResult
+    #region PartitionAddResult
 
     /// <summary>
     /// Holds the results of the AddPartitioned method.
     /// </summary>
-    public sealed class AddPartitionedResult<TDestinationList1, TDestinationList2, T>
+    public sealed class PartitionAddResult<TDestinationList1, TDestinationList2, T>
     {
         /// <summary>
         /// Initializes a new instance of an AddPartitionedResult.
         /// </summary>
-        internal AddPartitionedResult()
+        internal PartitionAddResult()
         {
         }
 
@@ -43,17 +43,17 @@ namespace NDex
 
     #endregion
 
-    #region CopyResult
+    #region CopyToResult
 
     /// <summary>
-    /// Holds the results of a copy method with one source list.
+    /// Holds the results of a copy.
     /// </summary>
-    public sealed class CopyResult
+    public sealed class CopyToResult
     {
         /// <summary>
-        /// Initializes a new instance of a CopyResult.
+        /// Initializes a new instance of a CopyToResult.
         /// </summary>
-        internal CopyResult()
+        internal CopyToResult()
         {
         }
 
@@ -80,7 +80,7 @@ namespace NDex
         /// </summary>
         /// <param name="result">The result to convert.</param>
         /// <returns>The offset into the destination where the algorithm stopped.</returns>
-        public static implicit operator int(CopyResult result)
+        public static implicit operator int(CopyToResult result)
         {
             return result.DestinationOffset;
         }
@@ -88,71 +88,17 @@ namespace NDex
 
     #endregion
 
-    #region CopyTwoSourcesResult
+    #region PartitionCopyResult
 
     /// <summary>
-    /// Holds the results of a copy operation with two source lists.
+    /// Holds the result of copying the result of a Partition operation.
     /// </summary>
-    public sealed class CopyTwoSourcesResult
+    public sealed class PartitionCopyResult
     {
         /// <summary>
-        /// Initializes a new instance of a CopyTwoSourcesResult.
+        /// Initializes a new instance of a PartitionCopyResult.
         /// </summary>
-        internal CopyTwoSourcesResult()
-        {
-        }
-
-        /// <summary>
-        /// Gets the index into the first source list where the algorithm stopped.
-        /// </summary>
-        public int SourceOffset1
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Gets the index into the second source list where the algorithm stopped.
-        /// </summary>
-        public int SourceOffset2
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Gets the index into the destination list where the algorithm stopped.
-        /// </summary>
-        public int DestinationOffset
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Converts the result object into the destination offset.
-        /// </summary>
-        /// <param name="result">The result to convert.</param>
-        /// <returns>The offset into the destination where the algorithm stopped.</returns>
-        public static implicit operator int(CopyTwoSourcesResult result)
-        {
-            return result.DestinationOffset;
-        }
-    }
-
-    #endregion
-
-    #region CopyPartitionedResult
-
-    /// <summary>
-    /// Holds the indexes of a copy method with two destination lists.
-    /// </summary>
-    public sealed class CopyPartitionedResult
-    {
-        /// <summary>
-        /// Initializes a new instance of a CopyPartitionedResult.
-        /// </summary>
-        internal CopyPartitionedResult()
+        internal PartitionCopyResult()
         {
         }
 
@@ -386,6 +332,429 @@ namespace NDex
     }
 
     #endregion
+
+    /// <summary>
+    /// Provides methods for creating and working with instances of Sublist.
+    /// </summary>
+    public static partial class Sublist
+    {
+        #region AddGenerated
+
+        /// <summary>
+        /// Copies the given value into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="numberOfItems">The number of items to add.</param>
+        /// <param name="value">The value to fill the list with.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
+        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, T value)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (numberOfItems < 0)
+            {
+                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
+            }
+            int past = list.Offset + list.Count;
+            addGenerated<TList, T>(list.List, past, past + numberOfItems, value);
+            return list.Resize(list.Count + numberOfItems, true);
+        }
+
+        private static void addGenerated<TList, T>(TList list, int first, int past, T value)
+            where TList : IList<T>
+        {
+            while (first != past)
+            {
+                list.Insert(first, value);
+                ++first;
+            }
+        }
+
+        /// <summary>
+        /// Copies the result of each call to the generator into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="numberOfItems">The number of items to add.</param>
+        /// <param name="generator">The delegate to use to fill the list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
+        /// <remarks>The generator will be called to set each item in the list.</remarks>
+        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, Func<T> generator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (numberOfItems < 0)
+            {
+                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
+            }
+            if (generator == null)
+            {
+                throw new ArgumentNullException("generator");
+            }
+            int past = list.Offset + list.Count;
+            addGenerated<TList, T>(list.List, past, past + numberOfItems, generator);
+            return list.Resize(list.Count + numberOfItems, true);
+        }
+
+        private static void addGenerated<TList, T>(TList list, int first, int past, Func<T> generator)
+            where TList : IList<T>
+        {
+            while (first != past)
+            {
+                list.Insert(first, generator());
+                ++first;
+            }
+        }
+
+        /// <summary>
+        /// Copies the result of each call to the generator into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="numberOfItems">The number of items to add.</param>
+        /// <param name="generator">The delegate to use to fill the list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
+        /// <remarks>
+        /// The generator will be called to set each item in the list. 
+        /// The relative index of the item is passed with each call to the generator.
+        /// </remarks>
+        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, Func<int, T> generator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (numberOfItems < 0)
+            {
+                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
+            }
+            if (generator == null)
+            {
+                throw new ArgumentNullException("generator");
+            }
+            int past = list.Offset + list.Count;
+            addGenerated<TList, T>(list.List, past, past + numberOfItems, generator);
+            return list.Resize(list.Count + numberOfItems, true);
+        }
+
+        private static void addGenerated<TList, T>(TList list, int first, int past, Func<int, T> generator)
+            where TList : IList<T>
+        {
+            int adjustment = first;
+            while (first != past)
+            {
+                list.Insert(first, generator(first - adjustment));
+                ++first;
+            }
+        }
+
+        #endregion
+
+        #region CopyGenerated
+
+        /// <summary>
+        /// Copies the given value into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="value">The value to fill the list with.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
+        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, T value)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, value);
+        }
+
+        private static void copyGenerated<TList, T>(TList list, int first, int past, T value)
+            where TList : IList<T>
+        {
+            while (first != past)
+            {
+                list[first] = value;
+                ++first;
+            }
+        }
+
+        /// <summary>
+        /// Copies the result of each call to the generator into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="generator">The delegate to use to fill the list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
+        /// <remarks>The generator will be called to set each item in the list.</remarks>
+        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, Func<T> generator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (generator == null)
+            {
+                throw new ArgumentNullException("generator");
+            }
+            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
+        }
+
+        private static void copyGenerated<TList, T>(TList list, int first, int past, Func<T> generator)
+            where TList : IList<T>
+        {
+            while (first != past)
+            {
+                list[first] = generator();
+                ++first;
+            }
+        }
+
+        /// <summary>
+        /// Copies the result of each call to the generator into the list.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to fill.</param>
+        /// <param name="generator">The delegate to use to fill the list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
+        /// <remarks>
+        /// The generator will be called to set each item in the list. 
+        /// The relative index of the item is passed with each call to the generator.
+        /// </remarks>
+        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, Func<int, T> generator)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (generator == null)
+            {
+                throw new ArgumentNullException("generator");
+            }
+            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
+        }
+
+        private static void copyGenerated<TList, T>(TList list, int first, int past, Func<int, T> generator)
+            where TList : IList<T>
+        {
+            int adjustment = first;
+            while (first != past)
+            {
+                list[first] = generator(first - adjustment);
+                ++first;
+            }
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Provides methods for creating and working with instances of Sublist.
+    /// </summary>
+    public static partial class Sublist
+    {
+        #region AddPartitioned
+
+        /// <summary>
+        /// Adds the items from a list satisfying the predicate to the first destination list and the remaining
+        /// to the second destination list.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the list.</typeparam>
+        /// <typeparam name="TDestinationList1">The type of the first destination list.</typeparam>
+        /// <typeparam name="TDestinationList2">The type of the second destination list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list to partition.</param>
+        /// <param name="destination1">The list to add the items that satisfy the predicate.</param>
+        /// <param name="destination2">The list to add the items that don't satisfy the predicate.</param>
+        /// <param name="predicate">The condition an item must satisfy to be added to the first destination list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The first destination is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second destination is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
+        public static PartitionAddResult<TDestinationList1, TDestinationList2, T> AddPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
+            IReadOnlySublist<TSourceList, T> source,
+            IExpandableSublist<TDestinationList1, T> destination1,
+            IExpandableSublist<TDestinationList2, T> destination2,
+            Func<T, bool> predicate)
+            where TSourceList : IList<T>
+            where TDestinationList1 : IList<T>
+            where TDestinationList2 : IList<T>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (destination1 == null)
+            {
+                throw new ArgumentNullException("destination1");
+            }
+            if (destination2 == null)
+            {
+                throw new ArgumentNullException("destination2");
+            }
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("predicate");
+            }
+            Tuple<int, int> indexes = addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
+                source.List, source.Offset, source.Offset + source.Count,
+                destination1.List, destination1.Offset + destination1.Count,
+                destination2.List, destination2.Offset + destination2.Count,
+                predicate);
+            PartitionAddResult<TDestinationList1, TDestinationList2, T> result = new PartitionAddResult<TDestinationList1, TDestinationList2, T>();
+            result.Destination1 = destination1.Resize(indexes.Item1 - destination1.Offset, true);
+            result.Destination2 = destination2.Resize(indexes.Item2 - destination2.Offset, true);
+            return result;
+        }
+
+        private static Tuple<int, int> addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
+            TSourceList source, int first, int past,
+            TDestinationList1 destination1, int destinationPast1,
+            TDestinationList2 destination2, int destinationPast2,
+            Func<T, bool> predicate)
+            where TSourceList : IList<T>
+            where TDestinationList1 : IList<T>
+            where TDestinationList2 : IList<T>
+        {
+            int pivot1 = destination1.Count;
+            int pivot2 = destination2.Count;
+            while (first != past)
+            {
+                if (predicate(source[first]))
+                {
+                    destination1.Add(source[first]);
+                }
+                else
+                {
+                    destination2.Add(source[first]);
+                }
+                ++first;
+            }
+            RotateLeft<TDestinationList1, T>(destination1, destinationPast1, pivot1, destination1.Count);
+            RotateLeft<TDestinationList2, T>(destination2, destinationPast2, pivot2, destination2.Count);
+            destinationPast1 += destination1.Count - pivot1;
+            destinationPast2 += destination2.Count - pivot2;
+            return new Tuple<int, int>(destinationPast1, destinationPast2);
+        }
+
+        #endregion
+
+        #region CopyPartitioned
+
+        /// <summary>
+        /// Copies the items from a list satisfying the predicate into the first destination list and the remaining
+        /// into the second destination list.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the list.</typeparam>
+        /// <typeparam name="TDestinationList1">The type of the first destination list.</typeparam>
+        /// <typeparam name="TDestinationList2">The type of the second destination list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list to partition.</param>
+        /// <param name="destination1">The list to copy the items that satisfy the predicate.</param>
+        /// <param name="destination2">The list to copy the items that don't satisfy the predicate.</param>
+        /// <param name="predicate">The condition an item must satisfy to be copied to the first destination list.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The first destination is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second destination is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
+        public static PartitionCopyResult CopyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
+            IReadOnlySublist<TSourceList, T> source,
+            IMutableSublist<TDestinationList1, T> destination1,
+            IMutableSublist<TDestinationList2, T> destination2,
+            Func<T, bool> predicate)
+            where TSourceList : IList<T>
+            where TDestinationList1 : IList<T>
+            where TDestinationList2 : IList<T>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (destination1 == null)
+            {
+                throw new ArgumentNullException("destination1");
+            }
+            if (destination2 == null)
+            {
+                throw new ArgumentNullException("destination2");
+            }
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("predicate");
+            }
+            Tuple<int, int, int> indexes = copyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
+                source.List, source.Offset, source.Offset + source.Count,
+                destination1.List, destination1.Offset, destination1.Offset + destination1.Count,
+                destination2.List, destination2.Offset, destination2.Offset + destination2.Count,
+                predicate);
+            PartitionCopyResult result = new PartitionCopyResult();
+            result.SourceOffset = indexes.Item1 - source.Offset;
+            result.DestinationOffset1 = indexes.Item2 - destination1.Offset;
+            result.DestinationOffset2 = indexes.Item3 - destination2.Offset;
+            return result;
+        }
+
+        private static Tuple<int, int, int> copyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
+            TSourceList source, int first, int past,
+            TDestinationList1 destination1, int destinationFirst1, int destinationPast1,
+            TDestinationList2 destination2, int destinationFirst2, int destinationPast2,
+            Func<T, bool> predicate)
+            where TSourceList : IList<T>
+            where TDestinationList1 : IList<T>
+            where TDestinationList2 : IList<T>
+        {
+            while (first != past)
+            {
+                if (predicate(source[first]))
+                {
+                    if (destinationFirst1 == destinationPast1)
+                    {
+                        break;
+                    }
+                    destination1[destinationFirst1] = source[first];
+                    ++destinationFirst1;
+                }
+                else
+                {
+                    if (destinationFirst2 == destinationPast2)
+                    {
+                        break;
+                    }
+                    destination2[destinationFirst2] = source[first];
+                    ++destinationFirst2;
+                }
+                ++first;
+            }
+            return new Tuple<int, int, int>(first, destinationFirst1, destinationFirst2);
+        }
+
+        #endregion
+    }
 
     /// <summary>
     /// Provides methods for creating and working with instances of Sublist.
@@ -653,7 +1022,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The source collection is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         public static IExpandableSublist<TDestinationList, T> AddTo<TDestinationList, T>(
-            this IEnumerable<T> source, 
+            this IEnumerable<T> source,
             IExpandableSublist<TDestinationList, T> destination)
             where TDestinationList : IList<T>
         {
@@ -712,1883 +1081,7 @@ namespace NDex
         }
 
         #endregion
-
-        #region AddGenerated
-
-        /// <summary>
-        /// Copies the given value into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="value">The value to fill the list with.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
-        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, T value)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0)
-            {
-                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
-            }
-            int past = list.Offset + list.Count;
-            addGenerated<TList, T>(list.List, past, past + numberOfItems, value);
-            return list.Resize(list.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TList, T>(TList list, int first, int past, T value)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list.Insert(first, value);
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Copies the result of each call to the generator into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>The generator will be called to set each item in the list.</remarks>
-        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, Func<T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0)
-            {
-                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            int past = list.Offset + list.Count;
-            addGenerated<TList, T>(list.List, past, past + numberOfItems, generator);
-            return list.Resize(list.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TList, T>(TList list, int first, int past, Func<T> generator)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list.Insert(first, generator());
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Copies the result of each call to the generator into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>
-        /// The generator will be called to set each item in the list. 
-        /// The relative index of the item is passed with each call to the generator.
-        /// </remarks>
-        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0)
-            {
-                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            int past = list.Offset + list.Count;
-            addGenerated<TList, T>(list.List, past, past + numberOfItems, generator);
-            return list.Resize(list.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TList, T>(TList list, int first, int past, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list.Insert(first, generator(first - adjustment));
-                ++first;
-            }
-        }
-
-        #endregion
-
-        #region AddIf
-
-        /// <summary>
-        /// Adds the items from a list that satisfy the predicate to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to conditionally add.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="predicate">The condition an item must satisfy to be added to the destination.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddIf<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int result = addIf<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                predicate);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addIf<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int pivot = destination.Count;
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    destination.Add(source[first]);
-                }
-                ++first;
-            }
-            RotateLeft<TDestinationList, T>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        #endregion
-
-        #region AddIntersection
-
-        /// <summary>
-        /// Adds the items that appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the intersecting items to.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items. Neither of
-        /// the lists can contain duplicate items.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Adds the items that appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the intersecting items to.</param>
-        /// <param name="comparer">The comparer to use to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Adds the items that appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the intersecting items to.</param>
-        /// <param name="comparison">The delegate used to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
-        }
-
-        private static IExpandableSublist<TDestinationList, T> addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1.List, source1.Offset, source1.Offset + source1.Count,
-                source2.List, source2.Offset, source2.Offset + source2.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int pivot = destination.Count;
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                    ++first2;
-                }
-            }
-            RotateLeft<TDestinationList, T>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        #endregion
-
-        #region AddMerged
-
-        /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, adding the items
-        /// to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
-        /// <param name="destination">The list to add the merged items to.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, adding the items
-        /// to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
-        /// <param name="destination">The list to add the merged items to.</param>
-        /// <param name="comparer">The comparer to use to compare items from the lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, adding the items
-        /// to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
-        /// <param name="destination">The list to add the merged items to.</param>
-        /// <param name="comparison">The delegate to use to compare items from the lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return addMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
-        }
-
-        private static IExpandableSublist<TDestinationList, T> addMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1.List, source1.Offset, source1.Offset + source1.Count,
-                source2.List, source2.Offset, source2.Offset + source2.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, (past1 - first1) + (past2 - first2));
-            Tuple<int, int, int> indexes = copyMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1, first1, past1,
-                source2, first2, past2,
-                destination, destinationPast, destination.Count,
-                comparison);
-            return indexes.Item3;
-        }
-
-        #endregion
-
-        #region AddPartiallySorted
-
-        /// <summary>
-        /// Adds the given number of items from a list to a destination list as if the source list was sorted.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to be added.</param>
-        /// <param name="numberOfItems">The number of items to add to the destination.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the list will be sorted according to the default ordering of the items.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            int numberOfItems,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (numberOfItems < 0 || numberOfItems > source.Count)
-            {
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Adds the given number of items from a list to a destination list as if the source list was sorted.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to be added.</param>
-        /// <param name="numberOfItems">The number of items to add to the destination.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="comparer">The comparer to use to compare items in the source list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            int numberOfItems,
-            IExpandableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (numberOfItems < 0 || numberOfItems > source.Count)
-            {
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Adds the given number of items from a list to a destination list as if the source list was sorted.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to be added.</param>
-        /// <param name="numberOfItems">The number of items to add to the destination.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="comparison">The delegate used to compare items in the source list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            int numberOfItems,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (numberOfItems < 0 || numberOfItems > source.Count)
-            {
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, comparison);
-        }
-
-        private static IExpandableSublist<TDestinationList, T> addPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            int numberOfItems,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addPartiallySorted<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + numberOfItems, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addPartiallySorted<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int middle, int past,
-            TDestinationList destination, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int count = middle - first;
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, count);
-            return copyPartiallySorted<TSourceList, TDestinationList, T>(
-                source, first, past,
-                destination, destinationPast, destinationPast + count,
-                comparison);
-        }
-
-        #endregion
-
-        #region AddPartitioned
-
-        /// <summary>
-        /// Adds the items from a list satisfying the predicate to the first destination list and the remaining
-        /// to the second destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList1">The type of the first destination list.</typeparam>
-        /// <typeparam name="TDestinationList2">The type of the second destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to partition.</param>
-        /// <param name="destination1">The list to add the items that satisfy the predicate.</param>
-        /// <param name="destination2">The list to add the items that don't satisfy the predicate.</param>
-        /// <param name="predicate">The condition an item must satisfy to be added to the first destination list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The first destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static AddPartitionedResult<TDestinationList1, TDestinationList2, T> AddPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList1, T> destination1,
-            IExpandableSublist<TDestinationList2, T> destination2,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList1 : IList<T>
-            where TDestinationList2 : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination1 == null)
-            {
-                throw new ArgumentNullException("destination1");
-            }
-            if (destination2 == null)
-            {
-                throw new ArgumentNullException("destination2");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            Tuple<int, int> indexes = addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination1.List, destination1.Offset + destination1.Count,
-                destination2.List, destination2.Offset + destination2.Count,
-                predicate);
-            AddPartitionedResult<TDestinationList1, TDestinationList2, T> result = new AddPartitionedResult<TDestinationList1, TDestinationList2, T>();
-            result.Destination1 = destination1.Resize(indexes.Item1 - destination1.Offset, true);
-            result.Destination2 = destination2.Resize(indexes.Item2 - destination2.Offset, true);
-            return result;
-        }
-
-        private static Tuple<int, int> addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-            TSourceList source, int first, int past,
-            TDestinationList1 destination1, int destinationPast1,
-            TDestinationList2 destination2, int destinationPast2,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList1 : IList<T>
-            where TDestinationList2 : IList<T>
-        {
-            int pivot1 = destination1.Count;
-            int pivot2 = destination2.Count;
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    destination1.Add(source[first]);
-                }
-                else
-                {
-                    destination2.Add(source[first]);
-                }
-                ++first;
-            }
-            RotateLeft<TDestinationList1, T>(destination1, destinationPast1, pivot1, destination1.Count);
-            RotateLeft<TDestinationList2, T>(destination2, destinationPast2, pivot2, destination2.Count);
-            destinationPast1 += destination1.Count - pivot1;
-            destinationPast2 += destination2.Count - pivot2;
-            return new Tuple<int, int>(destinationPast1, destinationPast2);
-        }
-
-        #endregion
-
-        #region AddRandomSamples
-
-        /// <summary>
-        /// Randomly adds the requested number of items from a list to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="source">The list of items to randomly choose values from.</param>
-        /// <param name="numberOfSamples">The number of items to add to the destination.</param>
-        /// <param name="destination">The list to add items to.</param>
-        /// <param name="random">The random number generator to use.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// The number of samples is negative -or- larger than the size of the list.
-        /// </exception>
-        /// <exception cref="System.ArgumentNullException">The random number generator is null.</exception>
-        /// <remarks>The order that the items appear in the destination is not guaranteed.</remarks>
-        public static IExpandableSublist<TDestinationList, T> AddRandomSamples<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            int numberOfSamples,
-            IExpandableSublist<TDestinationList, T> destination,
-            Random random)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (numberOfSamples < 0 || numberOfSamples > source.Count)
-            {
-                throw new ArgumentOutOfRangeException("numberOfSamples", numberOfSamples, Resources.IndexOutOfRange);
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (random == null)
-            {
-                throw new ArgumentNullException("random");
-            }
-            return addRandomSamples<TSourceList, TDestinationList, T>(source, numberOfSamples, destination, random.Next);
-        }
-
-        /// <summary>
-        /// Randomly adds the requested number of items from a list to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="source">The list of items to randomly choose values from.</param>
-        /// <param name="numberOfSamples">The number of items to add to the destination.</param>
-        /// <param name="destination">The list to add items to.</param>
-        /// <param name="generator">The random number generator to use.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// The number of samples is negative -or- larger than the size of the list.
-        /// </exception>
-        /// <exception cref="System.ArgumentNullException">The random number generator is null.</exception>
-        /// <remarks>The order that the items appear in the destination is not guaranteed.</remarks>
-        public static IExpandableSublist<TDestinationList, T> AddRandomSamples<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            int numberOfSamples,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<int> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (numberOfSamples < 0 || numberOfSamples > source.Count)
-            {
-                throw new ArgumentOutOfRangeException("numberOfSamples", numberOfSamples, Resources.IndexOutOfRange);
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            return addRandomSamples<TSourceList, TDestinationList, T>(source, numberOfSamples, destination, generator);
-        }
-
-        private static IExpandableSublist<TDestinationList, T> addRandomSamples<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            int numberOfSamples,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<int> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addRandomSamples<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                numberOfSamples,
-                generator);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addRandomSamples<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            int numberOfSamples,
-            Func<int> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, numberOfSamples);
-            return copyRandomSamples<TSourceList, TDestinationList, T>(
-                source, first, past,
-                destination, destinationPast, destinationPast + numberOfSamples,
-                generator);
-        }
-
-        #endregion
-
-        #region AddReplaced
-
-        /// <summary>
-        /// Adds the items from a list to a destination list, replacing any items satisfying the predicate with the given value.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to add.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="predicate">The condition an item must satisfy to be replaced.</param>
-        /// <param name="replacement">The value to replace items satisfying the predicate with.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, bool> predicate,
-            T replacement)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int result = addReplaced<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                predicate,
-                replacement);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addReplaced<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<T, bool> predicate,
-            T replacement)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = copyReplaced<TSourceList, TDestinationList, T>(
-                source, first, past,
-                destination, destinationPast, destination.Count,
-                predicate,
-                replacement);
-            return indexes.Item2;
-        }
-
-        /// <summary>
-        /// Adds the items from a list to a destination list, replacing any items satisfying the predicate with the result of the generator.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to add.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="predicate">The condition an item must satisfy to be replaced.</param>
-        /// <param name="generator">The delegate to use to generate the replacements.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, bool> predicate,
-            Func<T, T> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int result = addReplaced<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                predicate,
-                generator);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addReplaced<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<T, bool> predicate,
-            Func<T, T> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = copyReplaced<TSourceList, TDestinationList, T>(
-                source, first, past,
-                destination, destinationPast, destination.Count,
-                predicate,
-                generator);
-            return indexes.Item2;
-        }
-
-        /// <summary>
-        /// Adds the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
-        /// <typeparam name="TSequence">The type of the sequence list.</typeparam>
-        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The source of the items to add to the destination.</param>
-        /// <param name="sequence">The sequence of items to replace.</param>
-        /// <param name="replacement">The replacement items.</param>
-        /// <param name="destination">The list to add the values to.</param>
-        /// <returns>A new sublist wrapping the destination and the new items.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
-        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IReadOnlySublist<TSequence, T> sequence,
-            IReadOnlySublist<TReplacement, T> replacement,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TSequence : IList<T>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T, T>(
-                source, 
-                sequence, 
-                replacement, 
-                destination, 
-                EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Adds the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
-        /// <typeparam name="TSequence">The type of the sequence list.</typeparam>
-        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The source of the items to add to the destination.</param>
-        /// <param name="sequence">The sequence of items to replace.</param>
-        /// <param name="replacement">The replacement items.</param>
-        /// <param name="destination">The list to add the values to.</param>
-        /// <param name="comparer">The comparer to use to find the sequences.</param>
-        /// <returns>A new sublist wrapping the destination and the new items.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
-        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IReadOnlySublist<TSequence, T> sequence,
-            IReadOnlySublist<TReplacement, T> replacement,
-            IExpandableSublist<TDestinationList, T> destination,
-            IEqualityComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TSequence : IList<T>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return addReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T, T>(source, sequence, replacement, destination, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Adds the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
-        /// <typeparam name="TSequenceList">The type of the sequence list.</typeparam>
-        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <typeparam name="TSequence">The type of the items in the sequence.</typeparam>
-        /// <param name="source">The source of the items to add to the destination.</param>
-        /// <param name="sequence">The sequence of items to replace.</param>
-        /// <param name="replacement">The replacement items.</param>
-        /// <param name="destination">The list to add the values to.</param>
-        /// <param name="comparison">The function to use to find the sequences.</param>
-        /// <returns>A new sublist wrapping the destination and the new items.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
-        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
-            IReadOnlySublist<TSourceList, T> source,
-            IReadOnlySublist<TSequenceList, TSequence> sequence,
-            IReadOnlySublist<TReplacement, T> replacement,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, TSequence, bool> comparison)
-            where TSourceList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return addReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(source, sequence, replacement, destination, comparison);
-        }
-
-        private static IExpandableSublist<TDestinationList, T> addReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
-            IReadOnlySublist<TSourceList, T> source,
-            IReadOnlySublist<TSequenceList, TSequence> sequence,
-            IReadOnlySublist<TReplacement, T> replacement,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, TSequence, bool> comparison)
-            where TSourceList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
-                source.List, source.Offset, source.Offset + source.Count,
-                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
-                replacement.List, replacement.Offset, replacement.Offset + replacement.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
-            TSourceList source, int first, int past,
-            TSequenceList sequence, int sequenceFirst, int sequencePast,
-            TReplacement replacement, int replacementFirst, int replacementPast,
-            TDestinationList destination, int destinationPast,
-            Func<T, TSequence, bool> comparison)
-            where TSourceList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int sequenceCount = sequencePast - sequenceFirst;
-            int index = indexOfSequence<TSourceList, T, TSequenceList, TSequence>(source, first, past, sequence, sequenceFirst, sequencePast, comparison);
-            destinationPast = Add<TSourceList, TDestinationList, T>(source, first, index, destination, destinationPast);
-
-            while (index != past)
-            {
-                destinationPast = Add<TReplacement, TDestinationList, T>(replacement, replacementFirst, replacementPast, destination, destinationPast);
-                index += sequenceCount;
-                int next = indexOfSequence<TSourceList, T, TSequenceList, TSequence>(source, index, past, sequence, sequenceFirst, sequencePast, comparison);
-                destinationPast = Add<TSourceList, TDestinationList, T>(source, index, next, destination, destinationPast);
-                index = next;
-            }
-            return destinationPast;
-        }
-
-        #endregion
-
-        #region AddReversed
-
-        /// <summary>
-        /// Adds the items in a list in reverse to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list whose items are to be added in reverse.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddReversed<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            int result = addReversed<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addReversed<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = CopyReversed<TSourceList, TDestinationList, T>(
-                source, first, past,
-                destination, destinationPast, destination.Count);
-            return indexes.Item2;
-        }
-
-        #endregion
-
-        #region AddRotatedLeft
-
-        /// <summary>
-        /// Adds the items from a list to a destination, rotated to the left by the given shift amount.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="shift">The amount to rotate the items to the left.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <remarks>
-        /// If the shift is negative, the algoritm simulates rotating the items to the right. If the shift is larger than the number of items, 
-        /// the algorithm will simulate a complete rotation as many times as necessary.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddRotatedLeft<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination, int shift)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            int result = addRotatedLeftUnreduced<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                shift);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addRotatedLeftUnreduced<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            int shift)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int middle = getReducedOffset<TSourceList, T>(source, first, past, shift);
-            middle += first;
-            return addRotatedLeft<TSourceList, TDestinationList, T>(source, first, middle, past, destination, destinationPast);
-        }
-
-        private static int addRotatedLeft<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int middle, int past,
-            TDestinationList destination, int destinationPast)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, past - first);
-            destinationPast = Copy<TSourceList, TDestinationList, T>(source, middle, past, destination, destinationPast, destination.Count).Item2;
-            destinationPast = Copy<TSourceList, TDestinationList, T>(source, first, middle, destination, destinationPast, destination.Count).Item2;
-            return destinationPast;
-        }
-
-        #endregion
-
-        #region AddSymmetricDifference
-
-        /// <summary>
-        /// Adds the items that do not appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the third list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items. Neither of
-        /// the lists can contain duplicate items.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Adds the items that do not appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="comparer">The comparer to use to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Adds the items that do not appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="comparison">The delegate used to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
-        }
-
-        private static IExpandableSublist<TDestinationList, T> addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1.List, source1.Offset, source1.Offset + source1.Count,
-                source2.List, source2.Offset, source2.Offset + source2.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int pivot = destination.Count;
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    destination.Add(source2[first2]);
-                    ++first2;
-                }
-                else
-                {
-                    ++first1;
-                    ++first2;
-                }
-            }
-            Add<TSourceList1, TDestinationList, T>(source1, first1, past1, destination, destination.Count);
-            Add<TSourceList2, TDestinationList, T>(source2, first2, past2, destination, destination.Count);
-            RotateLeft<TDestinationList, T>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        #endregion
-
-        #region AddUnion
-
-        /// <summary>
-        /// Adds the items that are unique across both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the third list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items. Neither of
-        /// the lists can contain duplicate items.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Adds the items that are unique across both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="comparer">The comparer to use to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Adds the items that are unique across both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="comparison">The delegate used to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
-        /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return addUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
-        }
-
-        private static IExpandableSublist<TDestinationList, T> addUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1.List, source1.Offset, source1.Offset + source1.Count,
-                source2.List, source2.Offset, source2.Offset + source2.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int pivot = destination.Count;
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    destination.Add(source2[first2]);
-                    ++first2;
-                }
-                else
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                    ++first2;
-                }
-            }
-            Add<TSourceList1, TDestinationList, T>(source1, first1, past1, destination, destination.Count);
-            Add<TSourceList2, TDestinationList, T>(source2, first2, past2, destination, destination.Count);
-            RotateLeft<TDestinationList, T>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        #endregion
-
-        #region AddUnique
-
-        /// <summary>
-        /// Adds the unique items from a list to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to add.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>The items in the list must be sorted according to the default ordering of the items.</remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addUnique<TSourceList, TDestinationList, T>(source, destination, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Adds the unique items from a list to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to add.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="comparer">The comparer to use to compare items.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>The list must be sorted.</remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            IEqualityComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return addUnique<TSourceList, TDestinationList, T>(source, destination, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Adds the unique items from a list to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to add.</param>
-        /// <param name="destination">The list to add the items to.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>The list must be sorted.</remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return addUnique<TSourceList, TDestinationList, T>(source, destination, comparison);
-        }
-
-        private static IExpandableSublist<TDestinationList, T> addUnique<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addUnique<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addUnique<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int pivot = destination.Count;
-            if (first != past)
-            {
-                destination.Add(source[first]);
-                for (int next = first + 1; next != past; first = next, ++next)
-                {
-                    if (!comparison(source[first], source[next]))
-                    {
-                        destination.Add(source[next]);
-                    }
-                }
-            }
-            RotateLeft<TDestinationList, T>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        #endregion
-
+        
         #region Aggregate
 
         /// <summary>
@@ -3334,7 +1827,7 @@ namespace NDex
         /// <returns>The index into the destination list past the last item copied.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        public static CopyResult CopyTo<TSourceList, TDestinationList, T>(
+        public static CopyToResult CopyTo<TSourceList, TDestinationList, T>(
             this IReadOnlySublist<TSourceList, T> source,
             IMutableSublist<TDestinationList, T> destination)
             where TSourceList : IList<T>
@@ -3351,11 +1844,9 @@ namespace NDex
             Tuple<int, int> indexes = Copy<TSourceList, TDestinationList, T>(
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = indexes.Item1 - source.Offset,
-                DestinationOffset = indexes.Item2 - destination.Offset,
-            };
+            CopyToResult result = new CopyToResult();
+            result.SourceOffset = indexes.Item1 - source.Offset;
+            result.DestinationOffset = indexes.Item2 - destination.Offset;
             return result;
         }
 
@@ -3416,2006 +1907,6 @@ namespace NDex
                 }
                 return first;
             }
-        }
-
-        #endregion
-
-        #region CopyGenerated
-
-        /// <summary>
-        /// Copies the given value into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="value">The value to fill the list with.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
-        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, T value)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, value);
-        }
-
-        private static void copyGenerated<TList, T>(TList list, int first, int past, T value)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list[first] = value;
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Copies the result of each call to the generator into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>The generator will be called to set each item in the list.</remarks>
-        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, Func<T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
-        }
-
-        private static void copyGenerated<TList, T>(TList list, int first, int past, Func<T> generator)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list[first] = generator();
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Copies the result of each call to the generator into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>
-        /// The generator will be called to set each item in the list. 
-        /// The relative index of the item is passed with each call to the generator.
-        /// </remarks>
-        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
-        }
-
-        private static void copyGenerated<TList, T>(TList list, int first, int past, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list[first] = generator(first - adjustment);
-                ++first;
-            }
-        }
-
-        #endregion
-
-        #region CopyIf
-
-        /// <summary>
-        /// Copies the items from a list satisfying the predicate to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to copy.</param>
-        /// <param name="destination">The list to copy the items to.</param>
-        /// <param name="predicate">The delegate used to determine whether to copy an item.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
-        public static CopyResult CopyIf<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            Tuple<int, int> indexes = copyIf<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                predicate);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = indexes.Item1 - source.Offset,
-                DestinationOffset = indexes.Item2 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int> copyIf<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    if (destinationFirst == destinationPast)
-                    {
-                        break;
-                    }
-                    destination[destinationFirst] = source[first];
-                    ++destinationFirst;
-                }
-                ++first;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        #endregion
-
-        #region CopyIntersection
-
-        /// <summary>
-        /// Copies the items that appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the intersecting items to.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items. Neither of
-        /// the lists can contain duplicate items.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return copyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items that appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the intersecting items to.</param>
-        /// <param name="comparer">The comparer to use to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return copyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items that appear in both lists to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the intersecting items to.</param>
-        /// <param name="comparison">The delegate used to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return copyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
-        }
-
-        private static CopyTwoSourcesResult copyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            Tuple<int, int, int> indexes = copyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1.List, source2.Offset, source1.Offset + source1.Count,
-                source2.List, source2.Offset, source2.Offset + source2.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            CopyTwoSourcesResult result = new CopyTwoSourcesResult()
-            {
-                SourceOffset1 = indexes.Item1 - source1.Offset,
-                SourceOffset2 = indexes.Item2 - source2.Offset,
-                DestinationOffset = indexes.Item3 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int, int> copyIntersection<TSourceList1, TSourceList2, TDestinationList, T>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++first2;
-                    ++destinationFirst;
-                }
-            }
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
-        }
-
-        #endregion
-
-        #region CopyMerged
-
-        /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, copying the items
-        /// to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
-        /// <param name="destination">The list to copy the merged items to.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return copyMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, copying the items
-        /// to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
-        /// <param name="destination">The list to copy the merged items to.</param>
-        /// <param name="comparer">The comparer to use to compare items from the lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return copyMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, copying the items
-        /// to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
-        /// <param name="destination">The list to copy the merged items to.</param>
-        /// <param name="comparison">The delegate to use to compare items from the lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return copyMerged<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
-        }
-
-        private static CopyTwoSourcesResult copyMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            Tuple<int, int, int> indexes = copyMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1.List, source1.Offset, source1.Offset + source1.Count,
-                source2.List, source2.Offset, source2.Offset + source2.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            CopyTwoSourcesResult result = new CopyTwoSourcesResult()
-            {
-                SourceOffset1 = indexes.Item1 - source1.Offset,
-                SourceOffset2 = indexes.Item2 - source2.Offset,
-                DestinationOffset = indexes.Item3 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int, int> copyMerged<TSourceList1, TSourceList2, TDestinationList, T>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source2[first2], source1[first1]);
-                if (result < 0)
-                {
-                    destination[destinationFirst] = source2[first2];
-                    ++first2;
-                }
-                else
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                }
-                ++destinationFirst;
-            }
-            Tuple<int, int> indexes1 = Copy<TSourceList1, TDestinationList, T>(
-                source1, first1, past1,
-                destination, destinationFirst, destinationPast);
-            first1 = indexes1.Item1;
-            destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Copy<TSourceList2, TDestinationList, T>(
-                source2, first2, past2,
-                destination, destinationFirst, destinationPast);
-            first2 = indexes2.Item1;
-            destinationFirst = indexes2.Item2;
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
-        }
-
-        #endregion
-
-        #region CopyPartiallySorted
-
-        /// <summary>
-        /// Copies the items of a list to a destination list as if they were sorted prior to being copied.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <remarks>
-        /// If the destination is large enough to hold all of the items in the list, this method is equivilent to calling Copy,
-        /// followed by a HeapSort.
-        /// </remarks>
-        public static CopyResult CopyPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return copyPartiallySorted<TSourceList, TDestinationList, T>(source, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items of a list to a destination list as if they were sorted prior to being copied.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="comparer">The comparer to use to compare two items.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// If the destination is large enough to hold all of the items in the list, this method is equivilent to calling Copy,
-        /// followed by a HeapSort.
-        /// </remarks>
-        public static CopyResult CopyPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return copyPartiallySorted<TSourceList, TDestinationList, T>(source, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items of a list to a destination list as if they were sorted prior to being copied.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="comparison">The comparison delegate to use to compare two items.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// If the destination is large enough to hold all of the items in the list, this method is equivilent to calling Copy,
-        /// followed by a HeapSort.
-        /// </remarks>
-        public static CopyResult CopyPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return copyPartiallySorted<TSourceList, TDestinationList, T>(source, destination, comparison);
-        }
-
-        private static CopyResult copyPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int index = copyPartiallySorted<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = source.Count,
-                DestinationOffset = index - destination.Offset,
-            };
-            return result;
-        }
-
-        private static int copyPartiallySorted<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int destinationMiddle = destinationFirst;
-            while (first != past && destinationMiddle != destinationPast)
-            {
-                destination[destinationMiddle] = source[first];
-                ++first;
-                ++destinationMiddle;
-            }
-            makeHeap<TDestinationList, T>(destination, destinationFirst, destinationMiddle, comparison);
-
-            int numberOfItems = destinationMiddle - destinationFirst;
-            while (first != past)
-            {
-                if (comparison(source[first], destination[destinationFirst]) < 0)
-                {
-                    adjustHeap<TDestinationList, T>(destination, destinationFirst, 0, numberOfItems, source[first], comparison);
-                }
-                ++first;
-            }
-            heapSort<TDestinationList, T>(destination, destinationFirst, destinationMiddle, comparison);
-            return destinationMiddle;
-        }
-
-        #endregion
-
-        #region CopyPartitioned
-
-        /// <summary>
-        /// Copies the items from a list satisfying the predicate into the first destination list and the remaining
-        /// into the second destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList1">The type of the first destination list.</typeparam>
-        /// <typeparam name="TDestinationList2">The type of the second destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to partition.</param>
-        /// <param name="destination1">The list to copy the items that satisfy the predicate.</param>
-        /// <param name="destination2">The list to copy the items that don't satisfy the predicate.</param>
-        /// <param name="predicate">The condition an item must satisfy to be copied to the first destination list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The first destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static CopyPartitionedResult CopyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList1, T> destination1,
-            IMutableSublist<TDestinationList2, T> destination2,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList1 : IList<T>
-            where TDestinationList2 : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination1 == null)
-            {
-                throw new ArgumentNullException("destination1");
-            }
-            if (destination2 == null)
-            {
-                throw new ArgumentNullException("destination2");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            Tuple<int, int, int> indexes = copyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination1.List, destination1.Offset, destination1.Offset + destination1.Count,
-                destination2.List, destination2.Offset, destination2.Offset + destination2.Count,
-                predicate);
-            CopyPartitionedResult result = new CopyPartitionedResult()
-            {
-                SourceOffset = indexes.Item1 - source.Offset,
-                DestinationOffset1 = indexes.Item2 - destination1.Offset,
-                DestinationOffset2 = indexes.Item3 - destination2.Offset
-            };
-            return result;
-        }
-
-        private static Tuple<int, int, int> copyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-            TSourceList source, int first, int past,
-            TDestinationList1 destination1, int destinationFirst1, int destinationPast1,
-            TDestinationList2 destination2, int destinationFirst2, int destinationPast2,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList1 : IList<T>
-            where TDestinationList2 : IList<T>
-        {
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    if (destinationFirst1 == destinationPast1)
-                    {
-                        break;
-                    }
-                    destination1[destinationFirst1] = source[first];
-                    ++destinationFirst1;
-                }
-                else
-                {
-                    if (destinationFirst2 == destinationPast2)
-                    {
-                        break;
-                    }
-                    destination2[destinationFirst2] = source[first];
-                    ++destinationFirst2;
-                }
-                ++first;
-            }
-            return new Tuple<int, int, int>(first, destinationFirst1, destinationFirst2);
-        }
-
-        #endregion
-
-        #region CopyRandomSamples
-
-        /// <summary>
-        /// Randomly copies items from a list to fill a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="source">The list of items to randomly choose values from.</param>
-        /// <param name="destination">The list to copy items to.</param>
-        /// <param name="random">The random number generator to use.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The random number generator is null.</exception>
-        /// <remarks>The order that the items appear in the destination is not guaranteed.</remarks>
-        public static CopyResult CopyRandomSamples<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Random random)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (random == null)
-            {
-                throw new ArgumentNullException("random");
-            }
-            return copyRandomSamples<TSourceList, TDestinationList, T>(source, destination, random.Next);
-        }
-
-        /// <summary>
-        /// Randomly copies items from a list to fill a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="source">The list of items to randomly choose values from.</param>
-        /// <param name="destination">The list to copy items to.</param>
-        /// <param name="generator">The random number generator to use.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The random number generator is null.</exception>
-        /// <remarks>The order that the items appear in the destination is not guaranteed.</remarks>
-        public static CopyResult CopyRandomSamples<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<int> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            return copyRandomSamples<TSourceList, TDestinationList, T>(source, destination, generator);
-        }
-
-        private static CopyResult copyRandomSamples<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<int> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int index = copyRandomSamples<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                generator);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = source.Count,
-                DestinationOffset = index - destination.Offset,
-            };
-            return result;
-        }
-
-        private static int copyRandomSamples<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<int> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            for (int index = destinationFirst; first != past && index != destinationPast; ++index)
-            {
-                destination[index] = source[first];
-                ++first;
-            }
-            int numberOfSamples = destinationPast - destinationFirst;
-            int total = numberOfSamples;
-            while (first != past)
-            {
-                ++total;
-                int likelihood = generator() % total;
-                if (likelihood < 0)
-                {
-                    likelihood += total;
-                }
-                if (likelihood < numberOfSamples)
-                {
-                    destination[destinationFirst + likelihood] = source[first];
-                }
-                ++first;
-            }
-            return destinationPast;
-        }
-
-        #endregion
-
-        #region CopyReplaced
-
-        /// <summary>
-        /// Copies a list, replacing items satisfying the predicate with the given replacement.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="predicate">The predicate used to determine whether an item should be replaced.</param>
-        /// <param name="replacement">The value to use to replace items satisfying the predicate.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static CopyResult CopyReplaced<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, bool> predicate,
-            T replacement)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            Tuple<int, int> indexes = copyReplaced<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                predicate,
-                replacement);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = indexes.Item1 - source.Offset,
-                DestinationOffset = indexes.Item2 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int> copyReplaced<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, bool> predicate,
-            T replacement)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first != past && destinationFirst != destinationPast)
-            {
-                if (predicate(source[first]))
-                {
-                    destination[destinationFirst] = replacement;
-                }
-                else
-                {
-                    destination[destinationFirst] = source[first];
-                }
-                ++first;
-                ++destinationFirst;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        /// <summary>
-        /// Copies a list, replacing items satisfying the predicate with the result of the generator delegate.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="predicate">The predicate used to determine whether an item should be replaced.</param>
-        /// <param name="generator">The delegate to use to generate the replacement value.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static CopyResult CopyReplaced<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, bool> predicate,
-            Func<T, T> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            Tuple<int, int> indexes = copyReplaced<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                predicate,
-                generator);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = indexes.Item1 - source.Offset,
-                DestinationOffset = indexes.Item2 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int> copyReplaced<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, bool> predicate,
-            Func<T, T> generator)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first != past && destinationFirst != destinationPast)
-            {
-                if (predicate(source[first]))
-                {
-                    destination[destinationFirst] = generator(source[first]);
-                }
-                else
-                {
-                    destination[destinationFirst] = source[first];
-                }
-                ++first;
-                ++destinationFirst;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        /// <summary>
-        /// Copies the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
-        /// <typeparam name="TSequence">The type of the sequence list.</typeparam>
-        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The source of the items to copy to the destination.</param>
-        /// <param name="sequence">The sequence of items to replace.</param>
-        /// <param name="replacement">The replacement items.</param>
-        /// <param name="destination">The list to copy the values to.</param>
-        /// <returns>A result holding the indexes into the source and destination where the copying stopped.</returns>
-        public static CopyResult CopyReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IReadOnlySublist<TSequence, T> sequence,
-            IReadOnlySublist<TReplacement, T> replacement,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TSequence : IList<T>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return copyReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T, T>(
-                source,
-                sequence,
-                replacement,
-                destination,
-                EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Copies the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
-        /// <typeparam name="TSequence">The type of the sequence list.</typeparam>
-        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The source of the items to copy to the destination.</param>
-        /// <param name="sequence">The sequence of items to replace.</param>
-        /// <param name="replacement">The replacement items.</param>
-        /// <param name="destination">The list to copy the values to.</param>
-        /// <param name="comparer">The comparer to use to find the sequences.</param>
-        /// <returns>A result holding the indexes into the source and destination where the copying stopped.</returns>
-        public static CopyResult CopyReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IReadOnlySublist<TSequence, T> sequence,
-            IReadOnlySublist<TReplacement, T> replacement,
-            IMutableSublist<TDestinationList, T> destination,
-            IEqualityComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TSequence : IList<T>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return copyReplaced<TSourceList, TSequence, TReplacement, TDestinationList, T, T>(source, sequence, replacement, destination, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Copies the items in the source to the destination, replacing all occurrences of the sequence with the given replacement.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the source list.</typeparam>
-        /// <typeparam name="TSequenceList">The type of the sequence list.</typeparam>
-        /// <typeparam name="TReplacement">The type of the replacement list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <typeparam name="TSequence">The type of the items in the sequence.</typeparam>
-        /// <param name="source">The source of the items to copy to the destination.</param>
-        /// <param name="sequence">The sequence of items to replace.</param>
-        /// <param name="replacement">The replacement items.</param>
-        /// <param name="destination">The list to copy the values to.</param>
-        /// <param name="comparison">The function to use to find the sequences.</param>
-        /// <returns>A result holding the indexes into the source and destination where the copying stopped.</returns>
-        public static CopyResult CopyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
-            IReadOnlySublist<TSourceList, T> source,
-            IReadOnlySublist<TSequenceList, TSequence> sequence,
-            IReadOnlySublist<TReplacement, T> replacement,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, TSequence, bool> comparison)
-            where TSourceList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return copyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(source, sequence, replacement, destination, comparison);
-        }
-
-        private static CopyResult copyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
-            IReadOnlySublist<TSourceList, T> source,
-            IReadOnlySublist<TSequenceList, TSequence> sequence,
-            IReadOnlySublist<TReplacement, T> replacement,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, TSequence, bool> comparison)
-            where TSourceList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            Tuple<int, int> indexes = copyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
-                source.List, source.Offset, source.Offset + source.Count,
-                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
-                replacement.List, replacement.Offset, replacement.Offset + replacement.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            CopyResult result = new CopyResult();
-            result.SourceOffset = indexes.Item1 - source.Offset;
-            result.DestinationOffset = indexes.Item2 - destination.Offset;
-            return result;
-        }
-
-        private static Tuple<int, int> copyReplaced<TSourceList, TSequenceList, TReplacement, TDestinationList, T, TSequence>(
-            TSourceList source, int first, int past,
-            TSequenceList sequence, int sequenceFirst, int sequencePast,
-            TReplacement replacement, int replacementFirst, int replacementPast,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, TSequence, bool> comparison)
-            where TSourceList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacement : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int sequenceCount = sequencePast - sequenceFirst;
-            int replacementCount = replacementPast - replacementFirst;
-
-            int index = indexOfSequence<TSourceList, T, TSequenceList, TSequence>(source, first, past, sequence, sequenceFirst, sequencePast, comparison);
-            Tuple<int, int> indexes = Copy<TSourceList, TDestinationList, T>(source, first, index, destination, destinationFirst, destinationPast);
-            first = indexes.Item1;
-            destinationFirst = indexes.Item2;
-
-            while (index != past && destinationFirst + replacementCount <= destinationPast)
-            {
-                indexes = Copy<TReplacement, TDestinationList, T>(replacement, replacementFirst, replacementPast, destination, destinationFirst, destinationPast);
-                destinationFirst = indexes.Item2;
-                index += sequenceCount;
-
-                int next = indexOfSequence<TSourceList, T, TSequenceList, TSequence>(source, index, past, sequence, sequenceFirst, sequencePast, comparison);
-                indexes = Copy<TSourceList, TDestinationList, T>(source, index, next, destination, destinationFirst, destinationPast);
-                first = indexes.Item1;
-                destinationFirst = indexes.Item2;
-                index = next;
-            }
-            return new Tuple<int,int>(first, destinationFirst);
-        }
-
-        #endregion
-
-        #region CopyReversed
-
-        /// <summary>
-        /// Copies the items in a list in reverse to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="source">The list to copy from.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <remarks>
-        /// If the destination is too small to hold all of the values in the source, then only the items at the beginning
-        /// of the source are copied.
-        /// </remarks>
-        public static CopyResult CopyReversed<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            Tuple<int, int> indexes = CopyReversed<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = indexes.Item1 - source.Offset,
-                DestinationOffset = indexes.Item2 - destination.Offset,
-            };
-            return result;
-        }
-
-        internal static Tuple<int, int> CopyReversed<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int count1 = past - first;
-            int count2 = destinationPast - destinationFirst;
-            if (count2 < count1)
-            {
-                past -= count1 - count2;
-            }
-            int position = past;
-            while (first != position)
-            {
-                --position;
-                destination[destinationFirst] = source[position];
-                ++destinationFirst;
-            }
-            return new Tuple<int, int>(past, destinationFirst);
-        }
-
-        #endregion
-
-        #region CopyRotatedLeft
-
-        /// <summary>
-        /// Copies the items from a list to a destination, rotated to the left by the given shift amount.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="shift">The amount to rotate the items to the left.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <remarks>
-        /// If the shift is negative, the algoritm simulates rotating the items to the right. If the shift is larger than the number of items, 
-        /// the algorithm will simulate a complete rotation as many times as necessary.
-        /// </remarks>
-        public static CopyResult CopyRotatedLeft<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            int shift)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            Tuple<int, int> indexes = copyRotatedLeftUnreduced<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                shift);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = indexes.Item1 - source.Offset,
-                DestinationOffset = indexes.Item2 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int> copyRotatedLeftUnreduced<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            int shift)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int middle = getReducedOffset<TSourceList, T>(source, first, past, shift);
-            middle += first;
-            return copyRotatedLeft<TSourceList, TDestinationList, T>(
-                source, first, middle, past,
-                destination, destinationFirst, destinationPast);
-        }
-
-        private static Tuple<int, int> copyRotatedLeft<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int middle, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            Tuple<int, int> indexes1 = Copy<TSourceList, TDestinationList, T>(
-                source, middle, past,
-                destination, destinationFirst, destinationPast);
-            int position = indexes1.Item1;
-            destinationFirst = indexes1.Item2;
-            if (position == past)
-            {
-                Tuple<int, int> indexes2 = Copy<TSourceList, TDestinationList, T>(
-                    source, first, middle,
-                    destination, destinationFirst, destinationPast);
-                position = indexes2.Item1;
-                destinationFirst = indexes2.Item2;
-            }
-            return new Tuple<int, int>(position, destinationFirst);
-        }
-
-        #endregion
-
-        #region CopySymmetricDifference
-
-        /// <summary>
-        /// Copies the items that do not appear in both lists into a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the third list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the items to.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items. Neither of
-        /// the lists can contain duplicate items.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return copySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items that do not appear in both lists into a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the items to.</param>
-        /// <param name="comparer">The comparer to use to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return copySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items that do not appear in both lists into a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the items to.</param>
-        /// <param name="comparison">The delegate used to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return copySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
-        }
-
-        private static CopyTwoSourcesResult copySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            Tuple<int, int, int> indexes = copySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1.List, source1.Offset, source1.Offset + source1.Count,
-                source2.List, source2.Offset, source2.Offset + source2.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            CopyTwoSourcesResult result = new CopyTwoSourcesResult()
-            {
-                SourceOffset1 = indexes.Item1 - source1.Offset,
-                SourceOffset2 = indexes.Item2 - source2.Offset,
-                DestinationOffset = indexes.Item3 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int, int> copySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, T>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++destinationFirst;
-                }
-                else if (result > 0)
-                {
-                    destination[destinationFirst] = source2[first2];
-                    ++first2;
-                    ++destinationFirst;
-                }
-                else
-                {
-                    ++first1;
-                    ++first2;
-                }
-            }
-            Tuple<int, int> indexes1 = Copy<TSourceList1, TDestinationList, T>(
-                source1, first1, past1,
-                destination, destinationFirst, destinationPast);
-            first1 = indexes1.Item1;
-            destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Copy<TSourceList2, TDestinationList, T>(
-                source2, first2, past2,
-                destination, destinationFirst, destinationPast);
-            first2 = indexes2.Item1;
-            destinationFirst = indexes2.Item2;
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
-        }
-
-        #endregion
-
-        #region CopyUnion
-
-        /// <summary>
-        /// Copies the items that are unique across both lists into a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the third list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the items to.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items. Neither of
-        /// the lists can contain duplicate items.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return copyUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items that are unique across both lists into a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the items to.</param>
-        /// <param name="comparer">The comparer to use to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return copyUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items that are unique across both lists into a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
-        /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list.</param>
-        /// <param name="source2">The second list.</param>
-        /// <param name="destination">The list to copy the items to.</param>
-        /// <param name="comparison">The delegate used to compare items from the first and second lists.</param>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
-        /// </remarks>
-        public static CopyTwoSourcesResult CopyUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source1 == null)
-            {
-                throw new ArgumentNullException("source1");
-            }
-            if (source2 == null)
-            {
-                throw new ArgumentNullException("source2");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return copyUnion<TSourceList1, TSourceList2, TDestinationList, T>(source1, source2, destination, comparison);
-        }
-
-        private static CopyTwoSourcesResult copyUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            IReadOnlySublist<TSourceList1, T> source1,
-            IReadOnlySublist<TSourceList2, T> source2,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            Tuple<int, int, int> indexes = copyUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-                source1.List, source1.Offset, source1.Offset + source1.Count,
-                source2.List, source1.Offset, source2.Offset + source2.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            CopyTwoSourcesResult result = new CopyTwoSourcesResult()
-            {
-                SourceOffset1 = indexes.Item1 - source1.Offset,
-                SourceOffset2 = indexes.Item2 - source2.Offset,
-                DestinationOffset = indexes.Item3 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int, int> copyUnion<TSourceList1, TSourceList2, TDestinationList, T>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList1 : IList<T>
-            where TSourceList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++destinationFirst;
-                }
-                else if (result > 0)
-                {
-                    destination[destinationFirst] = source2[first2];
-                    ++first2;
-                    ++destinationFirst;
-                }
-                else
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++first2;
-                    ++destinationFirst;
-                }
-            }
-            Tuple<int, int> indexes1 = Copy<TSourceList1, TDestinationList, T>(
-                source1, first1, past1,
-                destination, destinationFirst, destinationPast);
-            first1 = indexes1.Item1;
-            destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Copy<TSourceList2, TDestinationList, T>(
-                source2, first2, past2,
-                destination, destinationFirst, destinationPast);
-            first2 = indexes2.Item1;
-            destinationFirst = indexes2.Item2;
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
-        }
-
-        #endregion
-
-        #region CopyUnique
-
-        /// <summary>
-        /// Copies the items from a list that are unique to a destination.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy from.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <remarks>The list must be sorted such that equivilent items appear adjacent.</remarks>
-        public static CopyResult CopyUnique<TSourceList, TDestinationList, T>(IReadOnlySublist<TSourceList, T> source, IMutableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return copyUnique<TSourceList, TDestinationList, T>(source, destination, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Copies the items from a list that are unique to a destination.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy from.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="comparer">The compare to use to determine whether two items are equivilent.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>The list must be sorted such that equivilent items appear adjacent.</remarks>
-        public static CopyResult CopyUnique<TSourceList, TDestinationList, T>(IReadOnlySublist<TSourceList, T> source, IMutableSublist<TDestinationList, T> destination, IEqualityComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return copyUnique<TSourceList, TDestinationList, T>(source, destination, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Copies the items from a list that are unique to a destination.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy from.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="comparison">The delegate used to determine whether two items are equivilent.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>The list must be sorted such that equivilent items appear adjacent.</remarks>
-        public static CopyResult CopyUnique<TSourceList, TDestinationList, T>(IReadOnlySublist<TSourceList, T> source, IMutableSublist<TDestinationList, T> destination, Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return copyUnique<TSourceList, TDestinationList, T>(source, destination, comparison);
-        }
-
-        private static CopyResult copyUnique<TSourceList, TDestinationList, T>(IReadOnlySublist<TSourceList, T> source, IMutableSublist<TDestinationList, T> destination, Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            Tuple<int, int> indexes = copyUnique<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            CopyResult result = new CopyResult()
-            {
-                SourceOffset = indexes.Item1 - source.Offset,
-                DestinationOffset = indexes.Item2 - destination.Offset,
-            };
-            return result;
-        }
-
-        private static Tuple<int, int> copyUnique<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (first != past && destinationFirst != destinationPast)
-            {
-                destination[destinationFirst] = source[first];
-                ++destinationFirst;
-                for (int next = first + 1; next != past; first = next, ++next)
-                {
-                    if (!comparison(source[first], source[next]))
-                    {
-                        if (destinationFirst == destinationPast)
-                        {
-                            break;
-                        }
-                        destination[destinationFirst] = source[next];
-                        ++destinationFirst;
-                    }
-                }
-                ++first;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
         }
 
         #endregion

@@ -82,7 +82,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             Func<int, bool> predicate = i => true; // always true
-            CopyResult result = Sublist.CopyIf(list, destination, predicate);
+            var result = Sublist.CopyIf(list, destination, predicate);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The result was at the wrong index.");
             int[] expected = { 1, 2 };
@@ -100,7 +100,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             Func<int, bool> predicate = i => true; // always true
-            CopyResult result = Sublist.CopyIf(list, destination, predicate);
+            var result = Sublist.CopyIf(list, destination, predicate);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The result was at the wrong index.");
             int[] expected = { 1, 2, 0 };
@@ -118,7 +118,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0 });
             Func<int, bool> predicate = i => i % 2 == 0;
-            CopyResult result = Sublist.CopyIf(list, destination, predicate);
+            var result = Sublist.CopyIf(list, destination, predicate);
             Assert.AreEqual(3, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The result was at the wrong index.");
             int[] expected = { 2 };

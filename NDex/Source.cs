@@ -9,12 +9,12 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TDestination">The type of the items in the destination sublist.</typeparam>
     /// <typeparam name="TResult">The type of result returned by the CopyTo operation.</typeparam>
-    public abstract class Intermediate<TDestination, TResult> : IEnumerable<TDestination>
+    public abstract class Source<TDestination, TResult> : IEnumerable<TDestination>
     {
         /// <summary>
-        /// Initializes a new instance of an Intermediate.
+        /// Initializes a new instance of an Source.
         /// </summary>
-        protected Intermediate()
+        protected Source()
         {
         }
 

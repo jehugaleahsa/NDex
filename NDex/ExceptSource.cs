@@ -21,7 +21,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static Intermediate<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
+        public static Source<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2)
             where TSourceList1 : IList<TSource>
@@ -51,7 +51,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static Intermediate<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
+        public static Source<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
             IComparer<TSource> comparer)
@@ -86,7 +86,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
-        public static Intermediate<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
+        public static Source<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
             Func<TSource, TSource, int> comparison)
@@ -167,7 +167,7 @@ namespace NDex
 
     #region ExceptSource
 
-    internal sealed class ExceptSource<TSourceList1, TSourceList2, TSource> : Intermediate<TSource, ExceptResult>
+    internal sealed class ExceptSource<TSourceList1, TSourceList2, TSource> : Source<TSource, ExceptResult>
         where TSourceList1 : IList<TSource>
         where TSourceList2 : IList<TSource>
     {

@@ -29,7 +29,7 @@ namespace NDex.Tests
             Sublist.AddGenerated(evens.ToSublist(), 100, 0);
             var odds = new List<int>(100);
             Sublist.AddGenerated(odds.ToSublist(), 100, 0);
-            CopyPartitionedResult result = Sublist.CopyPartitioned(list.ToSublist(), evens.ToSublist(), odds.ToSublist(), i => i % 2 == 0);
+            PartitionCopyResult result = Sublist.CopyPartitioned(list.ToSublist(), evens.ToSublist(), odds.ToSublist(), i => i % 2 == 0);
             Sublist.RemoveRange(evens.ToSublist(result.DestinationOffset1));
             Sublist.RemoveRange(odds.ToSublist(result.DestinationOffset2));
 
@@ -124,7 +124,7 @@ namespace NDex.Tests
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             var odds = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            CopyPartitionedResult result = Sublist.CopyPartitioned(list, evens, odds, i => i % 2 == 0);
+            PartitionCopyResult result = Sublist.CopyPartitioned(list, evens, odds, i => i % 2 == 0);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(evens.Count, result.DestinationOffset1, "The first destination offset was wrong.");
             Assert.AreEqual(odds.Count, result.DestinationOffset2, "The second destination offset was wrong.");
@@ -149,7 +149,7 @@ namespace NDex.Tests
             var odds = TestHelper.Wrap(new List<int>() { 0 }); // can't hold 2
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
 
-            CopyPartitionedResult result = Sublist.CopyPartitioned(list, odds, evens, i => i % 2 != 0);
+            PartitionCopyResult result = Sublist.CopyPartitioned(list, odds, evens, i => i % 2 != 0);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset1, "The first index was wrong.");
             Assert.AreEqual(1, result.DestinationOffset2, "The second index was wrong.");
@@ -174,7 +174,7 @@ namespace NDex.Tests
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             var odds = TestHelper.Wrap(new List<int>() { 0 }); // can't hold 3
 
-            CopyPartitionedResult result = Sublist.CopyPartitioned(list, evens, odds, i => i % 2 == 0);
+            PartitionCopyResult result = Sublist.CopyPartitioned(list, evens, odds, i => i % 2 == 0);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset1, "The first index was wrong.");
             Assert.AreEqual(1, result.DestinationOffset2, "The second index was wrong.");

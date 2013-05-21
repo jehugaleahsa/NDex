@@ -25,7 +25,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The combiner delegate is null.</exception>
-        public static Intermediate<TDestination, ZipResult> Zip<TSourceList1, TSource1, TSourceList2, TSource2, TDestination>(
+        public static Source<TDestination, ZipResult> Zip<TSourceList1, TSource1, TSourceList2, TSource2, TDestination>(
             this IReadOnlySublist<TSourceList1, TSource1> source1,
             IReadOnlySublist<TSourceList2, TSource2> source2,
             Func<TSource1, TSource2, TDestination> combiner)
@@ -106,15 +106,7 @@ namespace NDex
 
     #region ZipSource
 
-    /// <summary>
-    /// Holds the intermediate results of combining two source lists.
-    /// </summary>
-    /// <typeparam name="TSourceList1">The type of the first underlying list.</typeparam>
-    /// <typeparam name="TSource1">The type of the items in the first underlying list.</typeparam>
-    /// <typeparam name="TSourceList2">The type of the second underlying list.</typeparam>
-    /// <typeparam name="TSource2">The type of the items in the second underlying list.</typeparam>
-    /// <typeparam name="TDestination">The type of the items to copy or add to the destination list.</typeparam>
-    internal sealed class ZipSource<TSourceList1, TSource1, TSourceList2, TSource2, TDestination> : Intermediate<TDestination, ZipResult>
+    internal sealed class ZipSource<TSourceList1, TSource1, TSourceList2, TSource2, TDestination> : Source<TDestination, ZipResult>
         where TSourceList1 : IList<TSource1>
         where TSourceList2 : IList<TSource2>
     {

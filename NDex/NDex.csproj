@@ -34,11 +34,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DistinctSource.cs" />
     <Compile Include="ExceptSource.cs" />
+    <Compile Include="IntersectSource.cs" />
+    <Compile Include="MergeSource.cs" />
+    <Compile Include="PartialSortSource.cs" />
+    <Compile Include="RandomSamplesSource.cs" />
+    <Compile Include="ReplaceSource.cs" />
+    <Compile Include="ReverseSource.cs" />
+    <Compile Include="RotateLeftSource.cs" />
     <Compile Include="SelectSource.cs" />
+    <Compile Include="SymmetricExceptSource.cs" />
+    <Compile Include="UnionSource.cs" />
+    <Compile Include="WhereSource.cs" />
     <Compile Include="ZipSource.cs" />
     <Compile Include="IExpandableSublist.cs" />
-    <Compile Include="Intermediate.cs" />
+    <Compile Include="Source.cs" />
     <Compile Include="IMutableSublist.cs" />
     <Compile Include="IReadOnlySublist.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

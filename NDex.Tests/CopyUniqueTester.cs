@@ -156,7 +156,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            CopyResult result = Sublist.CopyUnique(list, destination, EqualityComparer<int>.Default.Equals);
+            var result = Sublist.CopyUnique(list, destination, EqualityComparer<int>.Default.Equals);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The destination offset was wrong.");
 
@@ -176,7 +176,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, });
 
-            CopyResult result = Sublist.CopyUnique(list, destination, EqualityComparer<int>.Default);
+            var result = Sublist.CopyUnique(list, destination, EqualityComparer<int>.Default);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
@@ -196,7 +196,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>());
 
-            CopyResult result = Sublist.CopyUnique(list, destination);
+            var result = Sublist.CopyUnique(list, destination);
             Assert.AreEqual(0, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
@@ -213,7 +213,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            CopyResult result = Sublist.CopyUnique(list, destination);
+            var result = Sublist.CopyUnique(list, destination);
             Assert.AreEqual(0, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
@@ -231,7 +231,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
 
-            CopyResult result = Sublist.CopyUnique(list, destination);
+            var result = Sublist.CopyUnique(list, destination);
             Assert.AreEqual(4, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 

@@ -134,7 +134,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             Func<int> generator = () => 0;
-            CopyResult result = Sublist.CopyRandomSamples(list, destination, generator);
+            var result = Sublist.CopyRandomSamples(list, destination, generator);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             Sublist.QuickSort(destination); // guarantees order -> actually unnecessary
@@ -154,7 +154,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             Random random = new Random();
             Func<int> generator = () => random.Next(-5, 6);
-            CopyResult result = Sublist.CopyRandomSamples(list, destination, generator);
+            var result = Sublist.CopyRandomSamples(list, destination, generator);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             Sublist.BubbleSort(destination);

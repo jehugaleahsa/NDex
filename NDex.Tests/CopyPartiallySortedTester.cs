@@ -162,7 +162,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             IComparer<int> comparer = Comparer<int>.Default;
-            CopyResult result = Sublist.CopyPartiallySorted(list, destination, comparer);
+            var result = Sublist.CopyPartiallySorted(list, destination, comparer);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong destination index was returned.");
             int[] expected = { 1, 5, 7 };
@@ -179,7 +179,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
-            CopyResult result = Sublist.CopyPartiallySorted(list, destination);
+            var result = Sublist.CopyPartiallySorted(list, destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(5, result.DestinationOffset, "The wrong destination index was returned.");
             int[] expected = { 1, 5, 7, 8, 12, 0 };

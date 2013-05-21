@@ -90,7 +90,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3 });
             var from = list.Nest(1, 3);
             var to = list.Nest(0, 3);
-            CopyResult result = Sublist.CopyTo(from, to);
+            var result = Sublist.CopyTo(from, to);
             Assert.AreEqual(3, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(3, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, 3, 3, };
@@ -106,7 +106,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, });
-            CopyResult result = Sublist.CopyTo(list, destination);
+            var result = Sublist.CopyTo(list, destination);
             Assert.AreEqual(2, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, };
@@ -123,7 +123,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
-            CopyResult result = Sublist.CopyTo(list, destination);
+            var result = Sublist.CopyTo(list, destination);
             Assert.AreEqual(2, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(2, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, 0 };

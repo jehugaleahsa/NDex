@@ -21,7 +21,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The selector is null.</exception>
-        public static Intermediate<TDestination, SelectResult> Select<TSourceList, TSource, TDestination>(
+        public static Source<TDestination, SelectResult> Select<TSourceList, TSource, TDestination>(
             this IReadOnlySublist<TSourceList, TSource> source,
             Func<TSource, TDestination> selector)
             where TSourceList : IList<TSource>
@@ -87,7 +87,7 @@ namespace NDex
 
     #region SelectSource
 
-    internal sealed class SelectSource<TSourceList, TSource, TDestination> : Intermediate<TDestination, SelectResult>
+    internal sealed class SelectSource<TSourceList, TSource, TDestination> : Source<TDestination, SelectResult>
         where TSourceList : IList<TSource>
     {
         private readonly IReadOnlySublist<TSourceList, TSource> source;

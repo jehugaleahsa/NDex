@@ -68,7 +68,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
-            CopyResult result = Sublist.CopyReversed(list, destination);
+            var result = Sublist.CopyReversed(list, destination);
             Assert.AreEqual(2, result.SourceOffset, "The source offset is wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset is wrong.");
             int[] expected = { 2, 1, };
@@ -85,7 +85,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
-            CopyResult result = Sublist.CopyReversed(list, destination);
+            var result = Sublist.CopyReversed(list, destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset is wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offset is wrong.");
             int[] expected = { 2, 1, 0, };
