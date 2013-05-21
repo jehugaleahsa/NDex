@@ -763,24 +763,92 @@ namespace NDex
 
     #region ReplaceSource
 
-    internal sealed class ReplaceSource<TSourceList, TSource> : Source<TSource, ReplaceResult>
+    internal sealed class ReplaceWithConstantSource<TSourceList, TSource> : Source<TSource, ReplaceResult>
         where TSourceList : IList<TSource>
     {
         private readonly IReadOnlySublist<TSourceList, TSource> source;
+        private readonly Func<TSource, bool> predicate;
+        private readonly TSource replacement;
 
-        public ReplaceSource(IReadOnlySublist<TSourceList, TSource> source)
+        public ReplaceWithConstantSource(
+            IReadOnlySublist<TSourceList, TSource> source,
+            Func<TSource, bool> predicate,
+            TSource replacement)
         {
             this.source = source;
+            this.predicate = predicate;
+            this.replacement = replacement;
         }
 
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.AddReplaced(source, destination, predicate, replacement);
         }
 
         protected override ReplaceResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.CopyReplaced(source, destination, predicate, replacement);
+        }
+    }
+
+    internal sealed class ReplaceWithGeneratorSource<TSourceList, TSource> : Source<TSource, ReplaceResult>
+        where TSourceList : IList<TSource>
+    {
+        private readonly IReadOnlySublist<TSourceList, TSource> source;
+        private readonly Func<TSource, bool> predicate;
+        private readonly Func<TSource, TSource> generator;
+
+        public ReplaceWithGeneratorSource(
+            IReadOnlySublist<TSourceList, TSource> source,
+            Func<TSource, bool> predicate,
+            Func<TSource, TSource> generator)
+        {
+            this.source = source;
+            this.predicate = predicate;
+            this.generator = generator;
+        }
+
+        protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
+        {
+            return Sublist.AddReplaced(source, destination, predicate, generator);
+        }
+
+        protected override ReplaceResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
+        {
+            return Sublist.CopyReplaced(source, destination, predicate, generator);
+        }
+    }
+
+    internal sealed class ReplaceWithSequenceSource<TSourceList, TSequenceList, TReplacementList, TSource, TSequence> : Source<TSource, ReplaceResult>
+        where TSourceList : IList<TSource>
+        where TSequenceList : IList<TSequence>
+        where TReplacementList : IList<TSource>
+    {
+        private readonly IReadOnlySublist<TSourceList, TSource> source;
+        private readonly IReadOnlySublist<TSequenceList, TSequence> sequence;
+        private readonly IReadOnlySublist<TReplacementList, TSource> replacement;
+        private readonly Func<TSource, TSequence, bool> comparison;
+
+        public ReplaceWithSequenceSource(
+            IReadOnlySublist<TSourceList, TSource> source,
+            IReadOnlySublist<TSequenceList, TSequence> sequence,
+            IReadOnlySublist<TReplacementList, TSource> replacement,
+            Func<TSource, TSequence, bool> comparison)
+        {
+            this.source = source;
+            this.sequence = sequence;
+            this.replacement = replacement;
+            this.comparison = comparison;
+        }
+
+        protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
+        {
+            return Sublist.AddReplaced(source, sequence, replacement, destination, comparison);
+        }
+
+        protected override ReplaceResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
+        {
+            return Sublist.CopyReplaced(source, sequence, replacement, destination, comparison);
         }
     }
 

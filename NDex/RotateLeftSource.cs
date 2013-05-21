@@ -219,12 +219,12 @@ namespace NDex
 
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.AddRotatedLeft(source, destination, shift);
         }
 
         protected override RotateLeftResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.CopyRotatedLeft(source, destination, shift);
         }
     }
 

@@ -183,12 +183,12 @@ namespace NDex
 
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.AddReversed(source, destination);
         }
 
         protected override ReverseResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.CopyReversed(source, destination);
         }
     }
 

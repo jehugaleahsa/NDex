@@ -477,12 +477,12 @@ namespace NDex
 
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.AddSymmetricDifference(source1, source2, destination, comparison);
         }
 
         protected override SymmetricExceptResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.CopySymmetricDifference(source1, source2, destination, comparison);
         }
     }
 

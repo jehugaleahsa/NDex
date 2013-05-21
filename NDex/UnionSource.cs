@@ -480,12 +480,12 @@ namespace NDex
 
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.AddUnion(source1, source2, destination, comparison);
         }
 
         protected override UnionResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.CopyUnion(source1, source2, destination, comparison);
         }
     }
 

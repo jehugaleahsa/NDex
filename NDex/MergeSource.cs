@@ -458,12 +458,12 @@ namespace NDex
 
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.AddMerged(source1, source2, destination, comparison);
         }
 
         protected override MergeResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.CopyMerged(source1, source2, destination, comparison);
         }
     }
 

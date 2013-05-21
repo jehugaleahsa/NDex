@@ -310,20 +310,25 @@ namespace NDex
         where TSourceList : IList<TSource>
     {
         private readonly IReadOnlySublist<TSourceList, TSource> source;
+        private readonly Func<int> generator;
 
-        public RandomSamplesSource(IReadOnlySublist<TSourceList, TSource> source)
+        public RandomSamplesSource(
+            IReadOnlySublist<TSourceList, TSource> source,
+            Func<int> generator)
         {
             this.source = source;
+            this.generator = generator;
         }
 
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            // TODO - figure out how to pass in numberOfItems
+            return Sublist.AddRandomSamples(source, 0, destination, generator);
         }
 
         protected override RandomSamplesResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.CopyRandomSamples(source, destination, generator);
         }
     }
 

@@ -376,20 +376,25 @@ namespace NDex
         where TSourceList : IList<TSource>
     {
         private readonly IReadOnlySublist<TSourceList, TSource> source;
+        private readonly Func<TSource, TSource, int> comparison;
 
-        public PartialSortSource(IReadOnlySublist<TSourceList, TSource> source)
+        public PartialSortSource(
+            IReadOnlySublist<TSourceList, TSource> source,
+            Func<TSource, TSource, int> comparison)
         {
             this.source = source;
+            this.comparison = comparison;
         }
 
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            // TODO - figure out how pass in numberOfItems
+            return Sublist.AddPartiallySorted(source, 0, destination, comparison);
         }
 
         protected override PartialSortResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            throw new NotImplementedException();
+            return Sublist.CopyPartiallySorted(source, destination, comparison);
         }
     }
 
