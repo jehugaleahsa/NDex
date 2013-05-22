@@ -3,7 +3,7 @@
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the FindResult class.
+    /// Tests the SearchResult class.
     /// </summary>
     [TestClass]
     public class SearchResultTester

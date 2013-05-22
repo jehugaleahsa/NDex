@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the ZipCopyTo methods.
+    /// Tests the ZipCopy methods.
     /// </summary>
     [TestClass]
     public class ZipCopyTester
@@ -16,7 +16,7 @@ namespace NDex.Tests
         /// We'll use combine to generate the products of two lists.
         /// </summary>
         [TestMethod]
-        public void TestZipCopyTo_MultiplyTwoLists()
+        public void TestZipCopy_MultiplyTwoLists()
         {
             Random random = new Random();
             
@@ -52,7 +52,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestZipCopyTo_NullList1_Throws()
+        public void TestZipCopy_NullList1_Throws()
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
@@ -65,7 +65,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestZipCopyTo_NullList2_Throws()
+        public void TestZipCopy_NullList2_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
@@ -78,7 +78,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestZipCopyTo_NullDestination_Throws()
+        public void TestZipCopy_NullDestination_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
@@ -92,7 +92,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestZipCopyTo_NullCombiner_Throws()
+        public void TestZipCopy_NullCombiner_Throws()
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
@@ -106,7 +106,7 @@ namespace NDex.Tests
         /// If the destination is too small, it will be filled as much as possible.
         /// </summary>
         [TestMethod]
-        public void TestZipCopyTo_DestinationTooSmall_StopsPrematurely()
+        public void TestZipCopy_DestinationTooSmall_StopsPrematurely()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 4, 3, 2, });
@@ -126,7 +126,7 @@ namespace NDex.Tests
         /// If a list is smaller than the other, the destination will be filled as much as possible.
         /// </summary>
         [TestMethod]
-        public void TestZipCopyTo_ListsDifferentSizes_StopsPrematurely()
+        public void TestZipCopy_ListsDifferentSizes_StopsPrematurely()
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 4, 3, });
