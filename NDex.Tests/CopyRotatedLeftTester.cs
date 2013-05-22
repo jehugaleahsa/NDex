@@ -38,7 +38,7 @@ namespace NDex.Tests
                 var copy = new List<int>(list.Count);
                 Sublist.Generate(list.Count, 0).AddTo(copy.ToSublist());
                 list.ToSublist().RotateLeft(shift).CopyTo(copy.ToSublist());
-                if (Sublist.Equals(list.ToSublist(), copy.ToSublist()))
+                if (list.ToSublist().IsEqualTo(copy.ToSublist()))
                 {
                     break;
                 }
@@ -92,7 +92,7 @@ namespace NDex.Tests
             Assert.AreEqual(4, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 3, 4 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -111,7 +111,7 @@ namespace NDex.Tests
             Assert.AreEqual(1, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 3, 4, 5, 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -129,7 +129,7 @@ namespace NDex.Tests
             Assert.AreEqual(4, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 5, 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -147,7 +147,7 @@ namespace NDex.Tests
             Assert.AreEqual(1, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 2, 3, 4, 5, 1, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -165,7 +165,7 @@ namespace NDex.Tests
             Assert.AreEqual(0, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -184,7 +184,7 @@ namespace NDex.Tests
             Assert.AreEqual(0, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 3, 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

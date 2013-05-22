@@ -30,21 +30,21 @@ namespace NDex.Tests
             list.ToSublist().Partition(i => i % 2 == 0).AddTo(evens.ToSublist(), odds.ToSublist());
 
             // sort all three lists -- we need to check if all values were added
-            Sublist.QuickSort(list.ToSublist());
-            Sublist.QuickSort(evens.ToSublist());
-            Sublist.QuickSort(odds.ToSublist());
+            list.ToSublist().QuickSort();
+            evens.ToSublist().QuickSort();
+            odds.ToSublist().QuickSort();
 
-            bool allEven = Sublist.TrueForAll(evens.ToSublist(), i => i % 2 == 0);
+            bool allEven = evens.ToSublist().TrueForAll(i => i % 2 == 0);
             Assert.IsTrue(allEven, "Some odds were added to the wrong list.");
 
-            bool allOdd = Sublist.TrueForAll(odds.ToSublist(), i => i % 2 != 0);
+            bool allOdd = odds.ToSublist().TrueForAll(i => i % 2 != 0);
             Assert.IsTrue(allOdd, "Some evens were added to the wrong list.");
 
             var combined = new List<int>(100);
-            Sublist.AddTo(evens.ToSublist(), combined.ToSublist());
-            Sublist.AddTo(odds.ToSublist(), combined.ToSublist());
-            Sublist.QuickSort(combined.ToSublist());
-            bool hasAllItems = Sublist.Equals(list.ToSublist(), combined.ToSublist());
+            evens.ToSublist().AddTo(combined.ToSublist());
+            odds.ToSublist().AddTo(combined.ToSublist());
+            combined.ToSublist().QuickSort();
+            bool hasAllItems = list.ToSublist().IsEqualTo(combined.ToSublist());
             Assert.IsTrue(hasAllItems, "Not all items were partitioned.");
         }
 
@@ -118,10 +118,10 @@ namespace NDex.Tests
             var result = list.Partition(i => i % 2 == 0).AddTo(evens, odds);
             evens = result.Destination1;
             int[] expectedEvens = { 2, 4, 6, 8 };
-            Assert.IsTrue(Sublist.Equals(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
+            Assert.IsTrue(expectedEvens.ToSublist().IsEqualTo(evens), "Not all the evens were partitioned out.");
             odds = result.Destination2;
             int[] expectedOdds = { 1, 3, 5, 7, 9 };
-            Assert.IsTrue(Sublist.Equals(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
+            Assert.IsTrue(expectedOdds.ToSublist().IsEqualTo(odds), "Not all the odds were partitioned out.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(evens);
             TestHelper.CheckHeaderAndFooter(odds);

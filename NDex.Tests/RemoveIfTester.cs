@@ -31,7 +31,7 @@ namespace NDex.Tests
 
             // now check that every number is odd
             var odds = array.ToSublist(0, index);
-            Assert.IsTrue(Sublist.TrueForAll(odds, i => i % 2 != 0), "Even numbers were found.");
+            Assert.IsTrue(odds.TrueForAll(i => i % 2 != 0), "Even numbers were found.");
         }
 
         #endregion
@@ -110,7 +110,7 @@ namespace NDex.Tests
             int index = list.Where(i => i % 2 == 0).InPlace();
             Assert.AreEqual(3, index, "The wrong index was returned.");
             int[] expected = { 1, 3, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, index)), "The items were not where they were expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items were not where they were expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -124,7 +124,7 @@ namespace NDex.Tests
             int index = list.Where(i => i % 2 == 0).InPlace();
             Assert.AreEqual(3, index, "The wrong index was returned.");
             int[] expected = { 1, 3, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, index)), "The items were not where they were expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items were not where they were expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

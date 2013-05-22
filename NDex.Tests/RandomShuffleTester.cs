@@ -30,9 +30,9 @@ namespace NDex.Tests
             var set = new HashSet<int>(list);
 
             // try rearranging the items random until it is sorted (may never happen -- bad unit test)
-            for (int tries = 0; tries != 100 && !Sublist.IsSorted(list.ToSublist()); ++tries)
+            for (int tries = 0; tries != 100 && !list.ToSublist().IsSorted(); ++tries)
             {
-                Sublist.RandomShuffle(list.ToSublist(), random);
+                list.ToSublist().RandomShuffle(random);
             }
             Assert.IsTrue(set.SetEquals(list), "Some items were lost during the shuffling.");
         }
@@ -50,7 +50,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Random random = new Random();
-            Sublist.RandomShuffle(list, random);
+            list.RandomShuffle(random);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int> generator = () => 0;
-            Sublist.RandomShuffle(list, generator);
+            list.RandomShuffle(generator);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Random random = null;
-            Sublist.RandomShuffle(list, random);
+            list.RandomShuffle(random);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int> generator = null;
-            Sublist.RandomShuffle(list, generator);
+            list.RandomShuffle(generator);
         }
 
         #endregion
@@ -108,7 +108,7 @@ namespace NDex.Tests
                         random.GetBytes(data);
                         return BitConverter.ToInt32(data, 0);
                     };
-                Sublist.RandomShuffle(list, generator);
+                list.RandomShuffle(generator);
             }
             Assert.IsTrue(set.SetEquals(list), "Some of the items were lost during the shuffling.");
         }

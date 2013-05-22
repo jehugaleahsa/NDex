@@ -30,7 +30,7 @@ namespace NDex.Tests
             while (index != list.Count)
             {
                 var remaining = list.ToSublist(index);
-                int nextIndex = Sublist.IsSorted(remaining);
+                int nextIndex = remaining.IsSorted();
                 var range = list.ToSublist(index, nextIndex);
                 ranges.Add(range);
                 index += nextIndex;
@@ -45,10 +45,10 @@ namespace NDex.Tests
                     var nextRange = ranges[next];
                     var firstRange = list.ToSublist(0, nextRange.Offset);
                     int count = firstRange.Merge(nextRange).CopyTo(buffer.ToSublist());  // merge into buffer
-                    Sublist.CopyTo(buffer.ToSublist(0, count), list.ToSublist()); // move back to original list, sorted
+                    buffer.ToSublist(0, count).CopyTo(list.ToSublist()); // move back to original list, sorted
                 }
             }
-            Assert.IsTrue(Sublist.IsSorted(list.ToSublist()), "The list was not sorted.");
+            Assert.IsTrue(list.ToSublist().IsSorted(), "The list was not sorted.");
         }
 
         #endregion
@@ -63,7 +63,7 @@ namespace NDex.Tests
         public void TestIsSorted_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.IsSorted(list);
+            list.IsSorted();
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.IsSorted(list, comparer);
+            list.IsSorted(comparer);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.IsSorted(list, comparison);
+            list.IsSorted(comparison);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.IsSorted(list, comparer);
+            list.IsSorted(comparer);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.IsSorted(list, comparison);
+            list.IsSorted(comparison);
         }
 
         #endregion
@@ -123,7 +123,7 @@ namespace NDex.Tests
         public void TestIsSorted_EmptyList_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>());
-            var result = Sublist.IsSorted(list);
+            var result = list.IsSorted();
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Success, "An empty list should be sorted.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -136,7 +136,7 @@ namespace NDex.Tests
         public void TestIsSorted_ListOfOne_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            var result = Sublist.IsSorted(list);
+            var result = list.IsSorted();
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Success, "A list with one item should be sorted.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -149,7 +149,7 @@ namespace NDex.Tests
         public void TestIsSorted_Reversed_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 4, 3, 2, 1 });
-            var result = Sublist.IsSorted(list, (x, y) => Comparer<int>.Default.Compare(y, x));
+            var result = list.IsSorted((x, y) => Comparer<int>.Default.Compare(y, x));
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Success, "A list should have been sorted.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -162,7 +162,7 @@ namespace NDex.Tests
         public void TestIsSorted_Unsorted()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 4, 2 }); // 4 is the problem, not 5!
-            var result = Sublist.IsSorted(list, Comparer<int>.Default);
+            var result = list.IsSorted(Comparer<int>.Default);
             Assert.AreEqual(3, result.Index, "The wrong index was returned.");
             Assert.IsFalse(result.Success, "A list should not have been sorted.");
             TestHelper.CheckHeaderAndFooter(list);

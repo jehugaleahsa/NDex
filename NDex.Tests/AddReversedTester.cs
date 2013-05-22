@@ -24,7 +24,7 @@ namespace NDex.Tests
 
             list.ToSublist().Reverse().AddTo(copy.ToSublist());
 
-            Assert.IsTrue(Sublist.Equals(list.ToSublist(), copy.ToSublist()), "The list was not reversed as expected.");
+            Assert.IsTrue(list.ToSublist().IsEqualTo(copy.ToSublist()), "The list was not reversed as expected.");
         }
 
         #endregion
@@ -67,7 +67,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.Reverse().AddTo(destination);
             int[] expected = { 3, 2, 1, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

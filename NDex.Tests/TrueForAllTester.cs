@@ -25,8 +25,8 @@ namespace NDex.Tests
             Sublist.Generate(5, i => random.Next(5)).AddTo(list.ToSublist());
 
             // see if they are all even
-            bool allEven = Sublist.TrueForAll(list.ToSublist(), i => i % 2 == 0);
-            bool anyOdd = Sublist.Find(list.ToSublist(), i => i % 2 != 0);
+            bool allEven = list.ToSublist().TrueForAll(i => i % 2 == 0);
+            bool anyOdd = list.ToSublist().Find(i => i % 2 != 0);
             Assert.AreNotEqual(anyOdd, allEven, "Detected odds when saying all items were even.");
         }
 
@@ -43,7 +43,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
-            Sublist.TrueForAll(list, predicate);
+            list.TrueForAll(predicate);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, bool> predicate = null;
-            Sublist.TrueForAll(list, predicate);
+            list.TrueForAll(predicate);
         }
 
         #endregion
@@ -68,7 +68,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8 });
             Func<int, bool> predicate = i => i % 2 == 0;
-            bool result = Sublist.TrueForAll(list, predicate);
+            bool result = list.TrueForAll(predicate);
             Assert.IsTrue(result, "All of the items should have satisfied the predicate.");
         }
 
@@ -80,7 +80,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 4, 6 });
             Func<int, bool> predicate = i => i % 2 == 0;
-            bool result = Sublist.TrueForAll(list, predicate);
+            bool result = list.TrueForAll(predicate);
             Assert.IsFalse(result, "Some items should not have satisfied the predicate.");
         }
 
@@ -92,7 +92,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 6, 7 });
             Func<int, bool> predicate = i => i % 2 == 0;
-            bool result = Sublist.TrueForAll(list, predicate);
+            bool result = list.TrueForAll(predicate);
             Assert.IsFalse(result, "Some items should not have satisfied the predicate.");
         }
 
@@ -104,7 +104,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 5, 6, });
             Func<int, bool> predicate = i => i % 2 == 0;
-            bool result = Sublist.TrueForAll(list, predicate);
+            bool result = list.TrueForAll(predicate);
             Assert.IsFalse(result, "Some items should not have satisfied the predicate.");
         }
     }

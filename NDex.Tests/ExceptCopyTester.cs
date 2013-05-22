@@ -29,7 +29,7 @@ namespace NDex.Tests
             Sublist.Generate(34, i => i * 3).AddTo(threes.ToSublist()); // max of 99
 
             // sort and eliminate duplicates from odd list, to make it an ordered set
-            Sublist.QuickSort(odds.ToSublist());
+            odds.ToSublist().QuickSort();
             odds.ToSublist(odds.ToSublist().Distinct().InPlace()).Clear();
 
             // now remove the threes and make sure none remain
@@ -37,8 +37,8 @@ namespace NDex.Tests
             Sublist.Generate(100, 0).AddTo(destination.ToSublist());
 
             int result = odds.ToSublist().Except(threes.ToSublist()).CopyTo(destination.ToSublist());
-            Sublist.Clear(destination.ToSublist(result)); // throw away the back end
-            Assert.IsTrue(Sublist.TrueForAll(destination.ToSublist(), i => i % 3 != 0), "Some numbers were still divisible by three.");
+            destination.ToSublist(result).Clear(); // throw away the back end
+            Assert.IsTrue(destination.ToSublist().TrueForAll(i => i % 3 != 0), "Some numbers were still divisible by three.");
         }
 
         #endregion
@@ -206,7 +206,7 @@ namespace NDex.Tests
             Assert.AreEqual(0, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong index was returned.");
             int[] expected = { 1, 2, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -228,7 +228,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The wrong destination index was returned.");
             int[] expected = { 3, 0, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -248,7 +248,7 @@ namespace NDex.Tests
             Assert.AreEqual(3, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(0, result.DestinationOffset, "The wrong destination index was returned.");
             int[] expected = { 0, 0, 0 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

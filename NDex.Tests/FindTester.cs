@@ -25,7 +25,7 @@ namespace NDex.Tests
             DateTime today = DateTime.Today;
             Sublist.Generate(7, days => today.AddDays(days)).CopyTo(week.ToSublist());
 
-            var result = Sublist.Find(week.ToSublist(), DayOfWeek.Wednesday, (date, day) => date.DayOfWeek == day);
+            var result = week.ToSublist().Find(DayOfWeek.Wednesday, (date, day) => date.DayOfWeek == day);
             Assert.IsTrue(result.Exists, "A span of seven days should have included a Wednesday, but none was found.");
 
             DateTime actual = week[result.Index];
@@ -44,7 +44,7 @@ namespace NDex.Tests
             DateTime today = DateTime.Today;
             Sublist.Generate(7, days => today.AddDays(days)).CopyTo(week.ToSublist());
 
-            var result = Sublist.Find(week.ToSublist(), date => date.DayOfWeek == DayOfWeek.Wednesday);
+            var result = week.ToSublist().Find(date => date.DayOfWeek == DayOfWeek.Wednesday);
             Assert.IsTrue(result.Exists, "A span of seven days should have included a Wednesday, but none was found.");
 
             DateTime actual = week[result.Index];
@@ -64,7 +64,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             int value = 0;
-            Sublist.Find(list, value);
+            list.Find(value);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = null;
             int value = 0;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.Find(list, value, comparer);
+            list.Find(value, comparer);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = null;
             int value = 0;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.Find(list, value, comparison);
+            list.Find(value, comparison);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
-            Sublist.Find(list, predicate);
+            list.Find(predicate);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int value = 0;
             IEqualityComparer<int> comparer = null;
-            Sublist.Find(list, value, comparer);
+            list.Find(value, comparer);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int value = 0;
             Func<int, int, bool> comparison = null;
-            Sublist.Find(list, value, comparison);
+            list.Find(value, comparison);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, bool> predicate = null;
-            Sublist.Find(list, predicate);
+            list.Find(predicate);
         }
 
         #endregion
@@ -154,7 +154,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             int value = 1;
 
-            var result = Sublist.Find(list, value);
+            var result = list.Find(value);
             Assert.IsTrue(result.Exists, "The value should have been found.");
             Assert.AreEqual(0, result.Index, "The index was wrong.");
 
@@ -171,7 +171,7 @@ namespace NDex.Tests
             int value = 2;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
 
-            var result = Sublist.Find(list, value, comparer);
+            var result = list.Find(value, comparer);
             Assert.IsTrue(result.Exists, "The value should have been found.");
             Assert.AreEqual(1, result.Index, "The index was wrong.");
 
@@ -188,7 +188,7 @@ namespace NDex.Tests
             int value = 3;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
 
-            var result = Sublist.Find(list, value, comparison);
+            var result = list.Find(value, comparison);
             Assert.IsTrue(result.Exists, "The value should have been found.");
             Assert.AreEqual(2, result.Index, "The index was wrong.");
 
@@ -204,7 +204,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             int value = 4;
 
-            var result = Sublist.Find(list, value);
+            var result = list.Find(value);
             Assert.IsFalse(result.Exists, "The value should not have been found.");
             Assert.AreEqual(list.Count, result.Index, "The index was wrong.");
 
@@ -220,7 +220,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, 2 });
             int value = 2;
 
-            var result = Sublist.Find(list, value);
+            var result = list.Find(value);
             Assert.IsTrue(result.Exists, "The value should have been found.");
             Assert.AreEqual(1, result.Index, "The index was wrong.");
 
@@ -236,7 +236,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 2, 3, 5 });
             Func<int, bool> predicate = i => i % 2 == 0;
 
-            var result = Sublist.Find(list, predicate);
+            var result = list.Find(predicate);
             Assert.IsTrue(result.Exists, "A value matching the predicate should have been found.");
             Assert.AreEqual(0, result.Index, "The index was wrong.");
 
@@ -252,7 +252,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             Func<int, bool> predicate = i => i % 2 == 0;
 
-            var result = Sublist.Find(list, predicate);
+            var result = list.Find(predicate);
             Assert.IsTrue(result.Exists, "A value matching the predicate should have been found.");
             Assert.AreEqual(1, result.Index, "The index was wrong.");
 
@@ -268,7 +268,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 4 });
             Func<int, bool> predicate = i => i % 2 == 0;
 
-            var result = Sublist.Find(list, predicate);
+            var result = list.Find(predicate);
             Assert.IsTrue(result.Exists, "A value matching the predicate should have been found.");
             Assert.AreEqual(2, result.Index, "The index was wrong.");
 
@@ -284,7 +284,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
             Func<int, bool> predicate = i => i % 2 == 0;
 
-            var result = Sublist.Find(list, predicate);
+            var result = list.Find(predicate);
             Assert.IsFalse(result.Exists, "A value matching the predicate should not have been found.");
             Assert.AreEqual(list.Count, result.Index, "The index was wrong.");
 
@@ -300,7 +300,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 5, 6 });
             Func<int, bool> predicate = i => i % 2 == 0;
 
-            var result = Sublist.Find(list, predicate);
+            var result = list.Find(predicate);
             Assert.IsTrue(result.Exists, "A value matching the predicate should have been found.");
             Assert.AreEqual(1, result.Index, "The index was wrong.");
 

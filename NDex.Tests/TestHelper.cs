@@ -10,8 +10,8 @@ namespace NDex.Tests
             int count = list.Count;
             var wrapper = new List<int>();
             Sublist.Generate(100, i => i).AddTo(wrapper.ToSublist());
-            Sublist.AddTo(wrapper.ToSublist(), list.ToSublist(0, 0)); // add to front
-            Sublist.AddTo(wrapper.ToSublist(), list.ToSublist()); // add to back
+            wrapper.ToSublist().AddTo(list.ToSublist(0, 0)); // add to front
+            wrapper.ToSublist().AddTo(list.ToSublist()); // add to back
             var sublist = new Sublist<List<int>, int>(list, 100, count);
             return sublist;
         }

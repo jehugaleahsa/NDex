@@ -27,19 +27,19 @@ namespace NDex.Tests
             Sublist.Generate(50, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // we must make both lists sets
-            Sublist.Clear(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
-            Sublist.Clear(list2.ToSublist(Sublist.MakeSet(list2.ToSublist())));
+            list1.ToSublist(list1.ToSublist().MakeSet()).Clear();
+            list2.ToSublist(list2.ToSublist().MakeSet()).Clear();
 
             // now we'll build a new set containing all the items
             var destination = new List<int>(100);
             Sublist.Generate(100, 0).AddTo(destination.ToSublist());
             int result = list1.ToSublist().Union(list2.ToSublist()).CopyTo(destination.ToSublist());
-            Sublist.Clear(destination.ToSublist(result));
+            destination.ToSublist(result).Clear();
 
             // make sure the new set contains both of the original sets
-            bool contains1 = Sublist.IsSubset(destination.ToSublist(), list1.ToSublist());
+            bool contains1 = list1.ToSublist().IsSubset(destination.ToSublist());
             Assert.IsTrue(contains1, "The union did not contain all the items from the first set.");
-            bool contains2 = Sublist.IsSubset(destination.ToSublist(), list2.ToSublist());
+            bool contains2 = list2.ToSublist().IsSubset(destination.ToSublist());
             Assert.IsTrue(contains1, "The union did not contain all the items from the second set.");
         }
 
@@ -207,7 +207,7 @@ namespace NDex.Tests
             Assert.AreEqual(list.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -228,7 +228,7 @@ namespace NDex.Tests
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 4, 5, 6 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -250,7 +250,7 @@ namespace NDex.Tests
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(3, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 0, 0 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -272,7 +272,7 @@ namespace NDex.Tests
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(3, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 0, 0 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -295,7 +295,7 @@ namespace NDex.Tests
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(3, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 3, 2, 1, 0, 0 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -317,7 +317,7 @@ namespace NDex.Tests
             Assert.AreEqual(1, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);

@@ -26,7 +26,7 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // unique requires that elements be sorted
-            Sublist.QuickSort(list.ToSublist());
+            list.ToSublist().QuickSort();
 
             // now we create a set from the list
             var destination = new List<int>(100);
@@ -35,7 +35,7 @@ namespace NDex.Tests
             destination.RemoveRange(result, destination.Count - result); // remove dangling elements
 
             // check that we have a valid set
-            bool isSet = Sublist.IsSet(destination.ToSublist());
+            bool isSet = destination.ToSublist().IsSet();
             Assert.IsTrue(isSet, "The destinatin was not a valid set.");
         }
 
@@ -156,7 +156,7 @@ namespace NDex.Tests
             Assert.AreEqual(1, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = { 1, 0, 0, 0, 0 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -176,7 +176,7 @@ namespace NDex.Tests
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = { 1, 2 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);

@@ -36,7 +36,7 @@ namespace NDex.Tests
 
             // check that the numbers are mostly the same
             // numbers will change a little due to precision issues
-            bool result = Sublist.Equals(numbers.ToSublist(), converted.ToSublist(), (n, c) => Math.Abs(n - c) < .0001);
+            bool result = numbers.ToSublist().IsEqualTo(converted.ToSublist(), (n, c) => Math.Abs(n - c) < .0001);
             Assert.IsTrue(result, "Could not convert between strings and numbers.");
         }
 
@@ -96,7 +96,7 @@ namespace NDex.Tests
             Assert.AreEqual(1, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were converted.");
             var expected = new int[] { 1 }.ToSublist();
-            Assert.IsTrue(Sublist.Equals(destination, expected), "The converted values were not stored in the destination.");
+            Assert.IsTrue(destination.IsEqualTo(expected), "The converted values were not stored in the destination.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -114,7 +114,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The wrong number of items were converted.");
             var expected = new int[] { 1, 2, 0 }.ToSublist();
-            Assert.IsTrue(Sublist.Equals(destination, expected), "The converted values were not stored in the destination.");
+            Assert.IsTrue(destination.IsEqualTo(expected), "The converted values were not stored in the destination.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

@@ -35,7 +35,7 @@ namespace NDex.Tests
             var destination = new List<int>(100);
 
             odds.ToSublist().Except(threes.ToSublist()).AddTo(destination.ToSublist());
-            Assert.IsTrue(Sublist.TrueForAll(destination.ToSublist(), i => i % 3 != 0), "Some numbers were still divisible by three.");
+            Assert.IsTrue(destination.ToSublist().TrueForAll(i => i % 3 != 0), "Some numbers were still divisible by three.");
         }
 
         #endregion
@@ -198,7 +198,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.Except(list2).AddTo(destination);
             int[] expected = { 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -216,7 +216,7 @@ namespace NDex.Tests
             IComparer<int> comparer= Comparer<int>.Default;
             list1.Except(list2, comparer).AddTo(destination);
             int[] expected = { };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -234,7 +234,7 @@ namespace NDex.Tests
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list1.Except(list2, comparison).AddTo(destination);
             int[] expected = { };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

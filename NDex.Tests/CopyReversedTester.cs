@@ -26,7 +26,7 @@ namespace NDex.Tests
             int result = list.ToSublist().Reverse().CopyTo(copy.ToSublist());
             Assert.AreEqual(copy.Count, result, "The wrong index was returned.");
 
-            Assert.IsTrue(Sublist.Equals(list.ToSublist(), copy.ToSublist()), "The list was not reversed as expected.");
+            Assert.IsTrue(list.ToSublist().IsEqualTo(copy.ToSublist()), "The list was not reversed as expected.");
         }
 
         #endregion
@@ -71,7 +71,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset, "The source offset is wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset is wrong.");
             int[] expected = { 2, 1, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -88,7 +88,7 @@ namespace NDex.Tests
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset is wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offset is wrong.");
             int[] expected = { 2, 1, 0, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

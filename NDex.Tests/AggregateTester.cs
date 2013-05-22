@@ -20,7 +20,7 @@ namespace NDex.Tests
         public void TestAggregate_SumValues()
         {
             int[] values = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            int sum = Sublist.Aggregate(values.ToSublist(), (s, i) => s + i);
+            int sum = values.ToSublist().Aggregate((s, i) => s + i);
             Assert.AreEqual(55, sum, "The values were not aggregated correctly.");
         }
 
@@ -31,7 +31,7 @@ namespace NDex.Tests
         public void TestAggregate_BuildString()
         {
             int[] values = new int[] { 1, 2, 3, 4, 5 };
-            string actual = Sublist.Aggregate(values.ToSublist(), new StringBuilder(), (s, i) => s.Append(i)).ToString();
+            string actual = values.ToSublist().Aggregate(new StringBuilder(), (s, i) => s.Append(i)).ToString();
             string expected = "12345";
             Assert.AreEqual(expected, actual, "The string wasn't built as expected.");
         }
@@ -49,7 +49,7 @@ namespace NDex.Tests
         {
             Sublist<int[], int> sublist = null;
             Func<int, int, int> aggregator = (s, i) => s + i;
-            Sublist.Aggregate(sublist, aggregator);
+            sublist.Aggregate(aggregator);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace NDex.Tests
             Sublist<int[], int> sublist = null;
             int seed = 0;
             Func<int, int, int> aggregator = (s, i) => s + i;
-            Sublist.Aggregate(sublist, seed, aggregator);
+            sublist.Aggregate(seed, aggregator);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace NDex.Tests
         {
             var sublist = new int[0].ToSublist();
             Func<int, int, int> aggregator = (s, i) => s + i;
-            Sublist.Aggregate(sublist, aggregator);
+            sublist.Aggregate(aggregator);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace NDex.Tests
         {
             var sublist = new int[1].ToSublist();
             Func<int, int, int> aggregator = null;
-            Sublist.Aggregate(sublist, aggregator);
+            sublist.Aggregate(aggregator);
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace NDex.Tests
             var sublist = new int[0].ToSublist();
             int seed = 0;
             Func<int, int, int> aggregator = null;
-            Sublist.Aggregate(sublist, seed, aggregator);
+            sublist.Aggregate(seed, aggregator);
         }
 
         #endregion
@@ -114,7 +114,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             int seed = 123;
             Func<int, int, int> aggregator = (s, i) => s + i;
-            int actual = Sublist.Aggregate(list, seed, aggregator);
+            int actual = list.Aggregate(seed, aggregator);
             Assert.AreEqual(seed, actual, "The seed was not returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -128,7 +128,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 123 });
             Func<int, int, int> aggregator = (s, i) => s + i;
-            int actual = Sublist.Aggregate(list, aggregator);
+            int actual = list.Aggregate(aggregator);
             Assert.AreEqual(list[0], actual, "The seed was not returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }

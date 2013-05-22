@@ -32,7 +32,7 @@ namespace NDex.Tests
             list.Insert(random.Next(0, list.Count + 1), 2);
 
             // now find what item belongs in the second position, as if the list was sorted
-            Sublist.ItemAt(list.ToSublist(), 2);
+            list.ToSublist().ItemAt(2);
             int actual = list[2];
             Assert.AreEqual(2, actual, "The 2 was not moved to the second position.");
         }
@@ -50,7 +50,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             int index = 0;
-            Sublist.ItemAt(list, index);
+            list.ItemAt(index);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = null;
             int index = 0;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.ItemAt(list, index, comparer);
+            list.ItemAt(index, comparer);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = null;
             int index = 0;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.ItemAt(list, index, comparison);
+            list.ItemAt(index, comparison);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int index = -1;
-            Sublist.ItemAt(list, index);
+            list.ItemAt(index);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int index = -1;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.ItemAt(list, index, comparer);
+            list.ItemAt(index, comparer);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int index = -1;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.ItemAt(list, index, comparison);
+            list.ItemAt(index, comparison);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int index = 0;
-            Sublist.ItemAt(list, index);
+            list.ItemAt(index);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int index = 0;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.ItemAt(list, index, comparer);
+            list.ItemAt(index, comparer);
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int index = 0;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.ItemAt(list, index, comparison);
+            list.ItemAt(index, comparison);
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>() { 1 };
             int index = 0;
             IComparer<int> comparer = null;
-            Sublist.ItemAt(list, index, comparer);
+            list.ItemAt(index, comparer);
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>() { 1 };
             int index = 0;
             Func<int, int, int> comparison = null;
-            Sublist.ItemAt(list, index, comparison);
+            list.ItemAt(index, comparison);
         }
 
         #endregion
@@ -191,7 +191,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => 100 - i).AddTo(list);
-            Sublist.ItemAt(list, 0, Comparer<int>.Default);
+            list.ItemAt(0, Comparer<int>.Default);
             Assert.AreEqual(1, list[0], "The wrong item was moved to the front.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -204,7 +204,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => 100 - i).AddTo(list);
-            Sublist.ItemAt(list, list.Count - 1, Comparer<int>.Default);
+            list.ItemAt(list.Count - 1, Comparer<int>.Default);
             Assert.AreEqual(100, list[list.Count - 1], "The wrong item was moved to the back.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -217,7 +217,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => 100 - i).AddTo(list);
-            Sublist.ItemAt(list, 49, Comparer<int>.Default);
+            list.ItemAt(49, Comparer<int>.Default);
             Assert.AreEqual(50, list[49], "The wrong item was moved to the middle.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -231,7 +231,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(50, i => i * 2).AddTo(list);
             list = Sublist.Generate(50, i => 100 - (i * 2 + 1)).AddTo(list);
-            Sublist.ItemAt(list, 0, Comparer<int>.Default.Compare);
+            list.ItemAt(0, Comparer<int>.Default.Compare);
             Assert.AreEqual(0, list[0], "The wrong item was moved to the front.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -245,7 +245,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(50, i => i * 2).AddTo(list);
             list = Sublist.Generate(50, i => 100 - (i * 2 + 1)).AddTo(list);
-            Sublist.ItemAt(list, list.Count - 1, Comparer<int>.Default.Compare);
+            list.ItemAt(list.Count - 1, Comparer<int>.Default.Compare);
             Assert.AreEqual(99, list[list.Count - 1], "The wrong item was moved to the back.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -259,7 +259,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(50, i => i * 2).AddTo(list);
             list = Sublist.Generate(50, i => 100 - (i * 2 + 1)).AddTo(list);
-            Sublist.ItemAt(list, 49, Comparer<int>.Default.Compare);
+            list.ItemAt(49, Comparer<int>.Default.Compare);
             Assert.AreEqual(49, 49, "The wrong item was moved to the middle.");
             TestHelper.CheckHeaderAndFooter(list);
         }

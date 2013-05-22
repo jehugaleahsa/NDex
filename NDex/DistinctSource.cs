@@ -234,7 +234,7 @@ namespace NDex
         /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
         /// <param name="destination">The sublist to copy the intermediate results to.</param>
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
-        protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
+        protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
             int result = addUnique<TDestinationList>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
@@ -271,7 +271,7 @@ namespace NDex
         /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
         /// <param name="destination">The sublist to copy the intermediate results to.</param>
         /// <returns>Information about the results of the operation.</returns>
-        protected override DistinctResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
+        protected sealed override DistinctResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             Tuple<int, int> indexes = copyUnique<TDestinationList>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,

@@ -26,9 +26,9 @@ namespace NDex.Tests
             Sublist.Generate(size, i => random.Next(size)).AddTo(list.ToSublist());
 
             // sort the list
-            Sublist.QuickSort(list.ToSublist());
+            list.ToSublist().QuickSort();
 
-            bool isSorted = Sublist.IsSorted(list.ToSublist());
+            bool isSorted = list.ToSublist().IsSorted();
             Assert.IsTrue(isSorted, "The items were not sorted.");
         }
 
@@ -44,7 +44,7 @@ namespace NDex.Tests
         public void TestQuickSort_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.QuickSort(list);
+            list.QuickSort();
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.QuickSort(list, comparer);
+            list.QuickSort(comparer);
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.QuickSort(list, comparison);
+            list.QuickSort(comparison);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace NDex.Tests
         {
             var list = new List<int>().ToSublist();
             IComparer<int> comparer = null;
-            Sublist.QuickSort(list, comparer);
+            list.QuickSort(comparer);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace NDex.Tests
         {
             var list = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
-            Sublist.QuickSort(list, comparison);
+            list.QuickSort(comparison);
         }
 
         #endregion
@@ -104,7 +104,7 @@ namespace NDex.Tests
         public void TestQuickSort_EmptyList()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.QuickSort(list);
+            list.QuickSort();
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -116,8 +116,8 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(200, i => 199 - i).AddTo(list);
-            Sublist.QuickSort(list, Comparer<int>.Default);
-            bool result = Sublist.IsSorted(list, Comparer<int>.Default);
+            list.QuickSort(Comparer<int>.Default);
+            bool result = list.IsSorted(Comparer<int>.Default);
             Assert.IsTrue(result, "The list was not sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -131,8 +131,8 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => i * 2).AddTo(list);
             list = Sublist.Generate(200, i => 199 - (i - 100) * 2).AddTo(list);
-            Sublist.QuickSort(list, Comparer<int>.Default.Compare);
-            bool result = Sublist.IsSorted(list, Comparer<int>.Default.Compare);
+            list.QuickSort(Comparer<int>.Default.Compare);
+            bool result = list.IsSorted(Comparer<int>.Default.Compare);
             Assert.IsTrue(result, "The list was not sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -145,8 +145,8 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(200, i => i % 2 == 0 ? i : 199 - (i - 1)).AddTo(list);
-            Sublist.QuickSort(list);
-            bool result = Sublist.IsSorted(list);
+            list.QuickSort();
+            bool result = list.IsSorted();
             Assert.IsTrue(result, "The list was not sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -159,9 +159,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(200, i => i + 1).AddTo(list);
-            list = Sublist.AddTo(new int[] { 0 }, list);
-            Sublist.QuickSort(list);
-            bool result = Sublist.IsSorted(list);
+            list = new int[] { 0 }.AddTo(list);
+            list.QuickSort();
+            bool result = list.IsSorted();
             Assert.IsTrue(result, "The list was not sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -173,10 +173,10 @@ namespace NDex.Tests
         public void TestQuickSort_FirstMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddTo(new int[] { 200 }, list);
+            list = new int[] { 200 }.AddTo(list);
             list = Sublist.Generate(201, i => i - 1).AddTo(list);
-            Sublist.QuickSort(list);
-            bool result = Sublist.IsSorted(list);
+            list.QuickSort();
+            bool result = list.IsSorted();
             Assert.IsTrue(result, "The list was not sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }

@@ -37,7 +37,7 @@ namespace NDex.Tests
             {
                 var rotated = new List<int>(list.Count);
                 list.ToSublist().RotateLeft(shift).AddTo(rotated.ToSublist());
-                if (Sublist.Equals(list.ToSublist(), rotated.ToSublist()))
+                if (list.ToSublist().IsEqualTo(rotated.ToSublist()))
                 {
                     break;
                 }
@@ -89,7 +89,7 @@ namespace NDex.Tests
             int shift = 2;
             destination = list.RotateLeft(shift).AddTo(destination);
             int[] expected = { 3, 4, 5, 1, 2 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -105,7 +105,7 @@ namespace NDex.Tests
             int shift = -1;
             destination = list.RotateLeft(shift).AddTo(destination);
             int[] expected = { 5, 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -121,7 +121,7 @@ namespace NDex.Tests
             int shift = list.Count + 1;
             destination = list.RotateLeft(shift).AddTo(destination);
             int[] expected = { 2, 3, 4, 5, 1, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

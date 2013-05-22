@@ -29,15 +29,15 @@ namespace NDex.Tests
             Sublist.Generate(50, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // merging requires sorted lists
-            Sublist.QuickSort(list1.ToSublist());
-            Sublist.QuickSort(list2.ToSublist());
+            list1.ToSublist().QuickSort();
+            list2.ToSublist().QuickSort();
 
             // merge the lists
             var destination = new List<int>(100);
             list1.ToSublist().Merge(list2.ToSublist()).AddTo(destination.ToSublist());
 
             // make sure the destination is still sorted
-            bool isSorted = Sublist.IsSorted(destination.ToSublist());
+            bool isSorted = destination.ToSublist().IsSorted();
             Assert.IsTrue(isSorted, "Merge caused the items to become unsorted.");
         }
 
@@ -202,7 +202,7 @@ namespace NDex.Tests
             destination = list1.Merge(list2).AddTo(destination);
             Assert.AreEqual(8, destination.Count, "The wrong number of items were added.");
             int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items weren't merged as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items weren't merged as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -220,7 +220,7 @@ namespace NDex.Tests
             destination = list1.Merge(list2).AddTo(destination);
             Assert.AreEqual(9, destination.Count, "The wrong number of items were added.");
             int[] expected = { 0, 1, 2, 2, 3, 4, 5, 6, 7 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items weren't merged as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items weren't merged as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -238,7 +238,7 @@ namespace NDex.Tests
             destination = list1.Merge(list2, Comparer<int>.Default).AddTo(destination);
             Assert.AreEqual(7, destination.Count, "The wrong number of items were added.");
             int[] expected = { 1, 2, 3, 4, 5, 6, 7 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items weren't merged as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items weren't merged as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -257,7 +257,7 @@ namespace NDex.Tests
             destination = list1.Merge(list2, comparison).AddTo(destination);
             Assert.AreEqual(7, destination.Count, "The wrong number of items were added.");
             int[] expected = { 7, 6, 5, 4, 3, 2, 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items weren't merged as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items weren't merged as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

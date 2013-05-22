@@ -25,14 +25,14 @@ namespace NDex.Tests
             Sublist.Generate(100, () => random.Next(100)).CopyTo(array.ToSublist());
 
             // sort the list to put equivalent items next to each other
-            Sublist.QuickSort(array.ToSublist());
+            array.ToSublist().QuickSort();
 
             // overwrite the duplicates
             int index = array.ToSublist().Distinct().InPlace();
 
             // create a view over the list, eliminating trailing items
             var set = array.ToSublist(0, index);
-            Assert.IsTrue(Sublist.IsSet(set), "Duplicate items still remained.");
+            Assert.IsTrue(set.IsSet(), "Duplicate items still remained.");
         }
 
         #endregion
@@ -110,7 +110,7 @@ namespace NDex.Tests
             int index = list.Distinct().InPlace();
             Assert.AreEqual(list.Count, index, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items was not in the expected order.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -124,7 +124,7 @@ namespace NDex.Tests
             int index = list.Distinct().InPlace();
             Assert.AreEqual(1, index, "The wrong index was returned.");
             int[] expected = { 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, index)), "The items was not in the expected order.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -138,7 +138,7 @@ namespace NDex.Tests
             int index = list.Distinct(EqualityComparer<int>.Default).InPlace();
             Assert.AreEqual(5, index, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, index)), "The items was not in the expected order.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -152,7 +152,7 @@ namespace NDex.Tests
             int index = list.Distinct(EqualityComparer<int>.Default.Equals).InPlace();
             Assert.AreEqual(5, index, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, index)), "The items was not in the expected order.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -166,7 +166,7 @@ namespace NDex.Tests
             int index = list.Distinct(EqualityComparer<int>.Default.Equals).InPlace();
             Assert.AreEqual(5, index, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, index)), "The items was not in the expected order.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items was not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

@@ -29,7 +29,7 @@ namespace NDex.Tests
 
             list.ToSublist().Replace(i => i < 0, i => -i).AddTo(destination.ToSublist());
 
-            Assert.IsTrue(Sublist.TrueForAll(destination.ToSublist(), i => i >= 0), "Not all values were positive.");
+            Assert.IsTrue(destination.ToSublist().TrueForAll(i => i >= 0), "Not all values were positive.");
         }
 
         /// <summary>
@@ -412,7 +412,7 @@ namespace NDex.Tests
             Func<int, bool> predicate = i => i % 2 == 0;
             destination = list.Replace(predicate, replacement).AddTo(destination);
             int[] expected = { 1, 3, 3, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -429,7 +429,7 @@ namespace NDex.Tests
             Func<int, bool> predicate = i => i % 2 == 0;
             destination = list.Replace(predicate, generator).AddTo(destination);
             int[] expected = { 1, 3, 3, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -449,7 +449,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -471,7 +471,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -493,7 +493,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 2 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -515,7 +515,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -537,7 +537,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 4, 4, 5, 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -559,7 +559,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 9, 9 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -581,7 +581,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 9, 9, 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -603,7 +603,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 2, 9, 9 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -625,7 +625,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 9, 9, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -647,7 +647,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 9, 9, 4, 9, 9, 4, 5, 9, 9, 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -668,7 +668,7 @@ namespace NDex.Tests
 
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
-            Assert.IsTrue(Sublist.Equals(replacement, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(replacement.IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -690,7 +690,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 9, 9, 9, 9, 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -712,7 +712,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 2, 9, 9, 9, 9 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -734,7 +734,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 9, 9, 9, 9, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -756,7 +756,7 @@ namespace NDex.Tests
             destination = source.Replace(sequence, replacement).AddTo(destination);
 
             int[] expected = new int[] { 1, 9, 9, 9, 9, 4, 9, 9, 9, 9, 4, 5, 9, 9, 9, 9, 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -776,7 +776,7 @@ namespace NDex.Tests
 
             destination = source.Replace(sequence, sequence).AddTo(destination);
 
-            Assert.IsTrue(Sublist.Equals(sequence, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(sequence.IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -795,7 +795,7 @@ namespace NDex.Tests
 
             destination = source.Replace(sequence, sequence).AddTo(destination);
 
-            Assert.IsTrue(Sublist.Equals(source, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(source.IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -814,7 +814,7 @@ namespace NDex.Tests
 
             destination = source.Replace(sequence, sequence).AddTo(destination);
 
-            Assert.IsTrue(Sublist.Equals(source, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(source.IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -834,7 +834,7 @@ namespace NDex.Tests
 
             destination = source.Replace(sequence, sequence, comparer).AddTo(destination);
 
-            Assert.IsTrue(Sublist.Equals(source, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(source.IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -854,7 +854,7 @@ namespace NDex.Tests
 
             destination = source.Replace(sequence, sequence, comparison).AddTo(destination);
 
-            Assert.IsTrue(Sublist.Equals(source, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(source.IsEqualTo(destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);

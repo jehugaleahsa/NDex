@@ -25,11 +25,11 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // make it a set and remove trailing garbage
-            Sublist.Clear(list.ToSublist(Sublist.MakeSet(list.ToSublist())));
+            list.ToSublist(list.ToSublist().MakeSet()).Clear();
 
             // the set should be sorted and have all unique values
-            Assert.IsTrue(Sublist.IsSorted(list.ToSublist()), "The list was not sorted.");
-            Assert.IsFalse(Sublist.FindDuplicates(list.ToSublist()), "The list had duplicates.");
+            Assert.IsTrue(list.ToSublist().IsSorted(), "The list was not sorted.");
+            Assert.IsFalse(list.ToSublist().FindDuplicates(), "The list had duplicates.");
         }
 
         #endregion
@@ -44,7 +44,7 @@ namespace NDex.Tests
         public void TestMakeSet_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.MakeSet(list);
+            list.MakeSet();
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.MakeSet(list, comparer);
+            list.MakeSet(comparer);
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.MakeSet(list, comparison);
+            list.MakeSet(comparison);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.MakeSet(list, comparer);
+            list.MakeSet(comparer);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.MakeSet(list, comparison);
+            list.MakeSet(comparison);
         }
 
         #endregion
@@ -104,7 +104,7 @@ namespace NDex.Tests
         public void TestMakeSet_EmptyList_DoesNothing()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.MakeSet(list);
+            list.MakeSet();
             Assert.AreEqual(0, list.Count, "Somehow the list grew.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -116,7 +116,7 @@ namespace NDex.Tests
         public void TestMakeSet_ListOfOne_DoesNothing()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            Sublist.MakeSet(list);
+            list.MakeSet();
             Assert.AreEqual(1, list.Count, "Somehow the list grew.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -128,10 +128,10 @@ namespace NDex.Tests
         public void TestMakeSet_RandomizedItems_Sorts()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 5, 3, 2, 4, });
-            int index = Sublist.MakeSet(list, (x, y) => Comparer<int>.Default.Compare(y, x));
+            int index = list.MakeSet((x, y) => Comparer<int>.Default.Compare(y, x));
             Assert.AreEqual(list.Count, index, "The wrong index was returned.");
             int[] expected = { 5, 4, 3, 2, 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The list was not sorted.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The list was not sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -142,13 +142,13 @@ namespace NDex.Tests
         public void TestMakeSet_DuplicateItems_RemovesDuplicates()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 5, 3, 2, 4, 2, 1, 5, 4 });
-            int index = Sublist.MakeSet(list, Comparer<int>.Default);
+            int index = list.MakeSet(Comparer<int>.Default);
             Assert.AreEqual(5, index, "The wrong index was returned.");
             var set = list.Nest(0, index);
             var garbage = list.Nest(index);
-            Sublist.Clear(garbage);
+            garbage.Clear();
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), set), "The duplicates were not removed.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(set), "The duplicates were not removed.");
             TestHelper.CheckHeaderAndFooter(set);
         }
     }

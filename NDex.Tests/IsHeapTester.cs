@@ -28,13 +28,13 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // find the first bad value and add the remaining items to the heap
-            var result = Sublist.IsHeap(list.ToSublist());
+            var result = list.ToSublist().IsHeap();
             while (!result.Success)
             {
                 var heap = list.ToSublist(0, result.Index + 1);
-                Sublist.HeapAdd(heap);
-                Assert.IsTrue(Sublist.IsHeap(heap), "After adding an item to the heap, it was no longer valid.");
-                result = Sublist.IsHeap(list.ToSublist()); // bypass already valid items - usually more efficient to simply incrememnt
+                heap.HeapAdd();
+                Assert.IsTrue(heap.IsHeap(), "After adding an item to the heap, it was no longer valid.");
+                result = list.ToSublist().IsHeap(); // bypass already valid items - usually more efficient to simply incrememnt
             }
         }
 
@@ -50,7 +50,7 @@ namespace NDex.Tests
         public void TestIsHeap_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.IsHeap(list);
+            list.IsHeap();
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.IsHeap(list, comparer);
+            list.IsHeap(comparer);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.IsHeap(list, comparison);
+            list.IsHeap(comparison);
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.IsHeap(list, comparer);
+            list.IsHeap(comparer);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.IsHeap(list, comparison);
+            list.IsHeap(comparison);
         }
 
         #endregion
@@ -110,7 +110,7 @@ namespace NDex.Tests
         public void TestIsHeap_EmptyList_ReturnsZero()
         {
             var list = TestHelper.Wrap(new List<int>());
-            var result = Sublist.IsHeap(list);
+            var result = list.IsHeap();
             Assert.IsTrue(result.Success, "An empty list should be a valid heap.");
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -123,7 +123,7 @@ namespace NDex.Tests
         public void TestIsHeap_ListOfOne_ReturnsOne()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            var result = Sublist.IsHeap(list);
+            var result = list.IsHeap();
             Assert.IsTrue(result.Success, "A list with one item should be a valid heap.");
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -136,7 +136,7 @@ namespace NDex.Tests
         public void TestIsHeap_ListOfTwo_BigToSmall_ReturnsCount()
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 1 });
-            var result = Sublist.IsHeap(list, Comparer<int>.Default);
+            var result = list.IsHeap(Comparer<int>.Default);
             Assert.IsTrue(result.Success, "The list should have been a heap.");
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -150,7 +150,7 @@ namespace NDex.Tests
         public void TestIsHeap_InvalidHeap_ReturnsFirstInvalidIndex()
         {
             var list = TestHelper.Wrap(new List<int>() { 10, 8, 9, 6, 7, 5, 10, 4, 3 });
-            var result = Sublist.IsHeap(list, Comparer<int>.Default.Compare);
+            var result = list.IsHeap(Comparer<int>.Default.Compare);
             Assert.IsFalse(result.Success, "The list should not have been a heap.");
             Assert.AreEqual(6, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);

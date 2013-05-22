@@ -21,7 +21,7 @@ namespace NDex.Tests
             List<int> values = new List<int>();
             Sublist.Generate(10, i => i).AddTo(values.ToSublist());
             int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), values.ToSublist()), "The items were not set as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(values.ToSublist()), "The items were not set as expected.");
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace NDex.Tests
             DateTime[] expected = new DateTime[10];
             expected.ToSublist().Select(i => defaultDate).CopyTo(expected.ToSublist()); // replace all with default
 
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), values.ToSublist()), "The items were not set as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(values.ToSublist()), "The items were not set as expected.");
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace NDex.Tests
             Random random = new Random();
             List<int> values = new List<int>();
             Sublist.Generate(10, i => random.Next(1, 10)).AddTo(values.ToSublist()); // fixed length version of Grow!
-            Assert.IsTrue(Sublist.TrueForAll(values.ToSublist(), i => i != 0), "Not all of the values were filled in.");
+            Assert.IsTrue(values.ToSublist().TrueForAll(i => i != 0), "Not all of the values were filled in.");
         }
 
         #endregion
@@ -174,7 +174,7 @@ namespace NDex.Tests
 
             list = Sublist.Generate(numberOfItems, defaultValue).AddTo(list);
             int[] expected = { 4, 4, 4, 4, 4, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not set as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The items were not set as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -191,7 +191,7 @@ namespace NDex.Tests
             int numberOfItems = 5;
             list = Sublist.Generate(numberOfItems, () => new int()).AddTo(list);
             int[] expected = { 0, 0, 0, 0, 0, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not set as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The items were not set as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -205,7 +205,7 @@ namespace NDex.Tests
             int numberOfItems = 4;
             list = Sublist.Generate(numberOfItems, i => i + 1).AddTo(list);
             int[] expected = { 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not set as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The items were not set as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
         }

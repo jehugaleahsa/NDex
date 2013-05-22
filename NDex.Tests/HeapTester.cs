@@ -26,25 +26,25 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // make a heap
-            Sublist.MakeHeap(list.ToSublist());
-            Assert.IsTrue(Sublist.IsHeap(list.ToSublist()), "The list is not a heap."); // confirm we have a heap
+            list.ToSublist().MakeHeap();
+            Assert.IsTrue(list.ToSublist().IsHeap(), "The list is not a heap."); // confirm we have a heap
 
             // let's push a value onto the heap and make it the highest priority
             list.Add(100);
-            Sublist.HeapAdd(list.ToSublist());
+            list.ToSublist().HeapAdd();
             Assert.AreEqual(100, list[0], "The value was not moved to the top of the heap.");
-            Assert.IsTrue(Sublist.IsHeap(list.ToSublist()), "The list is not a heap.");
+            Assert.IsTrue(list.ToSublist().IsHeap(), "The list is not a heap.");
 
             // now let's remove it
-            Sublist.HeapRemove(list.ToSublist());
+            list.ToSublist().HeapRemove();
             Assert.AreEqual(100, list[list.Count - 1], "The value not moved to the bottom of the heap.");
-            Assert.AreEqual(list.Count - 1, Sublist.IsHeap(list.ToSublist()), "Could not find the end of the heap.");
+            Assert.AreEqual(list.Count - 1, list.ToSublist().IsHeap(), "Could not find the end of the heap.");
             list.RemoveAt(list.Count - 1);
-            Assert.IsTrue(Sublist.IsHeap(list.ToSublist()), "The list is not a heap.");
+            Assert.IsTrue(list.ToSublist().IsHeap(), "The list is not a heap.");
 
             // we can sort a heap
-            Sublist.HeapSort(list.ToSublist());
-            Assert.IsTrue(Sublist.IsSorted(list.ToSublist()), "The list was not sorted.");
+            list.ToSublist().HeapSort();
+            Assert.IsTrue(list.ToSublist().IsSorted(), "The list was not sorted.");
         }
 
         #endregion

@@ -36,12 +36,12 @@ namespace NDex.Tests
             var expected = new List<int>(numberOfItems);
             for (int round = 0; round != numberOfItems; ++round)
             {
-                int maxIndex = Sublist.Maximum(list.ToSublist());
+                int maxIndex = list.ToSublist().Maximum();
                 expected.Add(list[maxIndex]);
                 list.RemoveAt(maxIndex);
             }
 
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination.ToSublist()), "The top values weren't grabbed.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination.ToSublist()), "The top values weren't grabbed.");
         }
 
         #endregion
@@ -242,7 +242,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.PartialSort(numberOfItems).AddTo(destination);
             int[] expected = { 1, 5, 7 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -259,7 +259,7 @@ namespace NDex.Tests
             IComparer<int> comparer = Comparer<int>.Default;
             destination = list.PartialSort(numberOfItems, comparer).AddTo(destination);
             int[] expected = { 1, 5, 7 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -276,7 +276,7 @@ namespace NDex.Tests
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
             destination = list.PartialSort(numberOfItems, comparison).AddTo(destination);
             int[] expected = { 12, 8, 7 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

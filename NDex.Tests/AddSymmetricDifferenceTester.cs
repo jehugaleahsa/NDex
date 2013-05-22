@@ -27,8 +27,8 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // make the lists sets
-            Sublist.Clear(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
-            Sublist.Clear(list2.ToSublist(Sublist.MakeSet(list2.ToSublist())));
+            list1.ToSublist(list1.ToSublist().MakeSet()).Clear();
+            list2.ToSublist(list2.ToSublist().MakeSet()).Clear();
 
             // find the unique values
             var difference = new List<int>();
@@ -38,7 +38,7 @@ namespace NDex.Tests
             var intersection = new List<int>();
             list1.ToSublist().Intersect(list2.ToSublist()).AddTo(intersection.ToSublist());
 
-            bool result = Sublist.FindAny(intersection.ToSublist(), difference.ToSublist());
+            bool result = intersection.ToSublist().FindAny(difference.ToSublist());
             Assert.IsFalse(result, "Found items in common in the intersection and symmetric difference.");
         }
 
@@ -201,7 +201,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.SymmetricExcept(list).AddTo(destination);
             int[] expected = { };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -217,7 +217,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.SymmetricExcept(list2).AddTo(destination);
             int[] expected = { 1, 2, 3, 4, 5, 6 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -234,7 +234,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.SymmetricExcept(list2).AddTo(destination);
             int[] expected = { 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -251,7 +251,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.SymmetricExcept(list2).AddTo(destination);
             int[] expected = { 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -269,7 +269,7 @@ namespace NDex.Tests
             IComparer<int> comparer = Comparer<int>.Default;
             destination = list1.SymmetricExcept(list2, comparer).AddTo(destination);
             int[] expected = { 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -287,7 +287,7 @@ namespace NDex.Tests
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
             destination = list1.SymmetricExcept(list2, comparison).AddTo(destination);
             int[] expected = { 1 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

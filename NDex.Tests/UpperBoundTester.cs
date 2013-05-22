@@ -29,7 +29,7 @@ namespace NDex.Tests
             var set = new List<int>();
             foreach (int value in list)
             {
-                int index = Sublist.UpperBound(set.ToSublist(), value);
+                int index = set.ToSublist().UpperBound(value);
                 if (index == 0 || set[index - 1] != value)
                 {
                     set.Insert(index, value);
@@ -37,11 +37,11 @@ namespace NDex.Tests
             }
 
             // check that all items are present, sorted and unique
-            Sublist.QuickSort(list.ToSublist());
-            Assert.IsTrue(Sublist.IsSorted(set.ToSublist()), "The set is not sorted.");
-            bool hasValues = Sublist.IsSubset(list.ToSublist(), set.ToSublist());
+            list.ToSublist().QuickSort();
+            Assert.IsTrue(set.ToSublist().IsSorted(), "The set is not sorted.");
+            bool hasValues = set.ToSublist().IsSubset(list.ToSublist());
             Assert.IsTrue(hasValues, "Not all of the values were copied.");
-            Assert.IsFalse(Sublist.FindDuplicates(set.ToSublist()), "A duplicate was found.");
+            Assert.IsFalse(set.ToSublist().FindDuplicates(), "A duplicate was found.");
         }
 
         #endregion
@@ -57,7 +57,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             int value = 0;
-            Sublist.UpperBound(list, value);
+            list.UpperBound(value);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = null;
             int value = 0;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.UpperBound(list, value, comparer);
+            list.UpperBound(value, comparer);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = null;
             int value = 0;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.UpperBound(list, value, comparison);
+            list.UpperBound(value, comparison);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int value = 0;
             IComparer<int> comparer = null;
-            Sublist.UpperBound(list, value, comparer);
+            list.UpperBound(value, comparer);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int value = 0;
             Func<int, int, int> comparison = null;
-            Sublist.UpperBound(list, value, comparison);
+            list.UpperBound(value, comparison);
         }
 
         #endregion
@@ -122,7 +122,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = 2;
-            int index = Sublist.UpperBound(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            int index = list.UpperBound(value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.AreEqual(2, index, "The value was not found at the expected index.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -135,7 +135,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = 2.5m;
-            int index = Sublist.UpperBound(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            int index = list.UpperBound(value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.AreEqual(2, index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -148,7 +148,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = 1;
-            int index = Sublist.UpperBound(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            int index = list.UpperBound(value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.AreEqual(1, index, "The value was not found at the expected index.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -161,7 +161,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = .5m;
-            int index = Sublist.UpperBound(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            int index = list.UpperBound(value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.AreEqual(0, index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -174,7 +174,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             int value = 3;
-            int index = Sublist.UpperBound(list, value, Comparer<int>.Default);
+            int index = list.UpperBound(value, Comparer<int>.Default);
             Assert.AreEqual(3, index, "The value was not found at the expected index.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -187,7 +187,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             int value = 4;
-            int index = Sublist.UpperBound(list, value, Comparer<int>.Default);
+            int index = list.UpperBound(value, Comparer<int>.Default);
             Assert.AreEqual(3, index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);
         }

@@ -27,7 +27,7 @@ namespace NDex.Tests
             Sublist.Generate(5, i => random.Next(5)).AddTo(list2.ToSublist());
 
             // now find the differences
-            int index = Sublist.Mismatch(list1.ToSublist(), list2.ToSublist());
+            int index = list1.ToSublist().Mismatch(list2.ToSublist());
             Assert.IsTrue(index == list1.Count || !EqualityComparer<int>.Default.Equals(list1[index], list2[index]),
                 "The wrong index was returned.");
         }
@@ -45,7 +45,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.Mismatch(list1, list2);
+            list1.Mismatch(list2);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.Mismatch(list1, list2, comparer);
+            list1.Mismatch(list2, comparer);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.Mismatch(list1, list2, comparison);
+            list1.Mismatch(list2, comparison);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.Mismatch(list1, list2);
+            list1.Mismatch(list2);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.Mismatch(list1, list2, comparer);
+            list1.Mismatch(list2, comparer);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.Mismatch(list1, list2, comparison);
+            list1.Mismatch(list2, comparison);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.Mismatch(list1, list2, comparer);
+            list1.Mismatch(list2, comparer);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.Mismatch(list1, list2, comparison);
+            list1.Mismatch(list2, comparison);
         }
 
         #endregion
@@ -148,7 +148,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>());
             var list2 = TestHelper.Wrap(new List<int>());
-            int index = Sublist.Mismatch(list1, list2);
+            int index = list1.Mismatch(list2);
             Assert.AreEqual(list1.Count, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -162,7 +162,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            int index = Sublist.Mismatch(list1, list2);
+            int index = list1.Mismatch(list2);
             Assert.AreEqual(list1.Count, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -176,7 +176,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            int index = Sublist.Mismatch(list1, list2);
+            int index = list1.Mismatch(list2);
             Assert.AreEqual(list1.Count, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -190,7 +190,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            int index = Sublist.Mismatch(list1, list2);
+            int index = list1.Mismatch(list2);
             Assert.AreEqual(list2.Count, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -204,7 +204,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            int index = Sublist.Mismatch(list1, list2, EqualityComparer<int>.Default);
+            int index = list1.Mismatch(list2, EqualityComparer<int>.Default);
             Assert.AreEqual(0, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -218,7 +218,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 4 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            int index = Sublist.Mismatch(list1, list2, EqualityComparer<int>.Default.Equals);
+            int index = list1.Mismatch(list2, EqualityComparer<int>.Default.Equals);
             Assert.AreEqual(2, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -232,7 +232,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 3, 4 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            int index = Sublist.Mismatch(list1, list2);
+            int index = list1.Mismatch(list2);
             Assert.AreEqual(1, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);

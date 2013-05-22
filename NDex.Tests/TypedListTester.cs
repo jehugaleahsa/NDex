@@ -116,7 +116,7 @@ namespace NDex.Tests
             Assert.AreEqual(4, list.Count, "The count wasn't increased.");
             int[] expected = { 1, 2, 3, 4 };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item wa not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item wa not added as expected.");
         }
 
         #endregion
@@ -215,7 +215,7 @@ namespace NDex.Tests
             int arrayIndex = 0;
             list.CopyTo(array, arrayIndex);
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), array.ToSublist()), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(array.ToSublist()), "The items were not copied as expected.");
         }
 
         /// <summary>
@@ -229,7 +229,7 @@ namespace NDex.Tests
             int arrayIndex = 2;
             list.CopyTo(array, arrayIndex);
             int[] expected = { 0, 0, 1, 2, 3, 4, 5, 0, 0, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), array.ToSublist()), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(array.ToSublist()), "The items were not copied as expected.");
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace NDex.Tests
             list.Insert(3, 4);
             int[] expected = { 1, 2, 3, 4 };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item was not inserted as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not inserted as expected.");
         }
 
         /// <summary>
@@ -354,7 +354,7 @@ namespace NDex.Tests
             list.Insert(0, 0);
             int[] expected = { 0, 1, 2, 3 };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item was not inserted as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not inserted as expected.");
         }
 
         /// <summary>
@@ -367,7 +367,7 @@ namespace NDex.Tests
             list.Insert(2, 3);
             int[] expected = { 1, 2, 3, 4, 5 };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item was not inserted as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not inserted as expected.");
         }
 
         #endregion
@@ -396,7 +396,7 @@ namespace NDex.Tests
             Assert.IsTrue(result, "The value was not found.");
             int[] expected = { 1, 2, };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item was not removed from the list.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not removed from the list.");
         }
 
         /// <summary>
@@ -410,7 +410,7 @@ namespace NDex.Tests
             Assert.IsTrue(result, "The value was not found.");
             int[] expected = { 0, 0, 1 };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item was not removed from the list.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not removed from the list.");
         }
 
         #endregion
@@ -449,7 +449,7 @@ namespace NDex.Tests
             list.RemoveAt(2);
             int[] expected = { 1, 2 };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item was not removed as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not removed as expected.");
         }
 
         /// <summary>
@@ -462,7 +462,7 @@ namespace NDex.Tests
             list.RemoveAt(0);
             int[] expected = { 2, 3 };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item was not removed as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not removed as expected.");
         }
 
         /// <summary>
@@ -475,7 +475,7 @@ namespace NDex.Tests
             list.RemoveAt(2);
             int[] expected = { 1, 2, 4 };
             int[] actual = toTypedArray(list.List);
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual.ToSublist()), "The item was not removed as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not removed as expected.");
         }
 
         #endregion
@@ -495,7 +495,7 @@ namespace NDex.Tests
                 list.Add(item);
             }
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The values were not enumerated.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.ToSublist()), "The values were not enumerated.");
         }
 
         /// <summary>
@@ -511,7 +511,7 @@ namespace NDex.Tests
                 list.Add(item);
             }
             object[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The values were not enumerated.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.ToSublist()), "The values were not enumerated.");
         }
 
         /// <summary>

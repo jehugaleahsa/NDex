@@ -29,11 +29,11 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(49) * 2 + 1).AddTo(odds.ToSublist()); // can't exceed 99
 
             // make sure sets are sorted using the same comparison
-            Sublist.Clear(evens.ToSublist(Sublist.MakeSet(odds.ToSublist())));
-            Sublist.Clear(odds.ToSublist(Sublist.MakeSet(odds.ToSublist())));
+            evens.ToSublist(odds.ToSublist().MakeSet()).Clear();
+            odds.ToSublist(odds.ToSublist().MakeSet()).Clear();
 
             // check that they are disjoint
-            bool result = Sublist.IsDisjoint(evens.ToSublist(), odds.ToSublist());
+            bool result = evens.ToSublist().IsDisjoint(odds.ToSublist());
             Assert.IsTrue(result, "Incorrectly found overlap among even and odd numbers.");
         }
 
@@ -50,7 +50,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.IsDisjoint(list1, list2);
+            list1.IsDisjoint(list2);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.IsDisjoint(list1, list2, comparer);
+            list1.IsDisjoint(list2, comparer);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.IsDisjoint(list1, list2, comparison);
+            list1.IsDisjoint(list2, comparison);
         }
 
         /// <summary>
@@ -88,7 +88,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.IsDisjoint(list1, list2);
+            list1.IsDisjoint(list2);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.IsDisjoint(list1, list2, comparer);
+            list1.IsDisjoint(list2, comparer);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.IsDisjoint(list1, list2, comparison);
+            list1.IsDisjoint(list2, comparison);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.IsDisjoint(list1, list2, comparer);
+            list1.IsDisjoint(list2, comparer);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.IsDisjoint(list1, list2, comparison);
+            list1.IsDisjoint(list2, comparison);
         }
 
         #endregion
@@ -153,7 +153,7 @@ namespace NDex.Tests
         {
             var odds = TestHelper.Wrap(new List<int> { 1, 3, 5, });
             var primes = TestHelper.Wrap(new List<int> { 2, 3, 5 });
-            bool result = Sublist.IsDisjoint(odds, primes, Comparer<int>.Default.Compare);
+            bool result = odds.IsDisjoint(primes, Comparer<int>.Default.Compare);
             Assert.IsFalse(result, "The lists should have shared items.");
             TestHelper.CheckHeaderAndFooter(odds);
             TestHelper.CheckHeaderAndFooter(primes);
@@ -167,7 +167,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int> { });
             var list2 = TestHelper.Wrap(new List<int> { 1, 2, 3 });
-            bool result = Sublist.IsDisjoint(list1, list2, Comparer<int>.Default);
+            bool result = list1.IsDisjoint(list2, Comparer<int>.Default);
             Assert.IsTrue(result, "Items cannot be shared with an empty list.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -181,7 +181,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int> { });
-            bool result = Sublist.IsDisjoint(list1, list2);
+            bool result = list1.IsDisjoint(list2);
             Assert.IsTrue(result, "Items cannot be shared with an empty list.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);

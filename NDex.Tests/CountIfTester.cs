@@ -32,9 +32,9 @@ namespace NDex.Tests
             var list = new List<int>(100);
             list.AddRange(evens);
             list.AddRange(odds);
-            Sublist.RandomShuffle(list.ToSublist(), random);
+            list.ToSublist().RandomShuffle(random);
 
-            int result = Sublist.CountIf(list.ToSublist(), i => i % 2 == 0);
+            int result = list.ToSublist().CountIf(i => i % 2 == 0);
             Assert.AreEqual(50, result, "Counted the wrong number of evens.");
         }
 
@@ -51,7 +51,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
-            Sublist.CountIf(list, predicate);
+            list.CountIf(predicate);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, bool> predicate = null;
-            Sublist.CountIf(list, predicate);
+            list.CountIf(predicate);
         }
 
         #endregion
@@ -76,7 +76,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
             Func<int, bool> predicate = i => i % 2 != 0;
-            int result = Sublist.CountIf(list, predicate);
+            int result = list.CountIf(predicate);
             Assert.AreEqual(list.Count, result, "The count was wrong.");
         }
 
@@ -88,7 +88,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
             Func<int, bool> predicate = i => i % 2 == 0;
-            int result = Sublist.CountIf(list, predicate);
+            int result = list.CountIf(predicate);
             Assert.AreEqual(0, result, "The count was wrong.");
         }
     }

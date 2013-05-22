@@ -25,7 +25,7 @@ namespace NDex.Tests
             Sublist.Generate(10, i => random.Next(10)).AddTo(list.ToSublist());
 
             decimal sum = 0m;
-            Sublist.ForEach(list.ToSublist(), i => sum += i);
+            list.ToSublist().ForEach(i => sum += i);
             decimal average = sum / list.Count;
 
             sum = 0m;
@@ -51,7 +51,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Action<int> action = i => { };
-            Sublist.ForEach(list, action);
+            list.ForEach(action);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Action<int> action = null;
-            Sublist.ForEach(list, action);
+            list.ForEach(action);
         }
 
         #endregion
@@ -83,9 +83,9 @@ namespace NDex.Tests
                     destination.Add(i);
                 }
             };
-            Sublist.ForEach(list, action);
+            list.ForEach(action);
             int[] expected = { 2, 4, 6, 8, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination.ToSublist()), "Not all items were added to the destination.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination.ToSublist()), "Not all items were added to the destination.");
         }
     }
 }

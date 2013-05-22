@@ -47,7 +47,7 @@ namespace NDex.Tests
         public void TestReverse_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.Reverse(list);
+            list.Reverse();
         }
 
         #endregion
@@ -61,7 +61,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             list.Reverse().InPlace();
             int[] expected = { 3, 2, 1, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not reversed as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The items were not reversed as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -74,7 +74,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
             list.Reverse().InPlace();
             int[] expected = { 4, 3, 2, 1, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not reversed as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The items were not reversed as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

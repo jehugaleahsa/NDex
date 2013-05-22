@@ -116,7 +116,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset2, "The second source index is wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were stored in the destination.");
             var expected = TestHelper.Wrap(new List<int>() { 5, 5, });
-            Assert.IsTrue(Sublist.Equals(expected, destination), "The items were not combined correctly.");
+            Assert.IsTrue(expected.IsEqualTo(destination), "The items were not combined correctly.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -136,7 +136,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset2, "The second source index is wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The wrong number of items were stored in the destination.");
             var expected = TestHelper.Wrap(new List<int>() { 5, 5, 0, }); // the third item should remain untouched.
-            Assert.IsTrue(Sublist.Equals(expected, destination), "The items were not combined correctly.");
+            Assert.IsTrue(expected.IsEqualTo(destination), "The items were not combined correctly.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

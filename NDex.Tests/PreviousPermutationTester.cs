@@ -28,10 +28,10 @@ namespace NDex.Tests
             Sublist.Generate(5, i => random.Next(0, 10)).AddTo(list.ToSublist());
 
             // first, we must sort the items to make sure all permutations are enumerated
-            Sublist.BubbleSort(list.ToSublist(), (x, y) => Comparer<int>.Default.Compare(y, x)); // prev. perm. requires reverse order initially
+            list.ToSublist().BubbleSort((x, y) => Comparer<int>.Default.Compare(y, x)); // prev. perm. requires reverse order initially
 
             int permutations = 1;
-            while (Sublist.PreviousPermutation(list.ToSublist()))
+            while (list.ToSublist().PreviousPermutation())
             {
                 ++permutations;
             }
@@ -74,7 +74,7 @@ namespace NDex.Tests
         public void TestPreviousPermutation_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.PreviousPermutation(list);
+            list.PreviousPermutation();
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.PreviousPermutation(list, comparer);
+            list.PreviousPermutation(comparer);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.PreviousPermutation(list, comparison);
+            list.PreviousPermutation(comparison);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.PreviousPermutation(list, comparer);
+            list.PreviousPermutation(comparer);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.PreviousPermutation(list, comparison);
+            list.PreviousPermutation(comparison);
         }
 
         #endregion
@@ -134,7 +134,7 @@ namespace NDex.Tests
         public void TestPreviousPermutation_EmptyList_ReturnsFalse()
         {
             var list = TestHelper.Wrap(new List<int>());
-            bool result = Sublist.PreviousPermutation(list);
+            bool result = list.PreviousPermutation();
             Assert.IsFalse(result, "An empty list should have no permutations.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -146,7 +146,7 @@ namespace NDex.Tests
         public void TestPreviousPermutation_ListOfOne_ReturnsFalse()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            bool result = Sublist.PreviousPermutation(list);
+            bool result = list.PreviousPermutation();
             Assert.IsFalse(result, "A list with one item should have no permutations.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -158,7 +158,7 @@ namespace NDex.Tests
         public void TestPreviousPermutation_AllSameValue_ReturnsFalse()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, });
-            bool result = Sublist.PreviousPermutation(list, Comparer<int>.Default);
+            bool result = list.PreviousPermutation(Comparer<int>.Default);
             Assert.IsFalse(result, "A list with one item should have no permutations.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -171,9 +171,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 4, 3, 2, 1 }); // initially sorted
             List<int[]> permutations = new List<int[]>() { list.ToArray() };
-            while (Sublist.PreviousPermutation(list, Comparer<int>.Default.Compare))
+            while (list.PreviousPermutation(Comparer<int>.Default.Compare))
             {
-                Assert.IsFalse(permutations.Any(item => Sublist.Equals(list, item.ToSublist())), "The same permutation appeared twice.");
+                Assert.IsFalse(permutations.Any(item => list.Equals(item.ToSublist())), "The same permutation appeared twice.");
                 permutations.Add(list.ToArray());
             }
             Assert.AreEqual(120, permutations.Count, "Not all permutations were found.");

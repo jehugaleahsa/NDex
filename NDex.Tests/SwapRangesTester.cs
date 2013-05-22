@@ -49,8 +49,8 @@ namespace NDex.Tests
             }
 
             // now make sure both lists are only evens and odds
-            Assert.IsTrue(Sublist.TrueForAll(list1.ToSublist(), i => i % 2 == 0), "There were odds remaining in the first list.");
-            Assert.IsTrue(Sublist.TrueForAll(list2.ToSublist(), i => i % 2 != 0), "There were evens remaining in the second list.");
+            Assert.IsTrue(list1.ToSublist().TrueForAll(i => i % 2 == 0), "There were odds remaining in the first list.");
+            Assert.IsTrue(list2.ToSublist().TrueForAll(i => i % 2 != 0), "There were evens remaining in the second list.");
         }
 
         #endregion
@@ -66,7 +66,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.SwapWith(list1, list2);
+            list1.SwapWith(list2);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.SwapWith(list1, list2);
+            list1.SwapWith(list2);
         }
 
         #endregion
@@ -91,13 +91,13 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7, });
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8, });
-            int offset = Sublist.SwapWith(list1, list2);
+            int offset = list1.SwapWith(list2);
             Assert.AreEqual(list1.Count, offset, "The wrong first index was returned.");
             Assert.AreEqual(list2.Count, offset, "The wrong second index was returned.");
             int[] expected1 = { 2, 4, 6, 8 };
-            Assert.IsTrue(Sublist.Equals(expected1.ToSublist(), list1), "The first items were not swapped as expected.");
+            Assert.IsTrue(expected1.ToSublist().IsEqualTo(list1), "The first items were not swapped as expected.");
             int[] expected2 = { 1, 3, 5, 7 };
-            Assert.IsTrue(Sublist.Equals(expected2.ToSublist(), list2), "The second items were not swapped as expected.");
+            Assert.IsTrue(expected2.ToSublist().IsEqualTo(list2), "The second items were not swapped as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -110,13 +110,13 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 3, 5, });
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8, });
-            int offset = Sublist.SwapWith(list1, list2);
+            int offset = list1.SwapWith(list2);
             Assert.AreEqual(list1.Count, offset, "The wrong first index was returned.");
             Assert.AreEqual(3, offset, "The wrong second index was returned.");
             int[] expected1 = { 2, 4, 6 };
-            Assert.IsTrue(Sublist.Equals(expected1.ToSublist(), list1), "The first items were not swapped as expected.");
+            Assert.IsTrue(expected1.ToSublist().IsEqualTo(list1), "The first items were not swapped as expected.");
             int[] expected2 = { 1, 3, 5, 8 };
-            Assert.IsTrue(Sublist.Equals(expected2.ToSublist(), list2), "The second items were not swapped as expected.");
+            Assert.IsTrue(expected2.ToSublist().IsEqualTo(list2), "The second items were not swapped as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }
@@ -129,13 +129,13 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7, });
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
-            int offset = Sublist.SwapWith(list1, list2);
+            int offset = list1.SwapWith(list2);
             Assert.AreEqual(3, offset, "The wrong first index was returned.");
             Assert.AreEqual(list2.Count, offset, "The wrong second index was returned.");
             int[] expected1 = { 2, 4, 6, 7 };
-            Assert.IsTrue(Sublist.Equals(expected1.ToSublist(), list1), "The first items were not swapped as expected.");
+            Assert.IsTrue(expected1.ToSublist().IsEqualTo(list1), "The first items were not swapped as expected.");
             int[] expected2 = { 1, 3, 5 };
-            Assert.IsTrue(Sublist.Equals(expected2.ToSublist(), list2), "The second items were not swapped as expected.");
+            Assert.IsTrue(expected2.ToSublist().IsEqualTo(list2), "The second items were not swapped as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
         }

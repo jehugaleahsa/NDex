@@ -32,11 +32,11 @@ namespace NDex.Tests
             Assert.AreEqual(samples.Count, index, "The wrong index was returned.");
 
             // make sure the same value doesn't occur multiple times
-            Sublist.QuickSort(samples.ToSublist());
-            Assert.IsFalse(Sublist.FindDuplicates(samples.ToSublist()), "The same value was picked multiple times.");
+            samples.ToSublist().QuickSort();
+            Assert.IsFalse(samples.ToSublist().FindDuplicates(), "The same value was picked multiple times.");
 
             // make sure the samples are a subset of the original values.
-            bool result = Sublist.IsSubset(list.ToSublist(), samples.ToSublist());
+            bool result = samples.ToSublist().IsSubset(list.ToSublist());
             Assert.IsTrue(result, "Some samples were not in the original list.");
         }
 
@@ -138,9 +138,9 @@ namespace NDex.Tests
             var result = list.RandomSamples(destination.Count, generator).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
-            Sublist.QuickSort(destination); // guarantees order -> actually unnecessary
+            destination.QuickSort(); // guarantees order -> actually unnecessary
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong samples were chosen.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong samples were chosen.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -158,8 +158,8 @@ namespace NDex.Tests
             var result = list.RandomSamples(destination.Count, generator).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
-            Sublist.BubbleSort(destination);
-            Assert.IsTrue(Sublist.IsSubset(list, destination), "Not all of the items in the destination exist in the original list.");
+            destination.BubbleSort();
+            Assert.IsTrue(destination.IsSubset(list), "Not all of the items in the destination exist in the original list.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

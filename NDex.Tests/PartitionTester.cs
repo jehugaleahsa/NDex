@@ -26,8 +26,8 @@ namespace NDex.Tests
 
             // we'll partition the list and make sure evens and odds are separated
             int index = list.ToSublist().Partition(i => i % 2 == 0).InPlace();
-            Assert.IsTrue(Sublist.TrueForAll(list.ToSublist(0, index), i => i % 2 == 0), "Odds were discovered in the front partition.");
-            Assert.IsTrue(Sublist.TrueForAll(list.ToSublist(index), i => i % 2 != 0), "Evens were discovered in the back partition.");
+            Assert.IsTrue(list.ToSublist(0, index).TrueForAll(i => i % 2 == 0), "Odds were discovered in the front partition.");
+            Assert.IsTrue(list.ToSublist(index).TrueForAll(i => i % 2 != 0), "Evens were discovered in the back partition.");
         }
 
         #endregion
@@ -43,7 +43,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
-            Sublist.Partition(list, predicate);
+            list.Partition(predicate);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, bool> predicate = null;
-            Sublist.Partition(list, predicate);
+            list.Partition(predicate);
         }
 
         #endregion
@@ -94,11 +94,11 @@ namespace NDex.Tests
             int index = list.Partition(i => i % 2 == 0).InPlace();
             Assert.AreEqual(4, index, "The wrong index was returned.");
 
-            Assert.IsTrue(Sublist.TrueForAll(list.Nest(0, index), i => i % 2 == 0), "Odds were found in the front partition.");
+            Assert.IsTrue(list.Nest(0, index).TrueForAll(i => i % 2 == 0), "Odds were found in the front partition.");
             var evens = new HashSet<int>() { 2, 4, 6, 8 };
             Assert.IsTrue(evens.SetEquals(list.Nest(0, index)), "Not all evens are accounted for.");
 
-            Assert.IsTrue(Sublist.TrueForAll(list.Nest(index), i => i % 2 != 0), "Evens were found in the back partition.");
+            Assert.IsTrue(list.Nest(index).TrueForAll(i => i % 2 != 0), "Evens were found in the back partition.");
             var odds = new HashSet<int>() { 1, 3, 5, 7 };
             Assert.IsTrue(odds.SetEquals(list.Nest(index)), "Not all odds are accounted for.");
 
@@ -115,11 +115,11 @@ namespace NDex.Tests
             int index = list.Partition(i => i % 2 == 0).InPlace();
             Assert.AreEqual(4, index, "The wrong index was returned.");
 
-            Assert.IsTrue(Sublist.TrueForAll(list.Nest(0, index), i => i % 2 == 0), "Odds were found in the front partition.");
+            Assert.IsTrue(list.Nest(0, index).TrueForAll(i => i % 2 == 0), "Odds were found in the front partition.");
             var evens = new HashSet<int>() { 2, 4, 6, 8 };
             Assert.IsTrue(evens.SetEquals(list.Nest(0, index)), "Not all evens are accounted for.");
 
-            Assert.IsTrue(Sublist.TrueForAll(list.Nest(index), i => i % 2 != 0), "Evens were found in the back partition.");
+            Assert.IsTrue(list.Nest(index).TrueForAll(i => i % 2 != 0), "Evens were found in the back partition.");
             var odds = new HashSet<int>() { 1, 3, 5, 7 };
             Assert.IsTrue(odds.SetEquals(list.Nest(index)), "Not all odds are accounted for.");
 
@@ -136,11 +136,11 @@ namespace NDex.Tests
             int index = list.Partition(i => i % 2 == 0).InPlace();
             Assert.AreEqual(4, index, "The wrong index was returned.");
 
-            Assert.IsTrue(Sublist.TrueForAll(list.Nest(0, index), i => i % 2 == 0), "Odds were found in the front partition.");
+            Assert.IsTrue(list.Nest(0, index).TrueForAll(i => i % 2 == 0), "Odds were found in the front partition.");
             var evens = new HashSet<int>() { 2, 4, 6, 8 };
             Assert.IsTrue(evens.SetEquals(list.Nest(0, index)), "Not all evens are accounted for.");
 
-            Assert.IsTrue(Sublist.TrueForAll(list.Nest(index), i => i % 2 != 0), "Evens were found in the back partition.");
+            Assert.IsTrue(list.Nest(index).TrueForAll(i => i % 2 != 0), "Evens were found in the back partition.");
             var odds = new HashSet<int>() { 1, 3, 5, 7 };
             Assert.IsTrue(odds.SetEquals(list.Nest(index)), "Not all odds are accounted for.");
 

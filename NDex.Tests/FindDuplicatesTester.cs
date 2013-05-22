@@ -26,9 +26,9 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // duplicates must appear next to each other
-            Sublist.QuickSort(list.ToSublist());
+            list.ToSublist().QuickSort();
 
-            var result = Sublist.FindDuplicates(list.ToSublist());
+            var result = list.ToSublist().FindDuplicates();
             if (!result.Exists)
             {
                 Assert.AreEqual(list.Count, list.GroupBy(i => i).Count(), "Duplicates were not detected.");
@@ -37,7 +37,7 @@ namespace NDex.Tests
             {
                 var actual = list.ToSublist(result.Index, 2);
                 int[] expected = new int[2] { list[result.Index], list[result.Index] };
-                Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual), "No duplicates were not found.");
+                Assert.IsTrue(expected.ToSublist().IsEqualTo(actual), "No duplicates were not found.");
             }
         }
 
@@ -53,7 +53,7 @@ namespace NDex.Tests
         public void TestFindDuplicates_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.FindDuplicates(list);
+            list.FindDuplicates();
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.FindDuplicates(list, comparer);
+            list.FindDuplicates(comparer);
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.FindDuplicates(list, comparison);
+            list.FindDuplicates(comparison);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.FindDuplicates(list, comparer);
+            list.FindDuplicates(comparer);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.FindDuplicates(list, comparison);
+            list.FindDuplicates(comparison);
         }
 
         #endregion
@@ -113,7 +113,7 @@ namespace NDex.Tests
         public void TestFindDuplicates_NoDuplicates_ReturnsCount()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, });
-            var result = Sublist.FindDuplicates(list);
+            var result = list.FindDuplicates();
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             Assert.IsFalse(result.Exists, "No duplicates should have been found.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -127,7 +127,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 3, 4, });
 
-            var result = Sublist.FindDuplicates(list);
+            var result = list.FindDuplicates();
             Assert.AreEqual(0, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Exists, "Duplicates should have been found.");
 
@@ -142,7 +142,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 3, });
 
-            var result = Sublist.FindDuplicates(list, EqualityComparer<int>.Default);
+            var result = list.FindDuplicates(EqualityComparer<int>.Default);
             Assert.AreEqual(2, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Exists, "Duplicates should have been found.");
 
@@ -157,7 +157,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, });
 
-            var result = Sublist.FindDuplicates(list, EqualityComparer<int>.Default.Equals);
+            var result = list.FindDuplicates(EqualityComparer<int>.Default.Equals);
             Assert.AreEqual(1, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Exists, "Duplicates should have been found.");
 
@@ -172,7 +172,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, 4, 4, 5 });
 
-            var result = Sublist.FindDuplicates(list, EqualityComparer<int>.Default.Equals);
+            var result = list.FindDuplicates(EqualityComparer<int>.Default.Equals);
             Assert.AreEqual(1, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Exists, "Duplicates should have been found.");
 

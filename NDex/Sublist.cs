@@ -863,7 +863,7 @@ namespace NDex
 
         #endregion
 
-        #region Equals
+        #region IsEqualTo
 
         /// <summary>
         /// Determines whether two lists have all the same items in the same order.
@@ -876,7 +876,7 @@ namespace NDex
         /// <returns>True if the lists contain the same items in the same order; otherwise, false.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static bool Equals<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static bool IsEqualTo<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -904,7 +904,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool Equals<TList1, TList2, T>(
+        public static bool IsEqualTo<TList1, TList2, T>(
             this IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IEqualityComparer<T> comparer)
@@ -940,7 +940,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool Equals<TList1, T1, TList2, T2>(
+        public static bool IsEqualTo<TList1, T1, TList2, T2>(
             this IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, bool> comparison)
@@ -2870,13 +2870,13 @@ namespace NDex
             where TList1 : IList<T1>
             where TList2 : IList<T2>
         {
-            int past = list2.Offset + list2.Count;
+            int past = list1.Offset + list1.Count;
             int index = isSubsetUntil<TList1, T1, TList2, T2>(
-                list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, past,
+                list1.List, list1.Offset, past,
+                list2.List, list2.Offset, list2.Offset + list2.Count,
                 comparison);
             CheckResult result = new CheckResult();
-            result.Index = index - list2.Offset;
+            result.Index = index - list1.Offset;
             result.Success = index == past;
             return result;
         }
@@ -2893,11 +2893,11 @@ namespace NDex
                 int result = comparison(list1[first1], list2[first2]);
                 if (result < 0)
                 {
-                    ++first1;
+                    return first1;
                 }
                 else if (result > 0)
                 {
-                    return first2;
+                    ++first2;
                 }
                 else
                 {
@@ -2905,7 +2905,7 @@ namespace NDex
                     ++first2;
                 }
             }
-            return first2;
+            return first1;
         }
 
         #endregion

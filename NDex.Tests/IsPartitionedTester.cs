@@ -51,7 +51,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
-            Sublist.IsPartitioned(list, predicate);
+            list.IsPartitioned(predicate);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, bool> predicate = null;
-            Sublist.IsPartitioned(list, predicate);
+            list.IsPartitioned(predicate);
         }
 
         #endregion
@@ -76,7 +76,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             Func<int, bool> predicate = i => i % 2 == 0;
-            var result = Sublist.IsPartitioned(list, predicate);
+            var result = list.IsPartitioned(predicate);
             Assert.IsTrue(result.Success, "An empty list should be partitioned.");
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -90,7 +90,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
             Func<int, bool> predicate = i => i % 2 == 0;
-            var result = Sublist.IsPartitioned(list, predicate);
+            var result = list.IsPartitioned(predicate);
             Assert.IsTrue(result.Success, "A list with one item should be partitioned.");
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -105,7 +105,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 1 });
             Func<int, bool> predicate = i => i % 2 == 0; // is it even?
-            var result = Sublist.IsPartitioned(list, predicate);
+            var result = list.IsPartitioned(predicate);
             Assert.IsTrue(result.Success, "The list should have been partitioned.");
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -119,7 +119,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
             Func<int, bool> predicate = i => i % 2 == 0; // is it even?
-            var result = Sublist.IsPartitioned(list, predicate);
+            var result = list.IsPartitioned(predicate);
             Assert.IsTrue(result.Success, "A list with one item should always be partitioned.");
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -134,7 +134,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2 });
             Func<int, bool> predicate = i => i % 2 == 0; // is it even?
-            var result = Sublist.IsPartitioned(list, predicate);
+            var result = list.IsPartitioned(predicate);
             Assert.IsFalse(result.Success, "The list should not have been partitioned.");
             Assert.AreEqual(1, result.Index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);

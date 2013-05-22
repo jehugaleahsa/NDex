@@ -30,14 +30,14 @@ namespace NDex.Tests
             Sublist.Generate(5, () => keys[random.Next(4)]).CopyTo(list2.ToSublist());
 
             // force a find
-            Sublist.AddTo(list2.ToSublist(), list1.ToSublist(random.Next(list1.Count + 1), 0));
+            list2.ToSublist().AddTo(list1.ToSublist(random.Next(list1.Count + 1), 0));
 
-            var result = Sublist.FindSequence(list1.ToSublist(), list2.ToSublist());
+            var result = list1.ToSublist().FindSequence(list2.ToSublist());
             Assert.IsTrue(result.Exists, "The sequence was not found.");
             Assert.IsTrue(list1.Count - result.Index > list2.Length, "The index was too close to the end.");
 
             var actual = list1.ToSublist(result.Index, list2.Length);
-            Assert.IsTrue(Sublist.Equals(list2.ToSublist(), actual), "The index was not pointing to the beginning of a matching sequence.");
+            Assert.IsTrue(list2.ToSublist().IsEqualTo(actual), "The index was not pointing to the beginning of a matching sequence.");
         }
 
         #endregion
@@ -53,7 +53,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.FindSequence(list1, list2);
+            list1.FindSequence(list2);
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.FindSequence(list1, list2, comparer);
+            list1.FindSequence(list2, comparer);
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.FindSequence(list1, list2, comparison);
+            list1.FindSequence(list2, comparison);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.FindSequence(list1, list2);
+            list1.FindSequence(list2);
         }
 
         /// <summary>
@@ -104,7 +104,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.FindSequence(list1, list2, comparer);
+            list1.FindSequence(list2, comparer);
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.FindSequence(list1, list2, comparison);
+            list1.FindSequence(list2, comparison);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.FindSequence(list1, list2, comparer);
+            list1.FindSequence(list2, comparer);
         }
 
         /// <summary>
@@ -143,7 +143,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.FindSequence(list1, list2, comparison);
+            list1.FindSequence(list2, comparison);
         }
 
         #endregion
@@ -158,7 +158,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4 });
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
 
-            var result = Sublist.FindSequence(list1, list2, comparison);
+            var result = list1.FindSequence(list2, comparison);
             Assert.AreEqual(list1.Count, result.Index, "The index was wrong.");
             Assert.IsFalse(result.Exists, "The sequence should not have been found.");
 
@@ -176,7 +176,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4 });
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
 
-            var result = Sublist.FindSequence(list1, list2, comparer);
+            var result = list1.FindSequence(list2, comparer);
             Assert.AreEqual(0, result.Index, "The index was wrong.");
             Assert.IsTrue(result.Exists, "The sequence should have been found.");
 
@@ -194,7 +194,7 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
 
-            var result = Sublist.FindSequence(list1, list2, comparison);
+            var result = list1.FindSequence(list2, comparison);
             Assert.AreEqual(1, result.Index, "The index was wrong.");
             Assert.IsTrue(result.Exists, "The sequence should have been found.");
 
@@ -211,7 +211,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3, 4, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
 
-            var result = Sublist.FindSequence(list1, list2);
+            var result = list1.FindSequence(list2);
             Assert.AreEqual(1, result.Index, "The index was wrong.");
             Assert.IsTrue(result.Exists, "The sequence should have been found.");
 
@@ -227,7 +227,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
 
-            var result = Sublist.FindSequence(list, list);
+            var result = list.FindSequence(list);
             Assert.AreEqual(0, result.Index, "The index was wrong.");
             Assert.IsTrue(result.Exists, "The sequence should have been found.");
 

@@ -22,7 +22,7 @@ namespace NDex.Tests
         public void TestMakeHeap_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.MakeHeap(list);
+            list.MakeHeap();
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.MakeHeap(list, comparer);
+            list.MakeHeap(comparer);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.MakeHeap(list, comparison);
+            list.MakeHeap(comparison);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.MakeHeap(list, comparer);
+            list.MakeHeap(comparer);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.MakeHeap(list, comparison);
+            list.MakeHeap(comparison);
         }
 
         #endregion
@@ -83,9 +83,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
 
-            Sublist.MakeHeap(list);
+            list.MakeHeap();
 
-            Assert.IsTrue(Sublist.IsHeap(list), "An empty list should be a valid heap.");
+            Assert.IsTrue(list.IsHeap(), "An empty list should be a valid heap.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -97,9 +97,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
 
-            Sublist.MakeHeap(list);
+            list.MakeHeap();
 
-            Assert.IsTrue(Sublist.IsHeap(list), "An empty list should be a valid heap.");
+            Assert.IsTrue(list.IsHeap(), "An empty list should be a valid heap.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -111,10 +111,10 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2 });
 
-            Sublist.MakeHeap(list);
+            list.MakeHeap();
 
             Assert.AreEqual(2, list[0], "The largest element was not first.");
-            Assert.IsTrue(Sublist.IsHeap(list), "An empty list should be a valid heap.");
+            Assert.IsTrue(list.IsHeap(), "An empty list should be a valid heap.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -128,10 +128,10 @@ namespace NDex.Tests
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
 
             list = Sublist.Generate(100, i => 99 - i).AddTo(list); // largest to smallest
-            Sublist.MakeHeap(list, comparison); // smallest to largest
+            list.MakeHeap(comparison); // smallest to largest
 
             Assert.AreEqual(0, list[0], "The largest element was not first.");
-            Assert.IsTrue(Sublist.IsHeap(list, comparison), "An empty list should be a valid heap.");
+            Assert.IsTrue(list.IsHeap(comparison), "An empty list should be a valid heap.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -144,10 +144,10 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
 
             list = Sublist.Generate(99, i => i).AddTo(list);
-            Sublist.MakeHeap(list, Comparer<int>.Default);
+            list.MakeHeap(Comparer<int>.Default);
 
             Assert.AreEqual(98, list[0], "The largest element was not first.");
-            Assert.IsTrue(Sublist.IsHeap(list, Comparer<int>.Default), "An empty list should be a valid heap.");
+            Assert.IsTrue(list.IsHeap(Comparer<int>.Default), "An empty list should be a valid heap.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

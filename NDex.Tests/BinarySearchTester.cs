@@ -28,7 +28,7 @@ namespace NDex.Tests
             var set = new List<int>();
             foreach (int value in values)
             {
-                SearchResult result = Sublist.BinarySearch(set.ToSublist(), value);
+                SearchResult result = set.ToSublist().BinarySearch(value);
                 if (!result.Exists)
                 {
                     set.Insert(result.Index, value);
@@ -36,11 +36,11 @@ namespace NDex.Tests
             }
 
             // check that we have every value only once
-            Sublist.QuickSort(values.ToSublist());
-            Assert.IsTrue(Sublist.IsSorted(set.ToSublist()), "The set is not sorted.");
-            bool hasValues = Sublist.IsSubset(values.ToSublist(), set.ToSublist());
+            values.ToSublist().QuickSort();
+            Assert.IsTrue(set.ToSublist().IsSorted(), "The set is not sorted.");
+            bool hasValues = set.ToSublist().IsSubset(values.ToSublist());
             Assert.IsTrue(hasValues, "Not all of the values were copied.");
-            Assert.IsFalse(Sublist.FindDuplicates(set.ToSublist()), "A duplicate was found.");
+            Assert.IsFalse(set.ToSublist().FindDuplicates(), "A duplicate was found.");
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             int value = 0;
-            Sublist.BinarySearch(list, value);
+            list.BinarySearch(value);
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = null;
             int value = 0;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.BinarySearch(list, value, comparer);
+            list.BinarySearch(value, comparer);
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = null;
             int value = 0;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.BinarySearch(list, value, comparison);
+            list.BinarySearch(value, comparison);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int value = 0;
             IComparer<int> comparer = null;
-            Sublist.BinarySearch(list, value, comparer);
+            list.BinarySearch(value, comparer);
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int value = 0;
             Func<int, int, int> comparison = null;
-            Sublist.BinarySearch(list, value, comparison);
+            list.BinarySearch(value, comparison);
         }
 
         #endregion
@@ -121,7 +121,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = 2;
-            int index = Sublist.BinarySearch(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            int index = list.BinarySearch(value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.AreEqual(1, index, "The value was not found at the expected index.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -134,7 +134,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = 2.5m;
-            SearchResult result = Sublist.BinarySearch(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            SearchResult result = list.BinarySearch(value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.IsFalse(result.Exists, "The value should not have been found.");
             Assert.AreEqual(2, result.Index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -148,7 +148,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = 1;
-            int index = Sublist.BinarySearch(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            int index = list.BinarySearch(value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.AreEqual(0, index, "The value was not found at the expected index.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -161,7 +161,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             decimal value = .5m;
-            SearchResult result = Sublist.BinarySearch(list, value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
+            SearchResult result = list.BinarySearch(value, (i, d) => Comparer<decimal>.Default.Compare(i, d));
             Assert.IsFalse(result.Exists, "The found should not have been found.");
             Assert.AreEqual(0, result.Index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -175,7 +175,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             int value = 3;
-            int index = Sublist.BinarySearch(list, value, Comparer<int>.Default);
+            int index = list.BinarySearch(value, Comparer<int>.Default);
             Assert.AreEqual(2, index, "The value was not found at the expected index.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -188,7 +188,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int> { 1, 2, 3 });
             int value = 4;
-            SearchResult result = Sublist.BinarySearch(list, value, Comparer<int>.Default);
+            SearchResult result = list.BinarySearch(value, Comparer<int>.Default);
             Assert.IsFalse(result.Exists, "The value should not have been found.");
             Assert.AreEqual(3, result.Index, "The value was found or expected at the wrong index.");
             TestHelper.CheckHeaderAndFooter(list);

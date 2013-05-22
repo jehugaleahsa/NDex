@@ -37,12 +37,12 @@ namespace NDex.Tests
             var expected = new List<int>(numberOfItems);
             for (int round = 0; round != numberOfItems; ++round)
             {
-                int maxIndex = Sublist.Maximum(list.ToSublist());
+                int maxIndex = list.ToSublist().Maximum();
                 expected.Add(list[maxIndex]);
                 list.RemoveAt(maxIndex);
             }
 
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination.ToSublist()), "The top values weren't grabbed.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination.ToSublist()), "The top values weren't grabbed.");
         }
 
         #endregion
@@ -170,7 +170,7 @@ namespace NDex.Tests
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong destination index was returned.");
             int[] expected = { 1, 5, 7 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -187,7 +187,7 @@ namespace NDex.Tests
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(5, result.DestinationOffset, "The wrong destination index was returned.");
             int[] expected = { 1, 5, 7, 8, 12, 0 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

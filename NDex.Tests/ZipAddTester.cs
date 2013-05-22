@@ -111,7 +111,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.Zip(list2, (i, j) => i + j).AddTo(destination);
             int[] expected = { 5, 5, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not combined correctly.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not combined correctly.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

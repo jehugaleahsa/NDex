@@ -22,7 +22,7 @@ namespace NDex.Tests
         public void TestHeapRemove_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.HeapRemove(list);
+            list.HeapRemove();
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.HeapRemove(list, comparer);
+            list.HeapRemove(comparer);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.HeapRemove(list, comparison);
+            list.HeapRemove(comparison);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.HeapRemove(list, comparer);
+            list.HeapRemove(comparer);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.HeapRemove(list, comparison);
+            list.HeapRemove(comparison);
         }
 
         #endregion
@@ -83,7 +83,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
 
-            Sublist.HeapRemove(list);
+            list.HeapRemove();
 
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -95,7 +95,7 @@ namespace NDex.Tests
         public void TestHeap_OneItem_DoesNothing()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            Sublist.HeapRemove(list);
+            list.HeapRemove();
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -107,9 +107,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 10, 5 });
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.HeapRemove(list, comparer);
+            list.HeapRemove(comparer);
             int[] expected = { 5, 10 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The top item was not moved to the end.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The top item was not moved to the end.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -122,8 +122,8 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => i + 1).AddTo(list); // 1..100
 
-            Sublist.MakeHeap(list);
-            Sublist.HeapRemove(list);
+            list.MakeHeap();
+            list.HeapRemove();
 
             Assert.AreEqual(100, list[list.Count - 1], "The top item was not moved to the end.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -138,8 +138,8 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(99, i => i + 1).AddTo(list); // 1..99
 
-            Sublist.MakeHeap(list);
-            Sublist.HeapRemove(list);
+            list.MakeHeap();
+            list.HeapRemove();
 
             Assert.AreEqual(99, list[list.Count - 1], "The top item was not moved to the end.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -155,8 +155,8 @@ namespace NDex.Tests
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
             list = Sublist.Generate(64, i => i + 1).AddTo(list); // 1..64
 
-            Sublist.MakeHeap(list, comparison);
-            Sublist.HeapRemove(list, comparison);
+            list.MakeHeap(comparison);
+            list.HeapRemove(comparison);
 
             Assert.AreEqual(1, list[list.Count - 1], "The top item was not moved to the end.");
             TestHelper.CheckHeaderAndFooter(list);

@@ -21,10 +21,10 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3 };
             var array = new int[3];
-            int result = Sublist.CopyTo(list.ToSublist(), array.ToSublist());
+            int result = list.ToSublist().CopyTo(array.ToSublist());
             Assert.AreEqual(array.Length, result, "The result was not at the expected index.");
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), array.ToSublist()), "The items were not copied correctly.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(array.ToSublist()), "The items were not copied correctly.");
         }
 
         #endregion
@@ -40,7 +40,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyTo(list, destination);
+            list.CopyTo(destination);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace NDex.Tests
         {
             IEnumerable<int> source = null;
             Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyTo(source, destination);
+            source.CopyTo(destination);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.CopyTo(list, destination);
+            list.CopyTo(destination);
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace NDex.Tests
         {
             IEnumerable<int> source = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.CopyTo(source, destination);
+            source.CopyTo(destination);
         }
 
         #endregion
@@ -90,11 +90,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 0, 1, 2, 3 });
             var from = list.Nest(1, 3);
             var to = list.Nest(0, 3);
-            var result = Sublist.CopyTo(from, to);
+            var result = from.CopyTo(to);
             Assert.AreEqual(3, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(3, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, 3, 3, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -106,11 +106,11 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, });
-            var result = Sublist.CopyTo(list, destination);
+            var result = list.CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -123,11 +123,11 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
-            var result = Sublist.CopyTo(list, destination);
+            var result = list.CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(2, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, 0 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -141,10 +141,10 @@ namespace NDex.Tests
         {
             IEnumerable<int> source = new List<int>() { 1, 2, 3 };
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
-            int index = Sublist.CopyTo(source, destination);
+            int index = source.CopyTo(destination);
             Assert.AreEqual(destination.Count, index, "The wrong index was returned.");
             var expected = new int[] { 1, 2, 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(destination);
         }
 
@@ -156,10 +156,10 @@ namespace NDex.Tests
         {
             IEnumerable<int> source = new List<int>() { 1, 2, 3, 4, 5, 6 };
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
-            int index = Sublist.CopyTo(source, destination);
+            int index = source.CopyTo(destination);
             Assert.AreEqual(destination.Count, index, "The wrong index was returned.");
             var expected = new int[] { 1, 2, 3 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(destination);
         }
 
@@ -172,10 +172,10 @@ namespace NDex.Tests
         {
             IEnumerable<int> source = new List<int>() { 1, 2, 3 };
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
-            int index = Sublist.CopyTo(source, destination);
+            int index = source.CopyTo(destination);
             Assert.AreEqual(3, index, "The wrong index was returned.");
             var expected = new int[] { 1, 2, 3, 0, 0, 0 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(destination);
         }
     }

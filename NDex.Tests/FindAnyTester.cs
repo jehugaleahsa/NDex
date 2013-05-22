@@ -29,11 +29,11 @@ namespace NDex.Tests
             char[] exclusions = { '<', '>', '[', ']', '{', '}', '(', ')' };
 
             // see if the password contains an invalid character
-            var result = Sublist.FindAny(password.ToSublist(), exclusions.ToSublist());
+            var result = password.ToSublist().FindAny(exclusions.ToSublist());
             Assert.IsTrue(result.Exists, "No special characters were found.");
 
             char actual = password[result.Index];
-            Assert.IsTrue(Sublist.Find(exclusions.ToSublist(), actual), "The character found was not in the exclusions list.");
+            Assert.IsTrue(exclusions.ToSublist().Find(actual), "The character found was not in the exclusions list.");
         }
 
         #endregion
@@ -49,7 +49,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.FindAny(list1, list2);
+            list1.FindAny(list2);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.FindAny(list1, list2, comparer);
+            list1.FindAny(list2, comparer);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.FindAny(list1, list2, comparison);
+            list1.FindAny(list2, comparison);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.FindAny(list1, list2);
+            list1.FindAny(list2);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.FindAny(list1, list2, comparer);
+            list1.FindAny(list2, comparer);
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.FindAny(list1, list2, comparison);
+            list1.FindAny(list2, comparison);
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.FindAny(list1, list2, comparer);
+            list1.FindAny(list2, comparer);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.FindAny(list1, list2, comparison);
+            list1.FindAny(list2, comparison);
         }
 
         #endregion
@@ -152,7 +152,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>());
-            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default.Equals);
+            var result = list1.FindAny(list2, EqualityComparer<int>.Default.Equals);
             Assert.AreEqual(list1.Count, result.Index, "The wrong index was returned.");
             Assert.IsFalse(result.Exists, "Nothing should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -167,7 +167,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 1 });
-            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default);
+            var result = list1.FindAny(list2, EqualityComparer<int>.Default);
             Assert.AreEqual(0, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Exists, "A value should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -182,7 +182,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 1 });
-            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default.Equals);
+            var result = list1.FindAny(list2, EqualityComparer<int>.Default.Equals);
             Assert.AreEqual(0, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Exists, "A value should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -197,7 +197,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 3 });
-            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default.Equals);
+            var result = list1.FindAny(list2, EqualityComparer<int>.Default.Equals);
             Assert.AreEqual(2, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Exists, "A value should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -212,7 +212,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 3 });
-            var result = Sublist.FindAny(list1, list2, EqualityComparer<int>.Default.Equals);
+            var result = list1.FindAny(list2, EqualityComparer<int>.Default.Equals);
             Assert.AreEqual(2, result.Index, "The wrong index was returned.");
             Assert.IsTrue(result.Exists, "A value should have been found.");
             TestHelper.CheckHeaderAndFooter(list1);

@@ -30,11 +30,11 @@ namespace NDex.Tests
             list.ToSublist().RandomSamples(numberOfSamples, random).AddTo(samples.ToSublist());
 
             // make sure the same value doesn't occur multiple times
-            Sublist.QuickSort(samples.ToSublist());
-            Assert.IsFalse(Sublist.FindDuplicates(samples.ToSublist()), "The same value was picked multiple times.");
+            samples.ToSublist().QuickSort();
+            Assert.IsFalse(samples.ToSublist().FindDuplicates(), "The same value was picked multiple times.");
 
             // make sure the samples are a subset of the original values.
-            bool result = Sublist.IsSubset(list.ToSublist(), samples.ToSublist());
+            bool result = samples.ToSublist().IsSubset(list.ToSublist());
             Assert.IsTrue(result, "Some samples were not in the original list.");
         }
 
@@ -188,9 +188,9 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             Func<int> generator = () => 0;
             destination = list.RandomSamples(numberOfSamples, generator).AddTo(destination);
-            Sublist.QuickSort(destination); // guarantees order -> actually unnecessary
+            destination.QuickSort(); // guarantees order -> actually unnecessary
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong samples were chosen.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong samples were chosen.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -207,8 +207,8 @@ namespace NDex.Tests
             Random random = new Random();
             Func<int> generator = () => random.Next(-5, 6);
             destination = list.RandomSamples(numberOfSamples, generator).AddTo(destination);
-            Sublist.BubbleSort(destination);
-            Assert.IsTrue(Sublist.IsSubset(list, destination), "Not all of the items in the destination exist in the original list.");
+            destination.BubbleSort();
+            Assert.IsTrue(destination.IsSubset(list), "Not all of the items in the destination exist in the original list.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

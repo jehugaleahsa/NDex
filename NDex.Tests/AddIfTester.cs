@@ -25,7 +25,7 @@ namespace NDex.Tests
             list.ToSublist().Where(item => item % 2 == 0).AddTo(destination.ToSublist());
 
             int[] expected = { 2, 4, 6 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination.ToSublist()), "The items were not where they were expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination.ToSublist()), "The items were not where they were expected.");
         }
 
         #endregion
@@ -82,7 +82,7 @@ namespace NDex.Tests
             Func<int, bool> predicate = i => i % 2 == 0; // always true
             destination = list.Where(predicate).AddTo(destination);
             int[] expected = { 2 };
-            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
