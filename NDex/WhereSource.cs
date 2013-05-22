@@ -46,7 +46,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static InplaceWhereSource<TSourceList, TSource> Where<TSourceList, TSource>(
+        public static InPlaceWhereSource<TSourceList, TSource> Where<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             Func<TSource, bool> predicate)
             where TSourceList : IList<TSource>
@@ -59,7 +59,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("predicate");
             }
-            return new InplaceWhereSource<TSourceList, TSource>(source, predicate);
+            return new InPlaceWhereSource<TSourceList, TSource>(source, predicate);
         }
     }
 
@@ -216,10 +216,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public sealed class InplaceWhereSource<TSourceList, TSource> : WhereSource<TSourceList, TSource>
+    public sealed class InPlaceWhereSource<TSourceList, TSource> : WhereSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InplaceWhereSource(IMutableSublist<TSourceList, TSource> source, Func<TSource, bool> predicate)
+        internal InPlaceWhereSource(IMutableSublist<TSourceList, TSource> source, Func<TSource, bool> predicate)
             : base(source, predicate)
         {
         }

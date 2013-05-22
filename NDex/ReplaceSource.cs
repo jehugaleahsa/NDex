@@ -236,7 +236,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static InplaceReplaceWithConstantSource<TSourceList, TSource> Replace<TSourceList, TSource>(
+        public static InPlaceReplaceWithConstantSource<TSourceList, TSource> Replace<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             Func<TSource, bool> predicate,
             TSource replacement)
@@ -250,7 +250,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("predicate");
             }
-            return new InplaceReplaceWithConstantSource<TSourceList, TSource>(source, predicate, replacement);
+            return new InPlaceReplaceWithConstantSource<TSourceList, TSource>(source, predicate, replacement);
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static InplaceReplaceWithGeneratorSource<TSourceList, TSource> Replace<TSourceList, TSource>(
+        public static InPlaceReplaceWithGeneratorSource<TSourceList, TSource> Replace<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             Func<TSource, bool> predicate,
             Func<TSource, TSource> generator)
@@ -283,7 +283,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("predicate");
             }
-            return new InplaceReplaceWithGeneratorSource<TSourceList, TSource>(source, predicate, generator);
+            return new InPlaceReplaceWithGeneratorSource<TSourceList, TSource>(source, predicate, generator);
         }
 
         /// <summary>
@@ -848,10 +848,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public sealed class InplaceReplaceWithConstantSource<TSourceList, TSource> : ReplaceWithConstantSource<TSourceList, TSource>
+    public sealed class InPlaceReplaceWithConstantSource<TSourceList, TSource> : ReplaceWithConstantSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InplaceReplaceWithConstantSource(
+        internal InPlaceReplaceWithConstantSource(
             IMutableSublist<TSourceList, TSource> source,
             Func<TSource, bool> predicate,
             TSource replacement)
@@ -885,10 +885,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public sealed class InplaceReplaceWithGeneratorSource<TSourceList, TSource> : ReplaceWithGeneratorSource<TSourceList, TSource>
+    public sealed class InPlaceReplaceWithGeneratorSource<TSourceList, TSource> : ReplaceWithGeneratorSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InplaceReplaceWithGeneratorSource(
+        internal InPlaceReplaceWithGeneratorSource(
             IMutableSublist<TSourceList, TSource> source,
             Func<TSource, bool> predicate,
             Func<TSource, TSource> generator)

@@ -117,7 +117,7 @@ namespace NDex
         /// <remarks>
         /// The items in the list will be sorted according to the default ordering of the items.
         /// </remarks>
-        public static InplacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+        public static InPlacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             int numberOfItems)
             where TSourceList : IList<TSource>
@@ -130,7 +130,7 @@ namespace NDex
             {
                 throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
             }
-            return new InplacePartialSortSource<TSourceList, TSource>(source, numberOfItems, Comparer<TSource>.Default.Compare);
+            return new InPlacePartialSortSource<TSourceList, TSource>(source, numberOfItems, Comparer<TSource>.Default.Compare);
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
-        public static InplacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+        public static InPlacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             int numberOfItems,
             IComparer<TSource> comparer)
@@ -162,7 +162,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            return new InplacePartialSortSource<TSourceList, TSource>(source, numberOfItems, comparer.Compare);
+            return new InPlacePartialSortSource<TSourceList, TSource>(source, numberOfItems, comparer.Compare);
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
-        public static InplacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+        public static InPlacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             int numberOfItems,
             Func<TSource, TSource, int> comparison)
@@ -194,7 +194,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            return new InplacePartialSortSource<TSourceList, TSource>(source, numberOfItems, comparison);
+            return new InPlacePartialSortSource<TSourceList, TSource>(source, numberOfItems, comparison);
         }
     }
 
@@ -361,10 +361,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public sealed class InplacePartialSortSource<TSourceList, TSource> : PartialSortSource<TSourceList, TSource>
+    public sealed class InPlacePartialSortSource<TSourceList, TSource> : PartialSortSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InplacePartialSortSource(
+        internal InPlacePartialSortSource(
             IMutableSublist<TSourceList, TSource> source,
             int numberOfItems,
             Func<TSource, TSource, int> comparison)

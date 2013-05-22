@@ -46,7 +46,7 @@ namespace NDex
         /// <param name="predicate">The condition an item must satisfy to be added to the first destination list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static InplacePartitionSource<TSourceList, TSource> Partition<TSourceList, TSource>(
+        public static InPlacePartitionSource<TSourceList, TSource> Partition<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             Func<TSource, bool> predicate)
             where TSourceList : IList<TSource>
@@ -59,7 +59,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("predicate");
             }
-            return new InplacePartitionSource<TSourceList, TSource>(source, predicate);
+            return new InPlacePartitionSource<TSourceList, TSource>(source, predicate);
         }
     }
 
@@ -308,10 +308,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the underlying list of the source.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public sealed class InplacePartitionSource<TSourceList, TSource> : PartitionSource<TSourceList, TSource>
+    public sealed class InPlacePartitionSource<TSourceList, TSource> : PartitionSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InplacePartitionSource(
+        internal InPlacePartitionSource(
             IReadOnlySublist<TSourceList, TSource> source,
             Func<TSource, bool> predicate)
             : base(source, predicate)

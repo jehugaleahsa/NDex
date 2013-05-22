@@ -37,7 +37,7 @@ namespace NDex
         /// <param name="source">The list whose items are to be added in reverse.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static InplaceReverseSource<TSourceList, TSource> Reverse<TSourceList, TSource>(
+        public static InPlaceReverseSource<TSourceList, TSource> Reverse<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source)
             where TSourceList : IList<TSource>
         {
@@ -45,7 +45,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("source");
             }
-            return new InplaceReverseSource<TSourceList, TSource>(source);
+            return new InPlaceReverseSource<TSourceList, TSource>(source);
         }
     }
 
@@ -165,10 +165,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public sealed class InplaceReverseSource<TSourceList, TSource> : ReverseSource<TSourceList, TSource>
+    public sealed class InPlaceReverseSource<TSourceList, TSource> : ReverseSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InplaceReverseSource(IMutableSublist<TSourceList, TSource> source)
+        internal InPlaceReverseSource(IMutableSublist<TSourceList, TSource> source)
             : base(source)
         {
         }

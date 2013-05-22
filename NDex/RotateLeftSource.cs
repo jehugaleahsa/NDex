@@ -48,7 +48,7 @@ namespace NDex
         /// If the shift is negative, the algoritm simulates rotating the items to the right. If the shift is larger than the number of items, 
         /// the algorithm will simulate a complete rotation as many times as necessary.
         /// </remarks>
-        public static InplaceRotateLeftSource<TSourceList, TSource> RotateLeft<TSourceList, TSource>(
+        public static InPlaceRotateLeftSource<TSourceList, TSource> RotateLeft<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             int shift)
             where TSourceList : IList<TSource>
@@ -57,7 +57,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("source");
             }
-            return new InplaceRotateLeftSource<TSourceList, TSource>(source, shift);
+            return new InPlaceRotateLeftSource<TSourceList, TSource>(source, shift);
         }
     }
 
@@ -229,10 +229,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public class InplaceRotateLeftSource<TSourceList, TSource> : RotateLeftSource<TSourceList, TSource>
+    public class InPlaceRotateLeftSource<TSourceList, TSource> : RotateLeftSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InplaceRotateLeftSource(IMutableSublist<TSourceList, TSource> source, int shift)
+        internal InPlaceRotateLeftSource(IMutableSublist<TSourceList, TSource> source, int shift)
             : base(source, shift)
         {
         }

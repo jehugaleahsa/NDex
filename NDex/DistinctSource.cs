@@ -91,7 +91,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>The items in the list must be sorted according to the default ordering of the items.</remarks>
-        public static InplaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+        public static InPlaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source)
             where TSourceList : IList<TSource>
         {
@@ -99,7 +99,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("source");
             }
-            return new InplaceDistinctSource<TSourceList, TSource>(source, EqualityComparer<TSource>.Default.Equals);
+            return new InPlaceDistinctSource<TSourceList, TSource>(source, EqualityComparer<TSource>.Default.Equals);
         }
 
         /// <summary>
@@ -112,7 +112,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>The list must be sorted.</remarks>
-        public static InplaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+        public static InPlaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             IEqualityComparer<TSource> comparer)
             where TSourceList : IList<TSource>
@@ -125,7 +125,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            return new InplaceDistinctSource<TSourceList, TSource>(source, comparer.Equals);
+            return new InPlaceDistinctSource<TSourceList, TSource>(source, comparer.Equals);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>The list must be sorted.</remarks>
-        public static InplaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+        public static InPlaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
             this IMutableSublist<TSourceList, TSource> source,
             Func<TSource, TSource, bool> comparison)
             where TSourceList : IList<TSource>
@@ -151,7 +151,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            return new InplaceDistinctSource<TSourceList, TSource>(source, comparison);
+            return new InPlaceDistinctSource<TSourceList, TSource>(source, comparison);
         }
     }
 
@@ -316,10 +316,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public sealed class InplaceDistinctSource<TSourceList, TSource> : DistinctSource<TSourceList, TSource>
+    public sealed class InPlaceDistinctSource<TSourceList, TSource> : DistinctSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InplaceDistinctSource(IMutableSublist<TSourceList, TSource> source, Func<TSource, TSource, bool> comparison)
+        internal InPlaceDistinctSource(IMutableSublist<TSourceList, TSource> source, Func<TSource, TSource, bool> comparison)
             : base(source, comparison)
         {
         }
