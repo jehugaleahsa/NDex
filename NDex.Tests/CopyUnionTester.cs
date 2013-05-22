@@ -22,19 +22,19 @@ namespace NDex.Tests
 
             // build two lists
             var list1 = new List<int>(50);
-            Sublist.AddGenerated(list1.ToSublist(), 50, i => random.Next(100));
+            Sublist.Generate(50, i => random.Next(100)).AddTo(list1.ToSublist());
             var list2 = new List<int>(50);
-            Sublist.AddGenerated(list2.ToSublist(), 50, i => random.Next(100));
+            Sublist.Generate(50, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // we must make both lists sets
-            Sublist.RemoveRange(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
-            Sublist.RemoveRange(list2.ToSublist(Sublist.MakeSet(list2.ToSublist())));
+            Sublist.Clear(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
+            Sublist.Clear(list2.ToSublist(Sublist.MakeSet(list2.ToSublist())));
 
             // now we'll build a new set containing all the items
             var destination = new List<int>(100);
-            Sublist.AddGenerated(destination.ToSublist(), 100, 0);
-            int result = Sublist.CopyUnion(list1.ToSublist(), list2.ToSublist(), destination.ToSublist());
-            Sublist.RemoveRange(destination.ToSublist(result));
+            Sublist.Generate(100, 0).AddTo(destination.ToSublist());
+            int result = list1.ToSublist().Union(list2.ToSublist()).CopyTo(destination.ToSublist());
+            Sublist.Clear(destination.ToSublist(result));
 
             // make sure the new set contains both of the original sets
             bool contains1 = Sublist.IsSubset(destination.ToSublist(), list1.ToSublist());
@@ -56,8 +56,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyUnion(list1, list2, destination);
+            list1.Union(list2);
         }
 
         /// <summary>
@@ -69,9 +68,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyUnion(list1, list2, destination, comparer);
+            list1.Union(list2, comparer);
         }
 
         /// <summary>
@@ -83,9 +81,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyUnion(list1, list2, destination, comparison);
+            list1.Union(list2, comparison);
         }
 
         /// <summary>
@@ -97,8 +94,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyUnion(list1, list2, destination);
+            list1.Union(list2);
         }
 
         /// <summary>
@@ -110,9 +106,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyUnion(list1, list2, destination, comparer);
+            list1.Union(list2, comparer);
         }
 
         /// <summary>
@@ -124,9 +119,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyUnion(list1, list2, destination, comparison);
+            list1.Union(list2, comparison);
         }
 
         /// <summary>
@@ -139,7 +133,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.CopyUnion(list1, list2, destination);
+            list1.Union(list2).CopyTo(destination);
         }
 
         /// <summary>
@@ -153,7 +147,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyUnion(list1, list2, destination, comparer);
+            list1.Union(list2, comparer).CopyTo(destination);
         }
 
         /// <summary>
@@ -167,7 +161,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyUnion(list1, list2, destination, comparison);
+            list1.Union(list2, comparison).CopyTo(destination);
         }
 
         /// <summary>
@@ -179,9 +173,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.CopyUnion(list1, list2, destination, comparer);
+            list1.Union(list2, comparer);
         }
 
         /// <summary>
@@ -193,9 +186,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.CopyUnion(list1, list2, destination, comparison);
+            list1.Union(list2, comparison);
         }
 
         #endregion
@@ -210,12 +202,12 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             IComparer<int> comparer = Comparer<int>.Default;
 
-            var result = Sublist.CopyUnion(list, list, destination, comparer);
+            var result = list.Union(list, comparer).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -231,12 +223,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, });
 
-            var result = Sublist.CopyUnion(list1, list2, destination);
+            var result = list1.Union(list2).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 4, 5, 6 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -253,12 +245,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyUnion(list1, list2, destination);
+            var result = list1.Union(list2).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(3, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -275,12 +267,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyUnion(list1, list2, destination);
+            var result = list1.Union(list2).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(3, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -298,12 +290,12 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
 
-            var result = Sublist.CopyUnion(list1, list2, destination, comparison);
+            var result = list1.Union(list2, comparison).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(3, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 3, 2, 1, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -320,12 +312,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
 
-            var result = Sublist.CopyUnion(list1, list2, destination);
+            var result = list1.Union(list2).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(1, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);

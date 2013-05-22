@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build the list
             List<int> list = new List<int>();
-            Sublist.AddGenerated(list.ToSublist(), 50, i => random.Next(50));
+            Sublist.Generate(50, i => random.Next(50)).AddTo(list.ToSublist());
 
             // sort the list
             Sublist.InsertionSort(list.ToSublist());

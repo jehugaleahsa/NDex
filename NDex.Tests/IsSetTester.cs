@@ -23,7 +23,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
+            Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // build a set in place - could call QuickSort then RemoveDuplicates, or MakeSet.
             int index = Sublist.IsSet(list.ToSublist());
@@ -46,7 +46,7 @@ namespace NDex.Tests
                     ++index; // the set grew
                 }
             }
-            Sublist.RemoveRange(list.ToSublist(index)); // removes dangling items
+            Sublist.Clear(list.ToSublist(index)); // removes dangling items
             Assert.IsTrue(Sublist.IsSet(list.ToSublist()), "Did not build a valid set.");
         }
 

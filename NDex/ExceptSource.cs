@@ -21,7 +21,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static Source<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
+        public static ExceptSource<TSourceList1, TSourceList2, TSource> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2)
             where TSourceList1 : IList<TSource>
@@ -51,7 +51,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static Source<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
+        public static ExceptSource<TSourceList1, TSourceList2, TSource> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
             IComparer<TSource> comparer)
@@ -86,7 +86,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
-        public static Source<TSource, ExceptResult> Except<TSourceList1, TSourceList2, TSource>(
+        public static ExceptSource<TSourceList1, TSourceList2, TSource> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
             Func<TSource, TSource, int> comparison)
@@ -167,7 +167,13 @@ namespace NDex
 
     #region ExceptSource
 
-    internal sealed class ExceptSource<TSourceList1, TSourceList2, TSource> : Source<TSource, ExceptResult>
+    /// <summary>
+    /// Provides the information needed to copy or add items to a destination sublist.
+    /// </summary>
+    /// <typeparam name="TSourceList1">The type of the first source's underlying list.</typeparam>
+    /// <typeparam name="TSourceList2">The type of the second source's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+    public sealed class ExceptSource<TSourceList1, TSourceList2, TSource> : Source<TSource, ExceptResult>
         where TSourceList1 : IList<TSource>
         where TSourceList2 : IList<TSource>
     {
@@ -175,7 +181,7 @@ namespace NDex
         private readonly IReadOnlySublist<TSourceList2, TSource> source2;
         private readonly Func<TSource, TSource, int> comparison;
 
-        public ExceptSource(
+        internal ExceptSource(
             IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
             Func<TSource, TSource, int> comparison)
@@ -185,6 +191,12 @@ namespace NDex
             this.comparison = comparison;
         }
 
+        /// <summary>
+        /// Adds the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
             int result = addDifference<TDestinationList>(
@@ -226,6 +238,12 @@ namespace NDex
             return destinationPast + (destination.Count - pivot);
         }
 
+        /// <summary>
+        /// Copies the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>Information about the results of the operation.</returns>
         protected override ExceptResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             Tuple<int, int, int> indexes = copyDifference<TDestinationList>(

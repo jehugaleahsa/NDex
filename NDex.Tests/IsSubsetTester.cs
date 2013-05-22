@@ -22,15 +22,15 @@ namespace NDex.Tests
 
             // build all evens
             var evens = new List<int>();
-            Sublist.AddGenerated(evens.ToSublist(), 200, i => i * 2);
+            Sublist.Generate(200, i => i * 2).AddTo(evens.ToSublist());
 
             // build multiples of four
             var fours = new List<int>();
-            Sublist.AddGenerated(fours.ToSublist(), 100, i => random.Next(100) * 4);
+            Sublist.Generate(100, i => random.Next(100) * 4).AddTo(fours.ToSublist());
             Sublist.QuickSort(fours.ToSublist()); // items must be sorted
-            int garbageIndex = Sublist.RemoveDuplicates(fours.ToSublist());
+            int garbageIndex = fours.ToSublist().Distinct().InPlace();
             var garbage = fours.ToSublist(garbageIndex);
-            Sublist.RemoveRange(garbage); // items must be distinct.
+            Sublist.Clear(garbage); // items must be distinct.
 
             // there shouldn't be a multiple of four that isn't also a multiple of two
             var result = Sublist.IsSubset(evens.ToSublist(), fours.ToSublist());

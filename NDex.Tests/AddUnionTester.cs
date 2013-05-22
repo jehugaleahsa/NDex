@@ -22,17 +22,17 @@ namespace NDex.Tests
 
             // build two lists
             var list1 = new List<int>(50);
-            Sublist.AddGenerated(list1.ToSublist(), 50, i => random.Next(100));
+            Sublist.Generate(50, i => random.Next(100)).AddTo(list1.ToSublist());
             var list2 = new List<int>(50);
-            Sublist.AddGenerated(list2.ToSublist(), 50, i => random.Next(100));
+            Sublist.Generate(50, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // we must make both lists sets
-            Sublist.RemoveRange(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
-            Sublist.RemoveRange(list2.ToSublist(Sublist.MakeSet(list2.ToSublist())));
+            Sublist.Clear(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
+            Sublist.Clear(list2.ToSublist(Sublist.MakeSet(list2.ToSublist())));
 
             // now we'll build a new set containing all the items
             var destination = new List<int>();
-            Sublist.AddUnion(list1.ToSublist(), list2.ToSublist(), destination.ToSublist());
+            list1.ToSublist().Union(list2.ToSublist()).AddTo(destination.ToSublist());
 
             // make sure the new set contains both of the original sets
             bool contains1 = Sublist.IsSubset(destination.ToSublist(), list1.ToSublist());
@@ -54,8 +54,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddUnion(list1, list2, destination);
+            list1.Union(list2);
         }
 
         /// <summary>
@@ -67,9 +66,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddUnion(list1, list2, destination, comparer);
+            list1.Union(list2, comparer);
         }
 
         /// <summary>
@@ -81,9 +79,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddUnion(list1, list2, destination, comparison);
+            list1.Union(list2, comparison);
         }
 
         /// <summary>
@@ -95,8 +92,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddUnion(list1, list2, destination);
+            list1.Union(list2);
         }
 
         /// <summary>
@@ -108,9 +104,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddUnion(list1, list2, destination, comparer);
+            list1.Union(list2, comparer);
         }
 
         /// <summary>
@@ -122,9 +117,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddUnion(list1, list2, destination, comparison);
+            list1.Union(list2, comparison);
         }
 
         /// <summary>
@@ -137,7 +131,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.AddUnion(list1, list2, destination);
+            list1.Union(list2).AddTo(destination);
         }
 
         /// <summary>
@@ -151,7 +145,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddUnion(list1, list2, destination, comparer);
+            list1.Union(list2, comparer).AddTo(destination);
         }
 
         /// <summary>
@@ -165,7 +159,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddUnion(list1, list2, destination, comparison);
+            list1.Union(list2, comparison).AddTo(destination);
         }
 
         /// <summary>
@@ -177,9 +171,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.AddUnion(list1, list2, destination, comparer);
+            list1.Union(list2, comparer);
         }
 
         /// <summary>
@@ -191,9 +184,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.AddUnion(list1, list2, destination, comparison);
+            list1.Union(list2, comparison);
         }
 
         #endregion
@@ -206,9 +198,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnion(list, list, destination);
+            destination = list.Union(list).AddTo(destination);
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -222,9 +214,9 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnion(list1, list2, destination);
+            destination = list1.Union(list2).AddTo(destination);
             int[] expected = { 1, 2, 3, 4, 5, 6 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -239,9 +231,9 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnion(list1, list2, destination);
+            destination = list1.Union(list2).AddTo(destination);
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -256,9 +248,9 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnion(list1, list2, destination);
+            destination = list1.Union(list2).AddTo(destination);
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -274,9 +266,9 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer = Comparer<int>.Default;
-            destination = Sublist.AddUnion(list1, list2, destination, comparer);
+            destination = list1.Union(list2, comparer).AddTo(destination);
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -292,9 +284,9 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 3, 2 });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            destination = Sublist.AddUnion(list1, list2, destination, comparison);
+            destination = list1.Union(list2, comparison).AddTo(destination);
             int[] expected = { 3, 2, 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

@@ -23,7 +23,7 @@ namespace NDex.Tests
             // generate a week starting from today
             DateTime[] week = new DateTime[7];
             DateTime today = DateTime.Today;
-            Sublist.CopyGenerated(week.ToSublist(), days => today.AddDays(days));
+            Sublist.Generate(7, days => today.AddDays(days)).CopyTo(week.ToSublist());
 
             var result = Sublist.Find(week.ToSublist(), DayOfWeek.Wednesday, (date, day) => date.DayOfWeek == day);
             Assert.IsTrue(result.Exists, "A span of seven days should have included a Wednesday, but none was found.");
@@ -42,7 +42,7 @@ namespace NDex.Tests
             // generate a week starting from today
             DateTime[] week = new DateTime[7];
             DateTime today = DateTime.Today;
-            Sublist.CopyGenerated(week.ToSublist(), days => today.AddDays(days));
+            Sublist.Generate(7, days => today.AddDays(days)).CopyTo(week.ToSublist());
 
             var result = Sublist.Find(week.ToSublist(), date => date.DayOfWeek == DayOfWeek.Wednesday);
             Assert.IsTrue(result.Exists, "A span of seven days should have included a Wednesday, but none was found.");

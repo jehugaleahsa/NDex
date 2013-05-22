@@ -22,21 +22,21 @@ namespace NDex.Tests
 
             // build a list of numbers
             var numbers = new List<double>(100);
-            Sublist.AddGenerated(numbers.ToSublist(), 100, i => random.NextDouble() * 100);
+            Sublist.Generate(100, i => random.NextDouble() * 100).AddTo(numbers.ToSublist());
 
             // convert to a list of strings
             var strings = new List<string>(100);
-            Sublist.AddGenerated(strings.ToSublist(), 100, String.Empty);
+            Sublist.Generate(100, String.Empty).AddTo(strings.ToSublist());
             numbers.ToSublist().Select(i => i.ToString()).CopyTo(strings.ToSublist());
 
             // convert back to a list of doubles
             var converted = new List<double>(100);
-            Sublist.AddGenerated(converted.ToSublist(), 100, 0d);
+            Sublist.Generate(100, 0d).AddTo(converted.ToSublist());
             strings.ToSublist().Select(s => Double.Parse(s)).CopyTo(converted.ToSublist());
 
             // check that the numbers are mostly the same
             // numbers will change a little due to precision issues
-            bool result = Sublist.AreEqual(numbers.ToSublist(), converted.ToSublist(), (n, c) => Math.Abs(n - c) < .0001);
+            bool result = Sublist.Equals(numbers.ToSublist(), converted.ToSublist(), (n, c) => Math.Abs(n - c) < .0001);
             Assert.IsTrue(result, "Could not convert between strings and numbers.");
         }
 
@@ -96,7 +96,7 @@ namespace NDex.Tests
             Assert.AreEqual(1, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were converted.");
             var expected = new int[] { 1 }.ToSublist();
-            Assert.IsTrue(Sublist.AreEqual(destination, expected), "The converted values were not stored in the destination.");
+            Assert.IsTrue(Sublist.Equals(destination, expected), "The converted values were not stored in the destination.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -114,7 +114,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The wrong number of items were converted.");
             var expected = new int[] { 1, 2, 0 }.ToSublist();
-            Assert.IsTrue(Sublist.AreEqual(destination, expected), "The converted values were not stored in the destination.");
+            Assert.IsTrue(Sublist.Equals(destination, expected), "The converted values were not stored in the destination.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

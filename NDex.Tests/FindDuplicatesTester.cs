@@ -23,7 +23,7 @@ namespace NDex.Tests
 
             // build a list of random values
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // duplicates must appear next to each other
             Sublist.QuickSort(list.ToSublist());
@@ -37,7 +37,7 @@ namespace NDex.Tests
             {
                 var actual = list.ToSublist(result.Index, 2);
                 int[] expected = new int[2] { list[result.Index], list[result.Index] };
-                Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), actual), "No duplicates were not found.");
+                Assert.IsTrue(Sublist.Equals(expected.ToSublist(), actual), "No duplicates were not found.");
             }
         }
 

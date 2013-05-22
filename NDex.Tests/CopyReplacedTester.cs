@@ -24,12 +24,12 @@ namespace NDex.Tests
 
             // build a list of numbers
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(-49, 50));
+            Sublist.Generate(100, i => random.Next(-49, 50)).AddTo(list.ToSublist());
 
             var destination = new List<int>(100);
-            Sublist.AddGenerated(destination.ToSublist(), 100, 0);
+            Sublist.Generate(100, 0).AddTo(destination.ToSublist());
 
-            int result = Sublist.CopyReplaced(list.ToSublist(), destination.ToSublist(), i => i < 0, i => -i);
+            int result = list.ToSublist().Replace(i => i < 0, i => -i).CopyTo(destination.ToSublist());
             Assert.AreEqual(destination.Count, result, "The wrong index was returned.");
 
             Assert.IsTrue(Sublist.TrueForAll(destination.ToSublist(), i => i >= 0), "Not all values were positive.");
@@ -44,23 +44,23 @@ namespace NDex.Tests
         {
             string source = "This mesage has mispelled wordz.";
             List<char> destination = new List<char>();
-            Sublist.AddGenerated(destination.ToSublist(), source.Length + 2, '\0');
+            Sublist.Generate(source.Length + 2, '\0').AddTo(destination.ToSublist());
             const string mesage = "mesage";
             const string message = "message";
 
-            var result = Sublist.CopyReplaced(source.ToSubstring(), mesage.ToSubstring(), message.ToSubstring(), destination.ToSublist());
+            var result = source.ToSubstring().Replace(mesage.ToSubstring(), message.ToSubstring()).CopyTo(destination.ToSublist());
             source = new String(destination.ToSublist(0, result.DestinationOffset).ToArray());
 
             const string mispelled = "mispelled";
             const string misspelled = "misspelled";
 
-            result = Sublist.CopyReplaced(source.ToSubstring(), mispelled.ToSubstring(), misspelled.ToSubstring(), destination.ToSublist());
+            result = source.ToSubstring().Replace(mispelled.ToSubstring(), misspelled.ToSubstring()).CopyTo(destination.ToSublist());
             source = new String(destination.ToSublist(0, result.DestinationOffset).ToArray());
 
             const string wordz = "wordz";
             const string words = "words";
 
-            result = Sublist.CopyReplaced(source.ToSubstring(), wordz.ToSubstring(), words.ToSubstring(), destination.ToSublist());
+            result = source.ToSubstring().Replace(wordz.ToSubstring(), words.ToSubstring()).CopyTo(destination.ToSublist());
             source = new String(destination.ToSublist(0, result.DestinationOffset).ToArray());
 
             const string expected = "This message has misspelled words.";
@@ -79,10 +79,9 @@ namespace NDex.Tests
         public void TestCopyReplaced_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             int replacement = 0;
             Func<int, bool> predicate = i => true;
-            Sublist.CopyReplaced(list, destination, predicate, replacement);
+            list.Replace(predicate, replacement);
         }
 
         /// <summary>
@@ -93,10 +92,9 @@ namespace NDex.Tests
         public void TestCopyReplaced_WithGenerator_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => true;
-            Sublist.CopyReplaced(list, destination, predicate, generator);
+            list.Replace(predicate, generator);
         }
 
         /// <summary>
@@ -110,7 +108,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> destination = null;
             int replacement = 0;
             Func<int, bool> predicate = i => true;
-            Sublist.CopyReplaced(list, destination, predicate, replacement);
+            list.Replace(predicate, replacement).CopyTo(destination);
         }
 
         /// <summary>
@@ -124,7 +122,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> destination = null;
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => true;
-            Sublist.CopyReplaced(list, destination, predicate, generator);
+            list.Replace(predicate, generator).CopyTo(destination);
         }
 
         /// <summary>
@@ -135,10 +133,9 @@ namespace NDex.Tests
         public void TestCopyReplaced_NullPredicate_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             int replacement = 0;
             Func<int, bool> predicate = null;
-            Sublist.CopyReplaced(list, destination, predicate, replacement);
+            list.Replace(predicate, replacement);
         }
 
         /// <summary>
@@ -149,10 +146,9 @@ namespace NDex.Tests
         public void TestCopyReplaced_WithGenerator_NullPredicate_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = null;
-            Sublist.CopyReplaced(list, destination, predicate, generator);
+            list.Replace(predicate, generator);
         }
 
         /// <summary>
@@ -163,10 +159,9 @@ namespace NDex.Tests
         public void TestCopyReplaced_NullGenerator_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int> generator = null;
             Func<int, bool> predicate = i => true;
-            Sublist.CopyReplaced(list, destination, predicate, generator);
+            list.Replace(predicate, generator);
         }
 
         /// <summary>
@@ -179,8 +174,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = null;
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyReplaced(source, sequence, replacement, destination);
+            source.Replace(sequence, replacement);
         }
 
         /// <summary>
@@ -193,8 +187,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = null;
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyReplaced(source, sequence, replacement, destination);
+            source.Replace(sequence, replacement);
         }
 
         /// <summary>
@@ -207,8 +200,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = new List<int>();
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyReplaced(source, sequence, replacement, destination);
+            source.Replace(sequence, replacement);
         }
 
         /// <summary>
@@ -221,8 +213,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyReplaced(source, sequence, replacement, destination);
+            source.Replace(sequence, replacement);
         }
 
         /// <summary>
@@ -236,7 +227,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.CopyReplaced(source, sequence, replacement, destination);
+            source.Replace(sequence, replacement).CopyTo(destination);
         }
 
         /// <summary>
@@ -249,9 +240,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = null;
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparer);
+            source.Replace(sequence, replacement, comparer);
         }
 
         /// <summary>
@@ -264,9 +254,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = null;
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparer);
+            source.Replace(sequence, replacement, comparer);
         }
 
         /// <summary>
@@ -279,9 +268,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = new List<int>();
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparer);
+            source.Replace(sequence, replacement, comparer);
         }
 
         /// <summary>
@@ -294,9 +282,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparer);
+            source.Replace(sequence, replacement, comparer);
         }
 
         /// <summary>
@@ -311,7 +298,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> replacement = new List<int>();
             Sublist<List<int>, int> destination = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparer);
+            source.Replace(sequence, replacement, comparer).CopyTo(destination);
         }
 
         /// <summary>
@@ -324,9 +311,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparer);
+            source.Replace(sequence, replacement, comparer);
         }
 
         /// <summary>
@@ -339,9 +325,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = null;
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparison);
+            source.Replace(sequence, replacement, comparison);
         }
 
         /// <summary>
@@ -354,9 +339,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = null;
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparison);
+            source.Replace(sequence, replacement, comparison);
         }
 
         /// <summary>
@@ -369,9 +353,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = new List<int>();
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparison);
+            source.Replace(sequence, replacement, comparison);
         }
 
         /// <summary>
@@ -384,9 +367,8 @@ namespace NDex.Tests
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparison);
+            source.Replace(sequence, replacement, comparison);
         }
 
         /// <summary>
@@ -401,7 +383,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> replacement = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparison);
+            source.Replace(sequence, replacement, comparison).CopyTo(destination);
         }
 
         /// <summary>
@@ -409,14 +391,13 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyReplaced_WithComparison_ComparerNull_Throws()
+        public void TestCopyReplaced_WithComparison_ComparisonNull_Throws()
         {
             Sublist<List<int>, int> source = new List<int>();
             Sublist<List<int>, int> sequence = new List<int>() { 1 };
             Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.CopyReplaced(source, sequence, replacement, destination, comparison);
+            source.Replace(sequence, replacement, comparison);
         }
 
         #endregion
@@ -431,11 +412,11 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             int replacement = 0;
             Func<int, bool> predicate = i => false;
-            var result = Sublist.CopyReplaced(list, destination, predicate, replacement);
+            var result = list.Replace(predicate, replacement).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -450,11 +431,11 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => false;
-            var result = Sublist.CopyReplaced(list, destination, predicate, generator);
+            var result = list.Replace(predicate, generator).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -469,11 +450,11 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             int replacement = 0;
             Func<int, bool> predicate = i => false;
-            var result = Sublist.CopyReplaced(list, destination, predicate, replacement);
+            var result = list.Replace(predicate, replacement).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offet was wrong.");
             int[] expected = { 1, 2, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -488,11 +469,11 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => false;
-            var result = Sublist.CopyReplaced(list, destination, predicate, generator);
+            var result = list.Replace(predicate, generator).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -507,11 +488,11 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             int replacement = 3;
             Func<int, bool> predicate = i => i % 2 == 0;
-            var result = Sublist.CopyReplaced(list, destination, predicate, replacement);
+            var result = list.Replace(predicate, replacement).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 3, 3, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -526,11 +507,11 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             Func<int, int> generator = i => i + 1; // make odd by adding one
             Func<int, bool> predicate = i => i % 2 == 0;
-            var result = Sublist.CopyReplaced(list, destination, predicate, generator);
+            var result = list.Replace(predicate, generator).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 3, 3, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -547,12 +528,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(0, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 0, 0, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -571,12 +552,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 4, 5, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -595,12 +576,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 2, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -619,12 +600,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 5, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -643,12 +624,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 4, 4, 5, 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -667,12 +648,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 9, 9, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -691,12 +672,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(4, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 9, 9, 4, 5, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -715,12 +696,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(4, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 2, 9, 9, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -739,12 +720,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(4, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 9, 9, 5, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -763,12 +744,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 9, 9, 5, 9, 9, 5, 2, 3, 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -787,11 +768,11 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
-            Assert.IsTrue(Sublist.AreEqual(replacement, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(replacement, destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -810,12 +791,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 9, 9, 9, 9, 4, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -834,12 +815,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 2, 9, 9, 9, 9 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -858,12 +839,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 9, 9, 9, 9, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -882,12 +863,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 9, 9, 9, 4, 9, 9, 9, 4, 5, 9, 9, 9, 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(replacement);
@@ -905,11 +886,11 @@ namespace NDex.Tests
             var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, sequence, destination);
+            var result = source.Replace(sequence, sequence).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
-            Assert.IsTrue(Sublist.AreEqual(sequence, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(sequence, destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -926,11 +907,11 @@ namespace NDex.Tests
             var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, sequence, destination);
+            var result = source.Replace(sequence, sequence).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
-            Assert.IsTrue(Sublist.AreEqual(source, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(source, destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -947,11 +928,11 @@ namespace NDex.Tests
             var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, sequence, destination);
+            var result = source.Replace(sequence, sequence).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
-            Assert.IsTrue(Sublist.AreEqual(source, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(source, destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -968,11 +949,11 @@ namespace NDex.Tests
             var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, sequence, destination);
+            var result = source.Replace(sequence, sequence).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
-            Assert.IsTrue(Sublist.AreEqual(source, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(source, destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -989,11 +970,11 @@ namespace NDex.Tests
             var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, sequence, destination);
+            var result = source.Replace(sequence, sequence).CopyTo(destination);
             Assert.AreEqual(source.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
-            Assert.IsTrue(Sublist.AreEqual(source, destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(source, destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -1011,12 +992,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 2, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -1034,12 +1015,12 @@ namespace NDex.Tests
             var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination);
+            var result = source.Replace(sequence, replacement).CopyTo(destination);
             Assert.AreEqual(4, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 9, 9, 9, 9, 4 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -1058,12 +1039,12 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination, comparer);
+            var result = source.Replace(sequence, replacement, comparer).CopyTo(destination);
             Assert.AreEqual(4, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 9, 9, 9, 9 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -1082,12 +1063,12 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
 
-            var result = Sublist.CopyReplaced(source, sequence, replacement, destination, comparison);
+            var result = source.Replace(sequence, replacement, comparison).CopyTo(destination);
             Assert.AreEqual(3, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = new int[] { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong values were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong values were added to the destination.");
             TestHelper.CheckHeaderAndFooter(source);
             TestHelper.CheckHeaderAndFooter(sequence);
             TestHelper.CheckHeaderAndFooter(destination);

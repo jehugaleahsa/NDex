@@ -22,11 +22,11 @@ namespace NDex.Tests
 
             // build the first list
             var list1 = new List<int>(100);
-            Sublist.AddGenerated(list1.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list1.ToSublist());
 
             // build the second list
             var list2 = new List<int>(100);
-            Sublist.AddGenerated(list2.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list2.ToSublist());
 
             var destination = new List<int>(100);
 
@@ -111,7 +111,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.Zip(list2, (i, j) => i + j).AddTo(destination);
             int[] expected = { 5, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not combined correctly.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not combined correctly.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

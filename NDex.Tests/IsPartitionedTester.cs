@@ -22,18 +22,18 @@ namespace NDex.Tests
 
             // build a list 
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // partition the odds to the end
-            Sublist.Partition(list.ToSublist(), i => i % 2 == 0); // odds to the end
+            list.ToSublist().Partition(i => i % 2 == 0).InPlace();  // odds to the end
 
-            var result = Sublist.IsPartitioned(list.ToSublist(), i => i % 2 == 0);
+            var result = list.ToSublist().IsPartitioned(i => i % 2 == 0);
             Assert.IsTrue(result.Success, "The list was not partitioned.");
             Assert.AreEqual(list.Count, result.Index, "The wrong index was returned.");
 
             // force a bad partition
             list[list.Count - 1] = 0;
-            result = Sublist.IsPartitioned(list.ToSublist(), i => i % 2 == 0);
+            result = list.ToSublist().IsPartitioned(i => i % 2 == 0);
             Assert.IsFalse(result.Success, "The list should not have been partitioned.");
             Assert.AreEqual(list.Count - 1, result.Index, "The wrong index was returned.");
         }

@@ -22,12 +22,12 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(0, 100));
+            Sublist.Generate(100, i => random.Next(0, 100)).AddTo(list.ToSublist());
 
             // partition into two
             var evens = new List<int>();
             var odds = new List<int>();
-            Sublist.AddPartitioned(list.ToSublist(), evens.ToSublist(), odds.ToSublist(), i => i % 2 == 0);
+            list.ToSublist().Partition(i => i % 2 == 0).AddTo(evens.ToSublist(), odds.ToSublist());
 
             // sort all three lists -- we need to check if all values were added
             Sublist.QuickSort(list.ToSublist());
@@ -44,7 +44,7 @@ namespace NDex.Tests
             Sublist.AddTo(evens.ToSublist(), combined.ToSublist());
             Sublist.AddTo(odds.ToSublist(), combined.ToSublist());
             Sublist.QuickSort(combined.ToSublist());
-            bool hasAllItems = Sublist.AreEqual(list.ToSublist(), combined.ToSublist());
+            bool hasAllItems = Sublist.Equals(list.ToSublist(), combined.ToSublist());
             Assert.IsTrue(hasAllItems, "Not all items were partitioned.");
         }
 
@@ -60,10 +60,8 @@ namespace NDex.Tests
         public void TestAddPartitioned_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination1 = new List<int>();
-            Sublist<List<int>, int> destination2 = new List<int>();
             Func<int, bool> predicate = i => true;
-            Sublist.AddPartitioned(list, destination1, destination2, predicate);
+            list.Partition(predicate);
         }
 
         /// <summary>
@@ -77,7 +75,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> destination1 = null;
             Sublist<List<int>, int> destination2 = new List<int>();
             Func<int, bool> predicate = i => true;
-            Sublist.AddPartitioned(list, destination1, destination2, predicate);
+            list.Partition(predicate).AddTo(destination1, destination2);
         }
 
         /// <summary>
@@ -91,7 +89,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> destination1 = new List<int>();
             Sublist<List<int>, int> destination2 = null;
             Func<int, bool> predicate = i => true;
-            Sublist.AddPartitioned(list, destination1, destination2, predicate);
+            list.Partition(predicate).AddTo(destination1, destination2);
         }
 
         /// <summary>
@@ -102,10 +100,8 @@ namespace NDex.Tests
         public void TestAddPartitioned_NullPredicate_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination1 = new List<int>();
-            Sublist<List<int>, int> destination2 = new List<int>();
             Func<int, bool> predicate = null;
-            Sublist.AddPartitioned(list, destination1, destination2, predicate);
+            list.Partition(predicate);
         }
 
         #endregion
@@ -119,13 +115,13 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
             var evens = TestHelper.Wrap(new List<int>());
             var odds = TestHelper.Wrap(new List<int>());
-            var result = Sublist.AddPartitioned(list, evens, odds, i => i % 2 == 0);
+            var result = list.Partition(i => i % 2 == 0).AddTo(evens, odds);
             evens = result.Destination1;
             int[] expectedEvens = { 2, 4, 6, 8 };
-            Assert.IsTrue(Sublist.AreEqual(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
+            Assert.IsTrue(Sublist.Equals(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
             odds = result.Destination2;
             int[] expectedOdds = { 1, 3, 5, 7, 9 };
-            Assert.IsTrue(Sublist.AreEqual(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
+            Assert.IsTrue(Sublist.Equals(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(evens);
             TestHelper.CheckHeaderAndFooter(odds);

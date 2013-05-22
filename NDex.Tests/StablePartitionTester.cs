@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
+            Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // now we'll sort them with the expectation that they'll stay sorted
             Sublist.QuickSort(list.ToSublist());

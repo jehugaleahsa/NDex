@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<Tuple<int, int>>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => Tuple.Create(random.Next(100), i));
+            Sublist.Generate(100, i => Tuple.Create(random.Next(100), i)).AddTo(list.ToSublist());
 
             // sort the list
             Sublist.MergeSort(list.ToSublist());
@@ -48,7 +48,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<Tuple<int, int>>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => Tuple.Create(random.Next(100), i));
+            Sublist.Generate(100, i => Tuple.Create(random.Next(100), i)).AddTo(list.ToSublist());
 
             // sort the list
             Tuple<int, int>[] buffer = new Tuple<int, int>[3]; // no space to merge - bad for performance!
@@ -263,7 +263,7 @@ namespace NDex.Tests
         public void TestMergeSort_Reversed()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 200, i => 199 - i);
+            list = Sublist.Generate(200, i => 199 - i).AddTo(list);
             Sublist.MergeSort(list, Comparer<int>.Default);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -278,8 +278,8 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 100, i => 99 - i);
-            buffer = Sublist.AddGenerated(buffer, 25, 0);
+            list = Sublist.Generate(100, i => 99 - i).AddTo(list);
+            buffer = Sublist.Generate(25, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer, Comparer<int>.Default);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -295,8 +295,8 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 101, i => 101 - i);
-            buffer = Sublist.AddGenerated(buffer, 3, 0);
+            list = Sublist.Generate(101, i => 101 - i).AddTo(list);
+            buffer = Sublist.Generate(3, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer, Comparer<int>.Default);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -311,8 +311,8 @@ namespace NDex.Tests
         public void TestMergeSort_PipeOrganed()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 100, i => i * 2);
-            list = Sublist.AddGenerated(list, 200, i => 199 - (i - 100) * 2);
+            list = Sublist.Generate(100, i => i * 2).AddTo(list);
+            list = Sublist.Generate(200, i => 199 - (i - 100) * 2).AddTo(list);
             Sublist.MergeSort(list, Comparer<int>.Default.Compare);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default.Compare);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -327,9 +327,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 50, i => i * 2);
-            list = Sublist.AddGenerated(list, 100, i => 99 - (i - 50) * 2);
-            buffer = Sublist.AddGenerated(buffer, 25, 0);
+            list = Sublist.Generate(50, i => i * 2).AddTo(list);
+            list = Sublist.Generate(100, i => 99 - (i - 50) * 2).AddTo(list);
+            buffer = Sublist.Generate(25, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer, Comparer<int>.Default.Compare);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default.Compare);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -345,9 +345,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 50, i => i * 2);
-            list = Sublist.AddGenerated(list, 101, i => 101 - (i - 50) * 2);
-            buffer = Sublist.AddGenerated(buffer, 3, 0);
+            list = Sublist.Generate(50, i => i * 2).AddTo(list);
+            list = Sublist.Generate(101, i => 101 - (i - 50) * 2).AddTo(list);
+            buffer = Sublist.Generate(3, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer, Comparer<int>.Default.Compare);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default.Compare);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -362,7 +362,7 @@ namespace NDex.Tests
         public void TestMergeSort_Interweaved()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 200, i => i % 2 == 0 ? i : 199 - (i - 1));
+            list = Sublist.Generate(200, i => i % 2 == 0 ? i : 199 - (i - 1)).AddTo(list);
             Sublist.MergeSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -377,8 +377,8 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 100, i => i % 2 == 0 ? i : 99 - (i - 1));
-            buffer = Sublist.AddGenerated(buffer, 25, 0);
+            list = Sublist.Generate(100, i => i % 2 == 0 ? i : 99 - (i - 1)).AddTo(list);
+            buffer = Sublist.Generate(25, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -394,8 +394,8 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 101, i => i % 2 == 0 ? i : 101 - (i - 1));
-            buffer = Sublist.AddGenerated(buffer, 3, 0);
+            list = Sublist.Generate(101, i => i % 2 == 0 ? i : 101 - (i - 1)).AddTo(list);
+            buffer = Sublist.Generate(3, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -410,7 +410,7 @@ namespace NDex.Tests
         public void TestMergeSort_LastMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 200, i => i + 1);
+            list = Sublist.Generate(200, i => i + 1).AddTo(list);
             list = Sublist.AddTo(new int[] { 0 }, list);
             Sublist.MergeSort(list);
             bool result = Sublist.IsSorted(list);
@@ -426,9 +426,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 100, i => i);
+            list = Sublist.Generate(100, i => i).AddTo(list);
             list = Sublist.AddTo(new int[] { -1 }, list);
-            buffer = Sublist.AddGenerated(buffer, 25, 0);
+            buffer = Sublist.Generate(25, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -444,9 +444,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 101, i => i);
+            list = Sublist.Generate(101, i => i).AddTo(list);
             list = Sublist.AddTo(new int[] { -1 }, list);
-            buffer = Sublist.AddGenerated(buffer, 3, 0);
+            buffer = Sublist.Generate(3, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -462,7 +462,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.AddTo(new int[] { 200 }, list);
-            list = Sublist.AddGenerated(list, 201, i => i - 1);
+            list = Sublist.Generate(201, i => i - 1).AddTo(list);
             Sublist.MergeSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -478,8 +478,8 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             list = Sublist.AddTo(new int[] { 100 }, list);
-            list = Sublist.AddGenerated(list, 101, i => i - 1);
-            buffer = Sublist.AddGenerated(buffer, 25, 0);
+            list = Sublist.Generate(101, i => i - 1).AddTo(list);
+            buffer = Sublist.Generate(25, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -496,8 +496,8 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             list = Sublist.AddTo(new int[] { 100 }, list);
-            list = Sublist.AddGenerated(list, 101, i => i - 1);
-            buffer = Sublist.AddGenerated(buffer, 3, 0);
+            list = Sublist.Generate(101, i => i - 1).AddTo(list);
+            buffer = Sublist.Generate(3, 0).AddTo(buffer);
             Sublist.MergeSort(list, buffer);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");

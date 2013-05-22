@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // sort the list
             Sublist.SelectionSort(list.ToSublist());
@@ -114,7 +114,7 @@ namespace NDex.Tests
         public void TestSelectionSort_Reversed()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 200, i => 199 - i);
+            list = Sublist.Generate(200, i => 199 - i).AddTo(list);
             Sublist.SelectionSort(list, Comparer<int>.Default);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -128,8 +128,8 @@ namespace NDex.Tests
         public void TestSelectionSort_PipeOrganed()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 100, i => i * 2);
-            list = Sublist.AddGenerated(list, 200, i => 199 - (i - 100) * 2);
+            list = Sublist.Generate(100, i => i * 2).AddTo(list);
+            list = Sublist.Generate(200, i => 199 - (i - 100) * 2).AddTo(list);
             Sublist.SelectionSort(list, Comparer<int>.Default.Compare);
             bool result = Sublist.IsSorted(list, Comparer<int>.Default.Compare);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -143,7 +143,7 @@ namespace NDex.Tests
         public void TestSelectionSort_Interweaved()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 200, i => i % 2 == 0 ? i : 199 - (i - 1));
+            list = Sublist.Generate(200, i => i % 2 == 0 ? i : 199 - (i - 1)).AddTo(list);
             Sublist.SelectionSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -157,7 +157,7 @@ namespace NDex.Tests
         public void TestSelectionSort_LastMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 200, i => i + 1);
+            list = Sublist.Generate(200, i => i + 1).AddTo(list);
             list = Sublist.AddTo(new int[] { 0 }, list);
             Sublist.SelectionSort(list);
             bool result = Sublist.IsSorted(list);
@@ -173,7 +173,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.AddTo(new int[] { 200 }, list);
-            list = Sublist.AddGenerated(list, 201, i => i - 1);
+            list = Sublist.Generate(201, i => i - 1).AddTo(list);
             Sublist.SelectionSort(list);
             bool result = Sublist.IsSorted(list);
             Assert.IsTrue(result, "The list was not sorted.");

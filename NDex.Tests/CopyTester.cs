@@ -24,7 +24,7 @@ namespace NDex.Tests
             int result = Sublist.CopyTo(list.ToSublist(), array.ToSublist());
             Assert.AreEqual(array.Length, result, "The result was not at the expected index.");
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), array.ToSublist()), "The items were not copied correctly.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), array.ToSublist()), "The items were not copied correctly.");
         }
 
         #endregion
@@ -94,7 +94,7 @@ namespace NDex.Tests
             Assert.AreEqual(3, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(3, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, 3, 3, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -110,7 +110,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -127,7 +127,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset, "The result had the wrong source index.");
             Assert.AreEqual(2, result.DestinationOffset, "The result had the wrong destination index.");
             int[] expected = { 1, 2, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -144,7 +144,7 @@ namespace NDex.Tests
             int index = Sublist.CopyTo(source, destination);
             Assert.AreEqual(destination.Count, index, "The wrong index was returned.");
             var expected = new int[] { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(destination);
         }
 
@@ -159,7 +159,7 @@ namespace NDex.Tests
             int index = Sublist.CopyTo(source, destination);
             Assert.AreEqual(destination.Count, index, "The wrong index was returned.");
             var expected = new int[] { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(destination);
         }
 
@@ -175,7 +175,7 @@ namespace NDex.Tests
             int index = Sublist.CopyTo(source, destination);
             Assert.AreEqual(3, index, "The wrong index was returned.");
             var expected = new int[] { 1, 2, 3, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(destination);
         }
     }

@@ -343,7 +343,7 @@ namespace NDex.Tests
             Assert.AreEqual(list.Count, sublist.Count, "The sublist had the wrong count.");
             Assert.AreEqual(0, sublist.Offset, "The sublist had the wrong offset.");
             int[] expected = { 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
         }
 
         /// <summary>
@@ -358,7 +358,7 @@ namespace NDex.Tests
             Assert.AreEqual(list.Count - 1, sublist.Count, "The sublist had the wrong count.");
             Assert.AreEqual(1, sublist.Offset, "The sublist had the wrong offset.");
             int[] expected = { 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, sublist.Count, "The sublist had the wrong count.");
             Assert.AreEqual(1, sublist.Offset, "The sublist had the wrong offset.");
             int[] expected = { 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), sublist), "The sublist did not contain the expected items.");
         }
 
         #endregion
@@ -465,7 +465,7 @@ namespace NDex.Tests
             var list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(1);
             int[] expected = { 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the first item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the first item.");
         }
 
         /// <summary>
@@ -477,7 +477,7 @@ namespace NDex.Tests
             IReadOnlySublist<List<int>, int> list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(1);
             int[] expected = { 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the first item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the first item.");
         }
 
         /// <summary>
@@ -489,7 +489,7 @@ namespace NDex.Tests
             IMutableSublist<List<int>, int> list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(1);
             int[] expected = { 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the first item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the first item.");
         }
 
         /// <summary>
@@ -501,7 +501,7 @@ namespace NDex.Tests
             IExpandableSublist<List<int>, int> list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(1);
             int[] expected = { 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the first item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the first item.");
         }
 
         /// <summary>
@@ -513,7 +513,7 @@ namespace NDex.Tests
             var list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(1).Nest(1);
             int[] expected = { 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the first item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the first item.");
         }
 
         /// <summary>
@@ -525,7 +525,7 @@ namespace NDex.Tests
             var list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(0, list.Count - 1);
             int[] expected = { 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the last item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the last item.");
         }
 
         /// <summary>
@@ -537,7 +537,7 @@ namespace NDex.Tests
             IReadOnlySublist<List<int>, int> list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(0, list.Count - 1);
             int[] expected = { 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the last item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the last item.");
         }
 
         /// <summary>
@@ -549,7 +549,7 @@ namespace NDex.Tests
             IMutableSublist<List<int>, int> list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(0, list.Count - 1);
             int[] expected = { 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the last item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the last item.");
         }
 
         /// <summary>
@@ -561,7 +561,7 @@ namespace NDex.Tests
             IExpandableSublist<List<int>, int> list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(0, list.Count - 1);
             int[] expected = { 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the last item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the last item.");
         }
 
         /// <summary>
@@ -573,7 +573,7 @@ namespace NDex.Tests
             var list = new List<int>() { 1, 2, 3, 4, 5, }.ToSublist();
             var nested = list.Nest(1, list.Count - 2); // we want to remove the front and back, two items
             int[] expected = { 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the last item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the last item.");
         }
 
         /// <summary>
@@ -583,7 +583,7 @@ namespace NDex.Tests
         public void TestNest_RepresentPartitions()
         {
             var list = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 }.ToSublist();
-            int partition = Sublist.Partition(list, i => i % 2 == 0); // put evens in the front
+            int partition = list.Partition(i => i % 2 == 0).InPlace(); // put evens in the front
             var evens = list.Nest(0, partition);
             var odds = list.Nest(partition);
             Assert.IsTrue(Sublist.TrueForAll(evens, i => i % 2 == 0), "Not all evens in the first nested list.");
@@ -874,7 +874,7 @@ namespace NDex.Tests
             var list = new List<int>() { 1, 2, 3 }.ToSublist(1);
             list[1] = 0;
             int[] expected = { 1, 2, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.ToSublist()), "The item was not set as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.List.ToSublist()), "The item was not set as expected.");
         }
 
         #endregion
@@ -894,7 +894,7 @@ namespace NDex.Tests
                 list.Add(item);
             }
             int[] expected = { 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.ToSublist()), "The correct values were not enumerated.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The correct values were not enumerated.");
         }
 
         /// <summary>
@@ -910,7 +910,7 @@ namespace NDex.Tests
                 list.Add(item);
             }
             object[] expected = { 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.ToSublist()), "The correct values were not enumerated.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The correct values were not enumerated.");
         }
 
         #endregion

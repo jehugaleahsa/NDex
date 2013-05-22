@@ -21,14 +21,14 @@ namespace NDex.Tests
             // build the first list
             Random random1 = new Random(1);
             var list1 = new List<int>(100);
-            Sublist.AddGenerated(list1.ToSublist(), 100, i => random1.Next());
+            Sublist.Generate(100, i => random1.Next()).AddTo(list1.ToSublist());
 
             // build the second list
             Random random2 = new Random(1);
             var list2 = new List<int>(100);
-            Sublist.AddGenerated(list2.ToSublist(), 100, i => random2.Next());
+            Sublist.Generate(100, i => random2.Next()).AddTo(list2.ToSublist());
 
-            bool result = Sublist.AreEqual(list1.ToSublist(), list2.ToSublist());
+            bool result = Sublist.Equals(list1.ToSublist(), list2.ToSublist());
             Assert.IsTrue(result, "The random number generator did not return the same numbers.");
         }
 
@@ -45,7 +45,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.AreEqual(list1, list2);
+            Sublist.Equals(list1, list2);
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.AreEqual(list1, list2, comparer);
+            Sublist.Equals(list1, list2, comparer);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.AreEqual(list1, list2, comparison);
+            Sublist.Equals(list1, list2, comparison);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.AreEqual(list1, list2);
+            Sublist.Equals(list1, list2);
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.AreEqual(list1, list2, comparer);
+            Sublist.Equals(list1, list2, comparer);
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.AreEqual(list1, list2, comparison);
+            Sublist.Equals(list1, list2, comparison);
         }
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.AreEqual(list1, list2, comparer);
+            Sublist.Equals(list1, list2, comparer);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.AreEqual(list1, list2, comparison);
+            Sublist.Equals(list1, list2, comparison);
         }
 
         #endregion
@@ -147,7 +147,7 @@ namespace NDex.Tests
         public void TestAreEqual_SameList_ReturnsTrue()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            bool result = Sublist.AreEqual(list, list, EqualityComparer<int>.Default);
+            bool result = Sublist.Equals(list, list, EqualityComparer<int>.Default);
             Assert.IsTrue(result, "A list was not equal to itself.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -162,7 +162,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
             var nestedList1 = list.Nest(0, 2);
             var nestedList2 = list.Nest(2, 2);
-            bool result = Sublist.AreEqual(nestedList1, nestedList2, EqualityComparer<int>.Default.Equals);
+            bool result = Sublist.Equals(nestedList1, nestedList2, EqualityComparer<int>.Default.Equals);
             Assert.IsFalse(result, "Did not handle different offsets into the same list.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -175,7 +175,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
-            bool result = Sublist.AreEqual(list1, list2);
+            bool result = Sublist.Equals(list1, list2);
             Assert.IsFalse(result, "Lists of different sizes were determined equal.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -189,7 +189,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 4 });
-            bool result = Sublist.AreEqual(list1, list2);
+            bool result = Sublist.Equals(list1, list2);
             Assert.IsFalse(result, "Lists were determined equal even though the last items were different.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -203,7 +203,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 2, 3 });
-            bool result = Sublist.AreEqual(list1, list2);
+            bool result = Sublist.Equals(list1, list2);
             Assert.IsFalse(result, "Lists were determined equal even though the first items were different.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -217,7 +217,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 2, 3 });
-            bool result = Sublist.AreEqual(list1, list2);
+            bool result = Sublist.Equals(list1, list2);
             Assert.IsFalse(result, "Lists were determined equal even though the middle items were different.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -231,7 +231,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            bool result = Sublist.AreEqual(list1, list2);
+            bool result = Sublist.Equals(list1, list2);
             Assert.IsTrue(result, "Two equal lists were shown to be not equal.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);

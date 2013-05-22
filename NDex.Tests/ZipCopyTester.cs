@@ -22,14 +22,14 @@ namespace NDex.Tests
             
             // build the first list
             var list1 = new List<int>(100);
-            Sublist.AddGenerated(list1.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list1.ToSublist());
 
             // build the second list
             var list2 = new List<int>(100);
-            Sublist.AddGenerated(list2.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list2.ToSublist());
 
             var destination = new List<int>(100);
-            Sublist.AddGenerated(destination.ToSublist(), 100, 0);
+            Sublist.Generate(100, 0).AddTo(destination.ToSublist());
 
             // multiply the values at each index together
             int destinationIndex = list1.ToSublist().Zip(list2.ToSublist(), (i, j) => i * j).CopyTo(destination.ToSublist());
@@ -116,7 +116,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset2, "The second source index is wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were stored in the destination.");
             var expected = TestHelper.Wrap(new List<int>() { 5, 5, });
-            Assert.IsTrue(Sublist.AreEqual(expected, destination), "The items were not combined correctly.");
+            Assert.IsTrue(Sublist.Equals(expected, destination), "The items were not combined correctly.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -136,7 +136,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, result.SourceOffset2, "The second source index is wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The wrong number of items were stored in the destination.");
             var expected = TestHelper.Wrap(new List<int>() { 5, 5, 0, }); // the third item should remain untouched.
-            Assert.IsTrue(Sublist.AreEqual(expected, destination), "The items were not combined correctly.");
+            Assert.IsTrue(Sublist.Equals(expected, destination), "The items were not combined correctly.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

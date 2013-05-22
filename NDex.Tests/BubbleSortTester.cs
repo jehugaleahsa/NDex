@@ -22,13 +22,13 @@ namespace NDex.Tests
 
             // build the list
             List<int> list = new List<int>();
-            Sublist.AddGenerated(list.ToSublist(), 10, i => random.Next(10));
+            Sublist.Generate(10, i => random.Next(10)).AddTo(list.ToSublist());
 
             // sort the list
-            Sublist.BubbleSort(list.ToSublist());
+            list.ToSublist().BubbleSort();
 
             // verify it is sorted
-            bool result = Sublist.IsSorted(list.ToSublist());
+            bool result = list.ToSublist().IsSorted();
             Assert.IsTrue(result, "The list was not sorted correctly.");
         }
 

@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build the list 
             var list = new List<int>(10);
-            Sublist.AddGenerated(list.ToSublist(), 10, i => random.Next(10));
+            Sublist.Generate(10, i => random.Next(10)).AddTo(list.ToSublist());
 
             decimal sum = 0m;
             Sublist.ForEach(list.ToSublist(), i => sum += i);
@@ -85,7 +85,7 @@ namespace NDex.Tests
             };
             Sublist.ForEach(list, action);
             int[] expected = { 2, 4, 6, 8, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination.ToSublist()), "Not all items were added to the destination.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination.ToSublist()), "Not all items were added to the destination.");
         }
     }
 }

@@ -22,9 +22,9 @@ namespace NDex.Tests
 
             var copy = new List<int>(list.Count);
 
-            Sublist.AddReversed(list.ToSublist(), copy.ToSublist());
+            list.ToSublist().Reverse().AddTo(copy.ToSublist());
 
-            Assert.IsTrue(Sublist.AreEqual(list.ToSublist(), copy.ToSublist()), "The list was not reversed as expected.");
+            Assert.IsTrue(Sublist.Equals(list.ToSublist(), copy.ToSublist()), "The list was not reversed as expected.");
         }
 
         #endregion
@@ -39,8 +39,7 @@ namespace NDex.Tests
         public void TestAddReversed_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddReversed(list, destination);
+            list.Reverse();
         }
 
         /// <summary>
@@ -52,7 +51,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.AddReversed(list, destination);
+            list.Reverse().AddTo(destination);
         }
 
         #endregion
@@ -66,9 +65,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddReversed(list, destination);
+            destination = list.Reverse().AddTo(destination);
             int[] expected = { 3, 2, 1, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

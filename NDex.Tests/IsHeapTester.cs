@@ -25,7 +25,7 @@ namespace NDex.Tests
 
             // build a random list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
+            Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // find the first bad value and add the remaining items to the heap
             var result = Sublist.IsHeap(list.ToSublist());

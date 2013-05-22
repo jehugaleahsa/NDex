@@ -23,16 +23,16 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // sort the list in ascending order
-            Sublist.QuickSort(list.ToSublist());
+            list.ToSublist().QuickSort();
 
             // now reverse the order
-            Sublist.Reverse(list.ToSublist());
+            list.ToSublist().Reverse().InPlace();
             
             // it should be in reverse order
-            Assert.IsTrue(Sublist.IsSorted(list.ToSublist(), (x, y) => Comparer<int>.Default.Compare(y, x)), "The list was not reversed.");
+            Assert.IsTrue(list.ToSublist().IsSorted((x, y) => Comparer<int>.Default.Compare(y, x)), "The list was not reversed.");
         }
 
         #endregion
@@ -59,9 +59,9 @@ namespace NDex.Tests
         public void TestReverse_OddCount_ReversesList()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            Sublist.Reverse(list);
+            list.Reverse().InPlace();
             int[] expected = { 3, 2, 1, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not reversed as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not reversed as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -72,9 +72,9 @@ namespace NDex.Tests
         public void TestReverse_EvenCount_ReversesList()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
-            Sublist.Reverse(list);
+            list.Reverse().InPlace();
             int[] expected = { 4, 3, 2, 1, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not reversed as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not reversed as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

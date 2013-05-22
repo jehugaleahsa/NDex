@@ -22,11 +22,11 @@ namespace NDex.Tests
 
             // build list of random evens
             var evens = new List<int>(50);
-            Sublist.AddGenerated(evens.ToSublist(), 50, i => 2 * random.Next(0, 50));
+            Sublist.Generate(50, i => 2 * random.Next(0, 50)).AddTo(evens.ToSublist());
 
             // build list of random odds
             var odds = new List<int>(50);
-            Sublist.AddGenerated(odds.ToSublist(), 50, i => 1 + 2 * random.Next(0, 50));
+            Sublist.Generate(50, i => 1 + 2 * random.Next(0, 50)).AddTo(odds.ToSublist());
 
             // join the two together and shuffle
             var list = new List<int>(100);

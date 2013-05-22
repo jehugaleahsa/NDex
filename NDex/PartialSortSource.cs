@@ -11,29 +11,23 @@ namespace NDex
     /// </summary>
     public static partial class Sublist
     {
-        #region AddPartiallySorted
-
         /// <summary>
         /// Adds the given number of items from a list to a destination list as if the source list was sorted.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source">The list of items to be added.</param>
         /// <param name="numberOfItems">The number of items to add to the destination.</param>
-        /// <param name="destination">The list to add the items to.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <remarks>
         /// The items in the list will be sorted according to the default ordering of the items.
         /// </remarks>
-        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            int numberOfItems,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        public static PartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+            this IReadOnlySublist<TSourceList, TSource> source,
+            int numberOfItems)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
@@ -43,33 +37,25 @@ namespace NDex
             {
                 throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
             }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, Comparer<T>.Default.Compare);
+            return new PartialSortSource<TSourceList, TSource>(source, numberOfItems, Comparer<TSource>.Default.Compare);
         }
 
         /// <summary>
         /// Adds the given number of items from a list to a destination list as if the source list was sorted.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source">The list of items to be added.</param>
         /// <param name="numberOfItems">The number of items to add to the destination.</param>
-        /// <param name="destination">The list to add the items to.</param>
         /// <param name="comparer">The comparer to use to compare items in the source list.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
+        public static PartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+            this IReadOnlySublist<TSourceList, TSource> source,
             int numberOfItems,
-            IExpandableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+            IComparer<TSource> comparer)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
@@ -79,37 +65,29 @@ namespace NDex
             {
                 throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
             }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
             if (comparer == null)
             {
                 throw new ArgumentNullException("comparer");
             }
-            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, comparer.Compare);
+            return new PartialSortSource<TSourceList, TSource>(source, numberOfItems, comparer.Compare);
         }
 
         /// <summary>
         /// Adds the given number of items from a list to a destination list as if the source list was sorted.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source">The list of items to be added.</param>
         /// <param name="numberOfItems">The number of items to add to the destination.</param>
-        /// <param name="destination">The list to add the items to.</param>
         /// <param name="comparison">The delegate used to compare items in the source list.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
+        public static PartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+            this IReadOnlySublist<TSourceList, TSource> source,
             int numberOfItems,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
@@ -119,208 +97,105 @@ namespace NDex
             {
                 throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
             }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
             if (comparison == null)
             {
                 throw new ArgumentNullException("comparison");
             }
-            return addPartiallySorted<TSourceList, TDestinationList, T>(source, numberOfItems, destination, comparison);
+            return new PartialSortSource<TSourceList, TSource>(source, numberOfItems, comparison);
         }
 
-        private static IExpandableSublist<TDestinationList, T> addPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
+        /// <summary>
+        /// Adds the given number of items from a list to a destination list as if the source list was sorted.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the list.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list of items to be added.</param>
+        /// <param name="numberOfItems">The number of items to add to the destination.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
+        /// <remarks>
+        /// The items in the list will be sorted according to the default ordering of the items.
+        /// </remarks>
+        public static InplacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+            this IMutableSublist<TSourceList, TSource> source,
+            int numberOfItems)
+            where TSourceList : IList<TSource>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (numberOfItems < 0 || numberOfItems > source.Count)
+            {
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
+            }
+            return new InplacePartialSortSource<TSourceList, TSource>(source, numberOfItems, Comparer<TSource>.Default.Compare);
+        }
+
+        /// <summary>
+        /// Adds the given number of items from a list to a destination list as if the source list was sorted.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the list.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list of items to be added.</param>
+        /// <param name="numberOfItems">The number of items to add to the destination.</param>
+        /// <param name="comparer">The comparer to use to compare items in the source list.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
+        public static InplacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+            this IMutableSublist<TSourceList, TSource> source,
             int numberOfItems,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addPartiallySorted<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + numberOfItems, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addPartiallySorted<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int middle, int past,
-            TDestinationList destination, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int count = middle - first;
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, count);
-            return copyPartiallySorted<TSourceList, TDestinationList, T>(
-                source, first, past,
-                destination, destinationPast, destinationPast + count,
-                comparison);
-        }
-
-        #endregion
-
-        #region CopyPartiallySorted
-
-        /// <summary>
-        /// Copies the items of a list to a destination list as if they were sorted prior to being copied.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <remarks>
-        /// If the destination is large enough to hold all of the items in the list, this method is equivilent to calling Copy,
-        /// followed by a HeapSort.
-        /// </remarks>
-        public static PartialSortResult CopyPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+            IComparer<TSource> comparer)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (destination == null)
+            if (numberOfItems < 0 || numberOfItems > source.Count)
             {
-                throw new ArgumentNullException("destination");
-            }
-            return copyPartiallySorted<TSourceList, TDestinationList, T>(source, destination, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Copies the items of a list to a destination list as if they were sorted prior to being copied.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="comparer">The comparer to use to compare two items.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// If the destination is large enough to hold all of the items in the list, this method is equivilent to calling Copy,
-        /// followed by a HeapSort.
-        /// </remarks>
-        public static PartialSortResult CopyPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            IComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
             }
             if (comparer == null)
             {
                 throw new ArgumentNullException("comparer");
             }
-            return copyPartiallySorted<TSourceList, TDestinationList, T>(source, destination, comparer.Compare);
+            return new InplacePartialSortSource<TSourceList, TSource>(source, numberOfItems, comparer.Compare);
         }
 
         /// <summary>
-        /// Copies the items of a list to a destination list as if they were sorted prior to being copied.
+        /// Adds the given number of items from a list to a destination list as if the source list was sorted.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="comparison">The comparison delegate to use to compare two items.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list of items to be added.</param>
+        /// <param name="numberOfItems">The number of items to add to the destination.</param>
+        /// <param name="comparison">The delegate used to compare items in the source list.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// If the destination is large enough to hold all of the items in the list, this method is equivilent to calling Copy,
-        /// followed by a HeapSort.
-        /// </remarks>
-        public static PartialSortResult CopyPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        /// <exception cref="System.ArgumentOutOfRangeException">The specified number of items is larger than the source list.</exception>
+        public static InplacePartialSortSource<TSourceList, TSource> PartialSort<TSourceList, TSource>(
+            this IMutableSublist<TSourceList, TSource> source,
+            int numberOfItems,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (destination == null)
+            if (numberOfItems < 0 || numberOfItems > source.Count)
             {
-                throw new ArgumentNullException("destination");
+                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
             }
             if (comparison == null)
             {
                 throw new ArgumentNullException("comparison");
             }
-            return copyPartiallySorted<TSourceList, TDestinationList, T>(source, destination, comparison);
+            return new InplacePartialSortSource<TSourceList, TSource>(source, numberOfItems, comparison);
         }
-
-        private static PartialSortResult copyPartiallySorted<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int index = copyPartiallySorted<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            PartialSortResult result = new PartialSortResult();
-            result.SourceOffset = source.Count;
-            result.DestinationOffset = index - destination.Offset;
-            return result;
-        }
-
-        private static int copyPartiallySorted<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, int> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int destinationMiddle = destinationFirst;
-            while (first != past && destinationMiddle != destinationPast)
-            {
-                destination[destinationMiddle] = source[first];
-                ++first;
-                ++destinationMiddle;
-            }
-            makeHeap<TDestinationList, T>(destination, destinationFirst, destinationMiddle, comparison);
-
-            int numberOfItems = destinationMiddle - destinationFirst;
-            while (first != past)
-            {
-                if (comparison(source[first], destination[destinationFirst]) < 0)
-                {
-                    adjustHeap<TDestinationList, T>(destination, destinationFirst, 0, numberOfItems, source[first], comparison);
-                }
-                ++first;
-            }
-            heapSort<TDestinationList, T>(destination, destinationFirst, destinationMiddle, comparison);
-            return destinationMiddle;
-        }
-
-        #endregion
     }
 
     #endregion
@@ -372,29 +247,156 @@ namespace NDex
 
     #region PartialSortSource
 
-    internal sealed class PartialSortSource<TSourceList, TSource> : Source<TSource, PartialSortResult>
+    /// <summary>
+    /// Provides the information needed to copy or add items to a destination sublist.
+    /// </summary>
+    /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items in the source.</typeparam>
+    public class PartialSortSource<TSourceList, TSource> : Source<TSource, PartialSortResult>
         where TSourceList : IList<TSource>
     {
-        private readonly IReadOnlySublist<TSourceList, TSource> source;
-        private readonly Func<TSource, TSource, int> comparison;
-
-        public PartialSortSource(
+        internal PartialSortSource(
             IReadOnlySublist<TSourceList, TSource> source,
+            int numberOfItems,
             Func<TSource, TSource, int> comparison)
         {
-            this.source = source;
-            this.comparison = comparison;
+            Source = source;
+            NumberOfItems = numberOfItems;
+            Comparison = comparison;
         }
 
+        /// <summary>
+        /// Gets the list that will be sorted.
+        /// </summary>
+        protected IReadOnlySublist<TSourceList, TSource> Source { get; private set; }
+
+        /// <summary>
+        /// Gets the number of items to sort.
+        /// </summary>
+        protected int NumberOfItems { get; private set; }
+
+        /// <summary>
+        /// Gets the function to use to compare items.
+        /// </summary>
+        protected Func<TSource, TSource, int> Comparison { get; private set; }
+
+        /// <summary>
+        /// Adds the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            // TODO - figure out how pass in numberOfItems
-            return Sublist.AddPartiallySorted(source, 0, destination, comparison);
+            int result = addPartiallySorted<TDestinationList>(
+                Source.List, Source.Offset, Source.Offset + NumberOfItems, Source.Offset + Source.Count,
+                destination.List, destination.Offset + destination.Count,
+                Comparison);
+            return destination.Resize(result - destination.Offset, true);
         }
 
+        private static int addPartiallySorted<TDestinationList>(
+            TSourceList source, int first, int middle, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TDestinationList : IList<TSource>
+        {
+            int count = middle - first;
+            Sublist.GrowAndShift<TDestinationList, TSource>(destination, destinationPast, count);
+            return copyPartiallySorted<TDestinationList>(
+                source, first, past,
+                destination, destinationPast, destinationPast + count,
+                comparison);
+        }
+
+        /// <summary>
+        /// Copies the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>Information about the results of the operation.</returns>
         protected override PartialSortResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            return Sublist.CopyPartiallySorted(source, destination, comparison);
+            int index = copyPartiallySorted<TDestinationList>(
+                Source.List, Source.Offset, Source.Offset + Source.Count,
+                destination.List, destination.Offset, destination.Offset + NumberOfItems,
+                Comparison);
+            PartialSortResult result = new PartialSortResult();
+            result.SourceOffset = Source.Count;
+            result.DestinationOffset = index - destination.Offset;
+            return result;
+        }
+
+        private static int copyPartiallySorted<TDestinationList>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TDestinationList : IList<TSource>
+        {
+            int destinationMiddle = destinationFirst;
+            while (first != past && destinationMiddle != destinationPast)
+            {
+                destination[destinationMiddle] = source[first];
+                ++first;
+                ++destinationMiddle;
+            }
+            Sublist.MakeHeap<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
+
+            int numberOfItems = destinationMiddle - destinationFirst;
+            while (first != past)
+            {
+                if (comparison(source[first], destination[destinationFirst]) < 0)
+                {
+                    Sublist.AdjustHeap<TDestinationList, TSource>(destination, destinationFirst, 0, numberOfItems, source[first], comparison);
+                }
+                ++first;
+            }
+            Sublist.HeapSort<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
+            return destinationMiddle;
+        }
+    }
+
+    /// <summary>
+    /// Provides the information needed to copy or add items to a destination sublist.
+    /// </summary>
+    /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items in the source.</typeparam>
+    public sealed class InplacePartialSortSource<TSourceList, TSource> : PartialSortSource<TSourceList, TSource>
+        where TSourceList : IList<TSource>
+    {
+        internal InplacePartialSortSource(
+            IMutableSublist<TSourceList, TSource> source,
+            int numberOfItems,
+            Func<TSource, TSource, int> comparison)
+            : base(source, numberOfItems, comparison)
+        {
+        }
+
+        /// <summary>
+        /// Performs the operation in-place.
+        /// </summary>
+        public void InPlace()
+        {
+            partialSort(Source.List, Source.Offset, Source.Offset + NumberOfItems, Source.Offset + Source.Count, Comparison);
+        }
+
+        private static void partialSort(TSourceList list, int first, int middle, int past, Func<TSource, TSource, int> comparison)
+        {
+            if (past - first > 1)
+            {
+                Sublist.MakeHeap<TSourceList, TSource>(list, first, middle, comparison);
+                int numberOfItems = middle - first;
+                for (int next = middle; next != past; ++next)
+                {
+                    if (comparison(list[next], list[first]) < 0)
+                    {
+                        TSource value = list[next];
+                        list[next] = list[first];
+                        Sublist.AdjustHeap<TSourceList, TSource>(list, first, 0, numberOfItems, value, comparison);
+                    }
+                }
+                Sublist.HeapSort<TSourceList, TSource>(list, first, middle, comparison);
+            }
         }
     }
 

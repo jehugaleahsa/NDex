@@ -22,11 +22,11 @@ namespace NDex.Tests
 
             // builds the first list
             var list1 = new List<int>(50);
-            Sublist.AddGenerated(list1.ToSublist(), 50, i => random.Next(100));
+            Sublist.Generate(50, i => random.Next(100)).AddTo(list1.ToSublist());
 
             // builds the second list
             var list2 = new List<int>(50);
-            Sublist.AddGenerated(list2.ToSublist(), 50, i => random.Next(100));
+            Sublist.Generate(50, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // merging requires sorted lists
             Sublist.QuickSort(list1.ToSublist());
@@ -34,8 +34,8 @@ namespace NDex.Tests
 
             // merge the lists
             var destination = new List<int>(100);
-            Sublist.AddGenerated(destination.ToSublist(), 100, 0);
-            int result = Sublist.CopyMerged(list1.ToSublist(), list2.ToSublist(), destination.ToSublist());
+            Sublist.Generate(100, 0).AddTo(destination.ToSublist());
+            int result = list1.ToSublist().Merge(list2.ToSublist()).CopyTo(destination.ToSublist());
             Assert.AreEqual(destination.Count, result, "Not all of the items were copied.");
 
             // make sure the destination is still sorted
@@ -56,8 +56,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyMerged(list1, list2, destination);
+            list1.Merge(list2);
         }
 
         /// <summary>
@@ -69,9 +68,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyMerged(list1, list2, destination, comparer);
+            list1.Merge(list2, comparer);
         }
 
         /// <summary>
@@ -83,9 +81,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyMerged(list1, list2, destination, comparison);
+            list1.Merge(list2, comparison);
         }
 
         /// <summary>
@@ -97,8 +94,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyMerged(list1, list2, destination);
+            list1.Merge(list2);
         }
 
         /// <summary>
@@ -110,9 +106,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyMerged(list1, list2, destination, comparer);
+            list1.Merge(list2, comparer);
         }
 
         /// <summary>
@@ -124,9 +119,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyMerged(list1, list2, destination, comparison);
+            list1.Merge(list2, comparison);
         }
 
         /// <summary>
@@ -139,7 +133,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.CopyMerged(list1, list2, destination);
+            list1.Merge(list2).CopyTo(destination);
         }
 
         /// <summary>
@@ -153,7 +147,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyMerged(list1, list2, destination, comparer);
+            list1.Merge(list2, comparer).CopyTo(destination);
         }
 
         /// <summary>
@@ -167,7 +161,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyMerged(list1, list2, destination, comparison);
+            list1.Merge(list2, comparison).CopyTo(destination);
         }
 
         /// <summary>
@@ -179,9 +173,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.CopyMerged(list1, list2, destination, comparer);
+            list1.Merge(list2, comparer);
         }
 
         /// <summary>
@@ -193,9 +186,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.CopyMerged(list1, list2, destination, comparison);
+            list1.Merge(list2, comparison);
         }
 
         #endregion
@@ -210,12 +202,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0 });
             IComparer<int> comparer = Comparer<int>.Default;
-            var result = Sublist.CopyMerged(list1, list2, destination, comparer);
+            var result = list1.Merge(list2, comparer).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were added.");
             int[] expected = { 1, 2, 3, 4, 5, 6, 7, 8 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items weren't merged as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items weren't merged as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -230,12 +222,12 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8, });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 5, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-            var result = Sublist.CopyMerged(list1, list2, destination);
+            var result = list1.Merge(list2).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were added.");
             int[] expected = { 1, 2, 2, 3, 4, 5, 6, 7, 8 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items weren't merged as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items weren't merged as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -251,12 +243,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 7, 5, 3, 1 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            var result = Sublist.CopyMerged(list1, list2, destination, comparison);
+            var result = list1.Merge(list2, comparison).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were added.");
             int[] expected = { 7, 6, 5, 4, 3, 2, 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items weren't merged as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items weren't merged as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -271,12 +263,12 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, });
-            var result = Sublist.CopyMerged(list1, list2, destination);
+            var result = list1.Merge(list2).CopyTo(destination);
             Assert.AreEqual(1, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(2, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong number of items were added.");
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items weren't merged as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items weren't merged as expected.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

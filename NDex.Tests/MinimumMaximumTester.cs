@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
+            Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             MinimumMaximumResult result = Sublist.MinimumMaximum(list.ToSublist());
             Assert.AreNotEqual(list.Count, result.MinimumIndex, "The index cannot be past the end of the list.");

@@ -49,7 +49,7 @@ namespace NDex
         /// </summary>
         /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
         /// <param name="destination">The sublist to copy the intermediate results to.</param>
-        /// <returns>Information about the results of the operation.</returns>
+        /// <returns>A result object holding indexes into the lists where the operation stopped.</returns>
         /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         public TResult CopyTo<TDestinationList>(IMutableSublist<TDestinationList, TDestination> destination)
             where TDestinationList : IList<TDestination>

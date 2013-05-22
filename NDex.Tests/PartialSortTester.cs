@@ -23,16 +23,16 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>();
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
+            Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // now, we'll find the top 10 largest items
-            Sublist.PartialSort(list.ToSublist(), 10, (x, y) => Comparer<int>.Default.Compare(y, x));
+            list.ToSublist().PartialSort(10, (x, y) => Comparer<int>.Default.Compare(y, x)).InPlace();
 
             // now, we'll loop through each item and make sure it is the largest
             for (int index = 0; index != 10; ++index)
             {
                 var sublist = list.ToSublist(index);
-                int maxIndex = Sublist.Maximum(sublist);
+                int maxIndex = sublist.Maximum();
                 Assert.AreEqual(0, maxIndex, "The list was not sorted.");
             }
         }
@@ -190,7 +190,7 @@ namespace NDex.Tests
         public void TestPartialSort_EmptyList_DoesNothing()
         {
             var list = TestHelper.Wrap(new List<int>());
-            Sublist.PartialSort(list, 0);
+            list.PartialSort(0).InPlace();
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -201,9 +201,9 @@ namespace NDex.Tests
         public void TestPartialSort_ListOfOne_DoesNothing()
         {
             var list = TestHelper.Wrap(new List<int>() { 1 });
-            Sublist.PartialSort(list, 1);
+            list.PartialSort(1).InPlace();
             int[] expected = { 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "Could not sort a list with one item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "Could not sort a list with one item.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -214,9 +214,9 @@ namespace NDex.Tests
         public void TestPartialSort_NumberEqualsCount_SortsEntireList()
         {
             var list = TestHelper.Wrap(new List<int>() { 3, 4, 1, 2, 7, 6, 5 });
-            Sublist.PartialSort(list, list.Count);
+            list.PartialSort(list.Count).InPlace();
             int[] expected = { 1, 2, 3, 4, 5, 6, 7, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not in the expected order.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not in the expected order.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -227,9 +227,9 @@ namespace NDex.Tests
         public void TestPartialSort_SmallestItemsInBack_PartiallySorts()
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 4, 7, 6, 1, 2, 3 });
-            Sublist.PartialSort(list, 3);
+            list.PartialSort(3).InPlace();
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, 3)), "The items were not in the expected order.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, 3)), "The items were not in the expected order.");
             var expectedRemaining = new HashSet<int>() { 4, 5, 6, 7 };
             Assert.IsTrue(expectedRemaining.SetEquals(list.Nest(3)), "The remaining were destroyed.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -242,9 +242,9 @@ namespace NDex.Tests
         public void TestPartialSort_SmallestItemsInFront_PartiallySorts()
         {
             var list = TestHelper.Wrap(new List<int>() { 3, 1, 2, 5, 4, 7, 6, });
-            Sublist.PartialSort(list, 3, Comparer<int>.Default);
+            list.PartialSort(3, Comparer<int>.Default).InPlace();
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, 3)), "The items were not in the expected order.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, 3)), "The items were not in the expected order.");
             var expectedRemaining = new HashSet<int>() { 4, 5, 6, 7 };
             Assert.IsTrue(expectedRemaining.SetEquals(list.Nest(3)), "The remaining were destroyed.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -257,9 +257,9 @@ namespace NDex.Tests
         public void TestPartialSort_SmallestItemsInMiddle_PartiallySorts()
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 4, 3, 1, 2, 7, 6, });
-            Sublist.PartialSort(list, 3, Comparer<int>.Default.Compare);
+            list.PartialSort(3, Comparer<int>.Default.Compare).InPlace();
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, 3)), "The items were not in the expected order.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, 3)), "The items were not in the expected order.");
             var expectedRemaining = new HashSet<int>() { 4, 5, 6, 7 };
             Assert.IsTrue(expectedRemaining.SetEquals(list.Nest(3)), "The remaining were destroyed.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -272,9 +272,9 @@ namespace NDex.Tests
         public void TestPartialSort_SmallestItemsAllOver_PartiallySorts()
         {
             var list = TestHelper.Wrap(new List<int>() { 3, 5, 4, 1, 7, 6, 2, });
-            Sublist.PartialSort(list, 3);
+            list.PartialSort(3).InPlace();
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, 3)), "The items were not in the expected order.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, 3)), "The items were not in the expected order.");
             var expectedRemaining = new HashSet<int>() { 4, 5, 6, 7 };
             Assert.IsTrue(expectedRemaining.SetEquals(list.Nest(3)), "The remaining were destroyed.");
             TestHelper.CheckHeaderAndFooter(list);

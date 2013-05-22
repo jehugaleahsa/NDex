@@ -23,14 +23,14 @@ namespace NDex.Tests
 
             // build a list of random numbers
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // unique requires that elements be sorted
             Sublist.QuickSort(list.ToSublist());
 
             // now we create a set from the list
             var destination = new List<int>(100);
-            Sublist.AddUnique(list.ToSublist(), destination.ToSublist());
+            list.ToSublist().Distinct().AddTo(destination.ToSublist());
 
             // check that we have a valid set
             bool isSet = Sublist.IsSet(destination.ToSublist());
@@ -49,8 +49,7 @@ namespace NDex.Tests
         public void TestAddUnique_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddUnique(list, destination);
+            list.Distinct();
         }
 
         /// <summary>
@@ -61,9 +60,8 @@ namespace NDex.Tests
         public void TestAddUnique_WithComparer_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.AddUnique(list, destination, comparer);
+            list.Distinct(comparer);
         }
 
         /// <summary>
@@ -74,9 +72,8 @@ namespace NDex.Tests
         public void TestAddUnique_WithComparison_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.AddUnique(list, destination, comparison);
+            list.Distinct(comparison);
         }
 
         /// <summary>
@@ -88,7 +85,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.AddUnique(list, destination);
+            list.Distinct().AddTo(destination);
         }
 
         /// <summary>
@@ -101,7 +98,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.AddUnique(list, destination, comparer);
+            list.Distinct(comparer).AddTo(destination);
         }
 
         /// <summary>
@@ -114,7 +111,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.AddUnique(list, destination, comparison);
+            list.Distinct(comparison).AddTo(destination);
         }
 
         /// <summary>
@@ -125,9 +122,8 @@ namespace NDex.Tests
         public void TestAddUnique_NullComparer_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.AddUnique(list, destination, comparer);
+            list.Distinct(comparer);
         }
 
         /// <summary>
@@ -138,9 +134,8 @@ namespace NDex.Tests
         public void TestAddUnique_NullComparison_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.AddUnique(list, destination, comparison);
+            list.Distinct(comparison);
         }
 
         #endregion
@@ -153,9 +148,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1, });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnique(list, destination);
+            destination = list.Distinct().AddTo(destination);
             int[] expected = { 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -168,9 +163,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 5, 4, 3, 2, 1 });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnique(list, destination, EqualityComparer<int>.Default.Equals);
+            destination = list.Distinct(EqualityComparer<int>.Default.Equals).AddTo(destination);
             int[] expected = { 5, 4, 3, 2, 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -183,9 +178,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 4, });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnique(list, destination, EqualityComparer<int>.Default);
+            destination = list.Distinct(EqualityComparer<int>.Default).AddTo(destination);
             int[] expected = { 1, 2, 3, 4 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -198,9 +193,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 2, 3, 4, });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnique(list, destination);
+            destination = list.Distinct().AddTo(destination);
             int[] expected = { 1, 2, 3, 4 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -213,9 +208,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, 4, });
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddUnique(list, destination);
+            destination = list.Distinct().AddTo(destination);
             int[] expected = { 1, 2, 3, 4 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

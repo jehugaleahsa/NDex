@@ -21,7 +21,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The selector is null.</exception>
-        public static Source<TDestination, SelectResult> Select<TSourceList, TSource, TDestination>(
+        public static SelectSource<TSourceList, TSource, TDestination> Select<TSourceList, TSource, TDestination>(
             this IReadOnlySublist<TSourceList, TSource> source,
             Func<TSource, TDestination> selector)
             where TSourceList : IList<TSource>
@@ -87,18 +87,30 @@ namespace NDex
 
     #region SelectSource
 
-    internal sealed class SelectSource<TSourceList, TSource, TDestination> : Source<TDestination, SelectResult>
+    /// <summary>
+    /// Provides the information needed to copy or add items to a destination sublist.
+    /// </summary>
+    /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items in the source.</typeparam>
+    /// <typeparam name="TDestination">The type of the items in the destination.</typeparam>
+    public sealed class SelectSource<TSourceList, TSource, TDestination> : Source<TDestination, SelectResult>
         where TSourceList : IList<TSource>
     {
         private readonly IReadOnlySublist<TSourceList, TSource> source;
         private readonly Func<TSource, TDestination> selector;
 
-        public SelectSource(IReadOnlySublist<TSourceList, TSource> source, Func<TSource, TDestination> selector)
+        internal SelectSource(IReadOnlySublist<TSourceList, TSource> source, Func<TSource, TDestination> selector)
         {
             this.source = source;
             this.selector = selector;
         }
 
+        /// <summary>
+        /// Adds the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected override IExpandableSublist<TDestinationList, TDestination> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TDestination> destination)
         {
             int result = addConverted<TDestinationList>(
@@ -122,6 +134,12 @@ namespace NDex
             return indexes.Item2;
         }
 
+        /// <summary>
+        /// Copies the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>Information about the results of the operation.</returns>
         protected override SelectResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TDestination> destination) 
         {
             Tuple<int, int> indexes = copyConverted<TDestinationList>(

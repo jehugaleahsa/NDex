@@ -22,14 +22,14 @@ namespace NDex.Tests
 
             // build a list of odd numbers
             var odds = new List<int>(100);
-            Sublist.AddGenerated(odds.ToSublist(), 100, i => random.Next(0, 50) * 2 + 1); // max of 99 (49 * 2 + 1)
+            Sublist.Generate(100, i => random.Next(0, 50) * 2 + 1).AddTo(odds.ToSublist());  // max of 99 (49 * 2 + 1)
 
             // build a list of all of the numbers divisible by three
             var threes = new List<int>(34);
-            Sublist.AddGenerated(threes.ToSublist(), 34, i => i * 3); // max of 99
+            Sublist.Generate(34, i => i * 3).AddTo(threes.ToSublist());  // max of 99
 
             // sort and eliminate duplicates from odd list, to make it an ordered set
-            Sublist.RemoveRange(odds.ToSublist(Sublist.MakeSet(odds.ToSublist())));
+            odds.ToSublist(odds.ToSublist().MakeSet()).Clear();
 
             // now remove the threes and make sure none remain
             var destination = new List<int>(100);
@@ -198,7 +198,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.Except(list2).AddTo(destination);
             int[] expected = { 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -216,7 +216,7 @@ namespace NDex.Tests
             IComparer<int> comparer= Comparer<int>.Default;
             list1.Except(list2, comparer).AddTo(destination);
             int[] expected = { };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -234,7 +234,7 @@ namespace NDex.Tests
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list1.Except(list2, comparison).AddTo(destination);
             int[] expected = { };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The destination did not have the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The destination did not have the expected items.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
             TestHelper.CheckHeaderAndFooter(destination);

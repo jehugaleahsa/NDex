@@ -127,7 +127,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
 
-            list = Sublist.AddGenerated(list, 100, i => 99 - i); // largest to smallest
+            list = Sublist.Generate(100, i => 99 - i).AddTo(list); // largest to smallest
             Sublist.MakeHeap(list, comparison); // smallest to largest
 
             Assert.AreEqual(0, list[0], "The largest element was not first.");
@@ -143,7 +143,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.AddGenerated(list, 99, i => i);
+            list = Sublist.Generate(99, i => i).AddTo(list);
             Sublist.MakeHeap(list, Comparer<int>.Default);
 
             Assert.AreEqual(98, list[0], "The largest element was not first.");

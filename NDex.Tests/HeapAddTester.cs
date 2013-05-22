@@ -109,7 +109,7 @@ namespace NDex.Tests
         public void TestHeapAdd_AddLargest_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 10, i => i); // 0..9
+            list = Sublist.Generate(10, i => i).AddTo(list); // 0..9
             Sublist.MakeHeap(list);
 
             list = Sublist.AddTo(new int[] { 10 }, list);
@@ -127,7 +127,7 @@ namespace NDex.Tests
         public void TestHeapAdd_AddSmallest_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 10, i => i + 1); // 1..10
+            list = Sublist.Generate(10, i => i + 1).AddTo(list); // 1..10
             Sublist.MakeHeap(list);
 
             list = Sublist.AddTo(new int[] { 0 }, list);
@@ -144,7 +144,7 @@ namespace NDex.Tests
         public void TestHeapAdd_AddMedium_StaysAHeap()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 10, i => i + (i > 4 ? 1 : 0)); // 0..4, 6..10
+            list = Sublist.Generate(10, i => i + (i > 4 ? 1 : 0)).AddTo(list); // 0..4, 6..10
             Sublist.MakeHeap(list);
 
             list = Sublist.AddTo(new int[] { 5 }, list);

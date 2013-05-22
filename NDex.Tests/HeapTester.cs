@@ -23,7 +23,7 @@ namespace NDex.Tests
 
             // build a random list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // make a heap
             Sublist.MakeHeap(list.ToSublist());

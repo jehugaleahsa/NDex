@@ -22,10 +22,10 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
+            Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // make it a set and remove trailing garbage
-            Sublist.RemoveRange(list.ToSublist(Sublist.MakeSet(list.ToSublist())));
+            Sublist.Clear(list.ToSublist(Sublist.MakeSet(list.ToSublist())));
 
             // the set should be sorted and have all unique values
             Assert.IsTrue(Sublist.IsSorted(list.ToSublist()), "The list was not sorted.");
@@ -131,7 +131,7 @@ namespace NDex.Tests
             int index = Sublist.MakeSet(list, (x, y) => Comparer<int>.Default.Compare(y, x));
             Assert.AreEqual(list.Count, index, "The wrong index was returned.");
             int[] expected = { 5, 4, 3, 2, 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The list was not sorted.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The list was not sorted.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -146,9 +146,9 @@ namespace NDex.Tests
             Assert.AreEqual(5, index, "The wrong index was returned.");
             var set = list.Nest(0, index);
             var garbage = list.Nest(index);
-            Sublist.RemoveRange(garbage);
+            Sublist.Clear(garbage);
             int[] expected = { 1, 2, 3, 4, 5, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), set), "The duplicates were not removed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), set), "The duplicates were not removed.");
             TestHelper.CheckHeaderAndFooter(set);
         }
     }

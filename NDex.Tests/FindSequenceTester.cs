@@ -23,11 +23,11 @@ namespace NDex.Tests
 
             // build large, random list
             var list1 = new List<char>(1000);
-            Sublist.AddGenerated(list1.ToSublist(), 1000, i => keys[random.Next(4)]);
+            Sublist.Generate(1000, i => keys[random.Next(4)]).AddTo(list1.ToSublist());
 
             // build small search pattern
             var list2 = new char[5];
-            Sublist.CopyGenerated(list2.ToSublist(), () => keys[random.Next(4)]);
+            Sublist.Generate(5, () => keys[random.Next(4)]).CopyTo(list2.ToSublist());
 
             // force a find
             Sublist.AddTo(list2.ToSublist(), list1.ToSublist(random.Next(list1.Count + 1), 0));
@@ -37,7 +37,7 @@ namespace NDex.Tests
             Assert.IsTrue(list1.Count - result.Index > list2.Length, "The index was too close to the end.");
 
             var actual = list1.ToSublist(result.Index, list2.Length);
-            Assert.IsTrue(Sublist.AreEqual(list2.ToSublist(), actual), "The index was not pointing to the beginning of a matching sequence.");
+            Assert.IsTrue(Sublist.Equals(list2.ToSublist(), actual), "The index was not pointing to the beginning of a matching sequence.");
         }
 
         #endregion

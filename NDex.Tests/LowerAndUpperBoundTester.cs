@@ -23,7 +23,7 @@ namespace NDex.Tests
 
             // build a list of random values, then sort it
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
             Sublist.QuickSort(list.ToSublist());
 
             // now detect each duplicate and remove all but the first
@@ -33,7 +33,7 @@ namespace NDex.Tests
                 int value = list[index];
                 LowerAndUpperBoundResult bounds = Sublist.LowerAndUpperBound(sublist, value);
                 var range = sublist.Nest(bounds.LowerBound, bounds.UpperBound - bounds.LowerBound).Nest(1); // leave the first item alone
-                Sublist.RemoveRange(range);
+                Sublist.Clear(range);
             }
 
             // at this point, all of the items should be unique and sorted, a.k.a, an ordered set.
@@ -135,7 +135,7 @@ namespace NDex.Tests
             Assert.AreNotSame(list, range, "The same Sublist was returned.");
             int[] expected = { 1, 1, 1, };
             var sublist = list.Nest(range.LowerBound, range.UpperBound - range.LowerBound);
-            Assert.IsTrue(Sublist.AreEqual(list, sublist), "The returned range did not contain the expected values.");
+            Assert.IsTrue(Sublist.Equals(list, sublist), "The returned range did not contain the expected values.");
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace NDex.Tests
             LowerAndUpperBoundResult range = Sublist.LowerAndUpperBound(list, value);
             int[] expected = { 1, 1, };
             var sublist = list.Nest(range.LowerBound, range.UpperBound - range.LowerBound);
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The returned range did not contain the expected values.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), sublist), "The returned range did not contain the expected values.");
         }
 
         /// <summary>
@@ -163,7 +163,7 @@ namespace NDex.Tests
             LowerAndUpperBoundResult range = Sublist.LowerAndUpperBound(list, value);
             int[] expected = { 2, 2, };
             var sublist = list.Nest(range.LowerBound, range.UpperBound - range.LowerBound);
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The returned range did not contain the expected values.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), sublist), "The returned range did not contain the expected values.");
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace NDex.Tests
             LowerAndUpperBoundResult range = Sublist.LowerAndUpperBound(list, value);
             int[] expected = { 2, 2, };
             var sublist = list.Nest(range.LowerBound, range.UpperBound - range.LowerBound);
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The returned range did not contain the expected values.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), sublist), "The returned range did not contain the expected values.");
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace NDex.Tests
             LowerAndUpperBoundResult range = Sublist.LowerAndUpperBound(list, value, (x, y) => Comparer<int>.Default.Compare(y, x));
             int[] expected = { 8 };
             var sublist = list.Nest(range.LowerBound, range.UpperBound - range.LowerBound);
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), sublist), "The returned range did not contain the expected values.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), sublist), "The returned range did not contain the expected values.");
         }
 
         /// <summary>

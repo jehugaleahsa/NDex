@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(0, 100));
+            Sublist.Generate(100, i => random.Next(0, 100)).AddTo(list.ToSublist());
 
             // find all of the sorted ranges
             int index = 0;
@@ -44,7 +44,7 @@ namespace NDex.Tests
                 {
                     var nextRange = ranges[next];
                     var firstRange = list.ToSublist(0, nextRange.Offset);
-                    int count = Sublist.CopyMerged(firstRange, nextRange, buffer.ToSublist()); // merge into buffer
+                    int count = firstRange.Merge(nextRange).CopyTo(buffer.ToSublist());  // merge into buffer
                     Sublist.CopyTo(buffer.ToSublist(0, count), list.ToSublist()); // move back to original list, sorted
                 }
             }

@@ -22,13 +22,13 @@ namespace NDex.Tests
 
             // build a list of values
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => i);
+            Sublist.Generate(100, i => i).AddTo(list.ToSublist());
 
             // grab 5 values at random
             const int numberOfSamples = 10;
             var samples = new List<int>(numberOfSamples);
-            Sublist.AddGenerated(samples.ToSublist(), numberOfSamples, 0);
-            int index = Sublist.CopyRandomSamples(list.ToSublist(), samples.ToSublist(), random);
+            Sublist.Generate(numberOfSamples, 0).AddTo(samples.ToSublist());
+            int index = list.ToSublist().RandomSamples(numberOfSamples, random).CopyTo(samples.ToSublist());
             Assert.AreEqual(samples.Count, index, "The wrong index was returned.");
 
             // make sure the same value doesn't occur multiple times
@@ -52,9 +52,8 @@ namespace NDex.Tests
         public void TestCopyRandomSamples_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Random random = new Random();
-            Sublist.CopyRandomSamples(list, destination, random);
+            list.RandomSamples(0, random);
         }
 
         /// <summary>
@@ -65,9 +64,9 @@ namespace NDex.Tests
         public void TestCopyRandomSamples_WithGenerator_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
+            int numberOfSamples = 0;
             Func<int> generator = () => 0;
-            Sublist.CopyRandomSamples(list, destination, generator);
+            list.RandomSamples(numberOfSamples, generator);
         }
 
         /// <summary>
@@ -78,9 +77,10 @@ namespace NDex.Tests
         public void TestCopyRandomSamples_NullDestination_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
+            int numberOfSamples = 0;
             Sublist<List<int>, int> destination = null;
             Random random = new Random();
-            Sublist.CopyRandomSamples(list, destination, random);
+            list.RandomSamples(numberOfSamples, random).CopyTo(destination);
         }
 
         /// <summary>
@@ -91,9 +91,10 @@ namespace NDex.Tests
         public void TestCopyRandomSamples_WithGenerator_NullDestination_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
+            int numberOfSamples = 0;
             Sublist<List<int>, int> destination = null;
             Func<int> generator = () => 0;
-            Sublist.CopyRandomSamples(list, destination, generator);
+            list.RandomSamples(numberOfSamples, generator).CopyTo(destination);
         }
 
         /// <summary>
@@ -104,9 +105,9 @@ namespace NDex.Tests
         public void TestCopyRandomSamples_NullRandom_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
+            int numberOfSamples = 0;
             Random random = null;
-            Sublist.CopyRandomSamples(list, destination, random);
+            list.RandomSamples(numberOfSamples, random);
         }
 
         /// <summary>
@@ -117,9 +118,9 @@ namespace NDex.Tests
         public void TestCopyRandomSamples_NullGenerator_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
+            int numberOfSamples = 0;
             Func<int> generator = null;
-            Sublist.CopyRandomSamples(list, destination, generator);
+            list.RandomSamples(numberOfSamples, generator);
         }
 
         #endregion
@@ -134,12 +135,12 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             Func<int> generator = () => 0;
-            var result = Sublist.CopyRandomSamples(list, destination, generator);
+            var result = list.RandomSamples(destination.Count, generator).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             Sublist.QuickSort(destination); // guarantees order -> actually unnecessary
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The wrong samples were chosen.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The wrong samples were chosen.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -154,7 +155,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             Random random = new Random();
             Func<int> generator = () => random.Next(-5, 6);
-            var result = Sublist.CopyRandomSamples(list, destination, generator);
+            var result = list.RandomSamples(destination.Count, generator).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             Sublist.BubbleSort(destination);

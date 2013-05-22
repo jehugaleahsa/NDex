@@ -22,10 +22,10 @@ namespace NDex.Tests
             var destination = new List<int>();
 
             // only keep the even items
-            Sublist.AddIf(list.ToSublist(), destination.ToSublist(), item => item % 2 == 0);
+            list.ToSublist().Where(item => item % 2 == 0).AddTo(destination.ToSublist());
 
             int[] expected = { 2, 4, 6 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination.ToSublist()), "The items were not where they were expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination.ToSublist()), "The items were not where they were expected.");
         }
 
         #endregion
@@ -40,9 +40,8 @@ namespace NDex.Tests
         public void TestAddIf_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, bool> predicate = i => true; // always true
-            Sublist.AddIf(list, destination, predicate);
+            list.Where(predicate);
         }
 
         /// <summary>
@@ -55,7 +54,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, bool> predicate = i => true; // always true
-            Sublist.AddIf(list, destination, predicate);
+            list.Where(predicate).AddTo(destination);
         }
 
         /// <summary>
@@ -66,9 +65,8 @@ namespace NDex.Tests
         public void TestAddIf_NullPredicate_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, bool> predicate = null; // always true
-            Sublist.AddIf(list, destination, predicate);
+            list.Where(predicate);
         }
 
         #endregion
@@ -82,9 +80,9 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, bool> predicate = i => i % 2 == 0; // always true
-            destination = Sublist.AddIf(list, destination, predicate);
+            destination = list.Where(predicate).AddTo(destination);
             int[] expected = { 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not added as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

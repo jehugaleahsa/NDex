@@ -19,9 +19,9 @@ namespace NDex.Tests
         public void TestCopyGenerated_Counting()
         {
             int[] values = new int[10];
-            Sublist.CopyGenerated(values.ToSublist(), i => i);
+            Sublist.Generate(10, i => i).CopyTo(values.ToSublist());
             int[] expected = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), values.ToSublist()), "The items were not set as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), values.ToSublist()), "The items were not set as expected.");
         }
 
         /// <summary>
@@ -32,12 +32,12 @@ namespace NDex.Tests
         {
             DateTime[] values = new DateTime[10]; // defaults to 01/01/0001
             DateTime defaultDate = DateTime.Today;
-            Sublist.CopyGenerated(values.ToSublist(), defaultDate); // change default to today
+            Sublist.Generate(10, defaultDate).CopyTo(values.ToSublist());  // change default to today
 
             DateTime[] expected = new DateTime[10];
             expected.ToSublist().Select(i => defaultDate).CopyTo(expected.ToSublist()); // replace all with default
 
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), values.ToSublist()), "The items were not set as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), values.ToSublist()), "The items were not set as expected.");
         }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace NDex.Tests
         {
             Random random = new Random();
             int[] values = new int[10];
-            Sublist.CopyGenerated(values.ToSublist(), i => random.Next(1, 10)); // fixed length version of Grow!
+            Sublist.Generate(10, i => random.Next(1, 10)).CopyTo(values.ToSublist());  // fixed length version of Grow!
             Assert.IsTrue(Sublist.TrueForAll(values.ToSublist(), i => i != 0), "Not all of the values were filled in.");
         }
 
@@ -57,51 +57,15 @@ namespace NDex.Tests
         #region Argument Checking
 
         /// <summary>
-        /// An exception should be thrown if the list is null.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyGenerated_NullList_Throws()
-        {
-            Sublist<int[], int> list = null;
-            int value = 0;
-            Sublist.CopyGenerated(list, value);
-        }
-
-        /// <summary>
-        /// An exception should be thrown if the list is null.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyGenerated_WithGenerator_NullList_Throws()
-        {
-            Sublist<int[], int> list = null;
-            Func<int> generator = () => 0;
-            Sublist.CopyGenerated(list, generator);
-        }
-
-        /// <summary>
-        /// An exception should be thrown if the list is null.
-        /// </summary>
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestCopyGenerated_WithIndexedGenerator_NullList_Throws()
-        {
-            Sublist<int[], int> list = null;
-            Func<int, int> generator = i => i;
-            Sublist.CopyGenerated(list, generator);
-        }
-
-        /// <summary>
         /// An exception should be thrown if the generator is null.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCopyGenerated_NullGenerator_Throws()
         {
-            Sublist<int[], int> list = new int[10];
+            int numberOfItems = 0;
             Func<int> generator = null;
-            Sublist.CopyGenerated(list, generator);
+            Sublist.Generate(numberOfItems, generator);
         }
 
         /// <summary>
@@ -111,9 +75,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCopyGenerated_NullIndexedGenerator_Throws()
         {
-            Sublist<int[], int> list = new int[10];
+            int numberOfItems = 0;
             Func<int, int> generator = null;
-            Sublist.CopyGenerated(list, generator);
+            Sublist.Generate(numberOfItems, generator);
         }
 
         #endregion
@@ -127,9 +91,9 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             int defaultValue = 4;
 
-            Sublist.CopyGenerated(list, defaultValue);
+            Sublist.Generate(list.Count, defaultValue).CopyTo(list);
             int[] expected = { 4, 4, 4, 4, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not set as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not set as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -143,9 +107,10 @@ namespace NDex.Tests
         public void TestCopyGenerated_WithGenerator_CallCtor()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1 });
-            Sublist.CopyGenerated(list, () => new int());
+
+            Sublist.Generate(list.Count, () => new int()).CopyTo(list);
             int[] expected = { 0, 0, 0, 0, 0, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not set as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not set as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -157,9 +122,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
 
-            Sublist.CopyGenerated(list, i => i + 1);
+            Sublist.Generate(list.Count, i => i + 1).CopyTo(list);
             int[] expected = { 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The items were not set as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The items were not set as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
         }

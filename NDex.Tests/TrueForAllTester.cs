@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // create a list of random numbers
             var list = new List<int>(5);
-            Sublist.AddGenerated(list.ToSublist(), 5, i => random.Next(5));
+            Sublist.Generate(5, i => random.Next(5)).AddTo(list.ToSublist());
 
             // see if they are all even
             bool allEven = Sublist.TrueForAll(list.ToSublist(), i => i % 2 == 0);

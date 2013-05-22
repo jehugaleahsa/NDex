@@ -24,21 +24,21 @@ namespace NDex.Tests
             // build list of numbers that divide evenly into 100 and pick one
             var divisors = new List<int>(Enumerable.Range(1, 50).Where(i => 100 % i == 0));
             var samples = new List<int>(1);
-            Sublist.AddRandomSamples(divisors.ToSublist(), 1, samples.ToSublist(), random);
+            divisors.ToSublist().RandomSamples(1, random).AddTo(samples.ToSublist());
             int repeat = samples[0];
 
             // build a list with the numbers 0-4 reoccurring
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => i % repeat);
+            Sublist.Generate(100, i => i % repeat).AddTo(list.ToSublist());
 
             // try different shifts, looking for reoccurrences
             int shift = 1;
             while (shift != 100)
             {
                 var copy = new List<int>(list.Count);
-                Sublist.AddGenerated(copy.ToSublist(), list.Count, 0);
-                Sublist.CopyRotatedLeft(list.ToSublist(), copy.ToSublist(), shift);
-                if (Sublist.AreEqual(list.ToSublist(), copy.ToSublist()))
+                Sublist.Generate(list.Count, 0).AddTo(copy.ToSublist());
+                list.ToSublist().RotateLeft(shift).CopyTo(copy.ToSublist());
+                if (Sublist.Equals(list.ToSublist(), copy.ToSublist()))
                 {
                     break;
                 }
@@ -59,9 +59,8 @@ namespace NDex.Tests
         public void TestCopyRotatedLeft_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             int shift = 0;
-            Sublist.CopyRotatedLeft(list, destination, shift);
+            list.RotateLeft(shift);
         }
 
         /// <summary>
@@ -74,7 +73,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
             int shift = 0;
-            Sublist.CopyRotatedLeft(list, destination, shift);
+            list.RotateLeft(shift).CopyTo(destination);
         }
 
         #endregion
@@ -89,11 +88,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             int shift = 2;
-            var result = Sublist.CopyRotatedLeft(list, destination, shift);
+            var result = list.RotateLeft(shift).CopyTo(destination);
             Assert.AreEqual(4, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 3, 4 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -108,11 +107,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             int shift = 2;
-            var result = Sublist.CopyRotatedLeft(list, destination, shift);
+            var result = list.RotateLeft(shift).CopyTo(destination);
             Assert.AreEqual(1, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 3, 4, 5, 1 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -126,11 +125,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             int shift = -1;
-            var result = Sublist.CopyRotatedLeft(list, destination, shift);
+            var result = list.RotateLeft(shift).CopyTo(destination);
             Assert.AreEqual(4, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 5, 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -144,11 +143,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             int shift = list.Count + 1;
-            var result = Sublist.CopyRotatedLeft(list, destination, shift);
+            var result = list.RotateLeft(shift).CopyTo(destination);
             Assert.AreEqual(1, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 2, 3, 4, 5, 1, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -162,11 +161,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             int shift = 0;
-            var result = Sublist.CopyRotatedLeft(list, destination, shift);
+            var result = list.RotateLeft(shift).CopyTo(destination);
             Assert.AreEqual(0, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 1, 2, 3, 4, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -181,11 +180,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             int shift = 2;
-            var result = Sublist.CopyRotatedLeft(list, destination, shift);
+            var result = list.RotateLeft(shift).CopyTo(destination);
             Assert.AreEqual(0, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 3, 4, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

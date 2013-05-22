@@ -24,7 +24,7 @@ namespace NDex.Tests
             Random random = new Random();
 
             List<char> characters = new List<char>(1000);
-            Sublist.AddGenerated(characters.ToSublist(), 1000, i => (char)random.Next(0x41, 0x7A));
+            Sublist.Generate(1000, i => (char)random.Next(0x41, 0x7A)).AddTo(characters.ToSublist());
             string value = new String(characters.ToArray());
 
             // count the occurrences of the letter 'e'
@@ -243,7 +243,7 @@ namespace NDex.Tests
             Assert.AreEqual(value.Length, substring.Count, "The substring had the wrong count.");
             Assert.AreEqual(0, substring.Offset, "The substring had the wrong offset.");
             char[] expected = { 't', 'e', 's', 't' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), substring), "The substring did not contain the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), substring), "The substring did not contain the expected items.");
         }
 
         /// <summary>
@@ -258,7 +258,7 @@ namespace NDex.Tests
             Assert.AreEqual(value.Length - 1, substring.Count, "The substring had the wrong count.");
             Assert.AreEqual(1, substring.Offset, "The substring had the wrong offset.");
             char[] expected = { 'e', 's', 't' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), substring), "The substring did not contain the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), substring), "The substring did not contain the expected items.");
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace NDex.Tests
             Assert.AreEqual(2, substring.Count, "The substring had the wrong count.");
             Assert.AreEqual(1, substring.Offset, "The substring had the wrong offset.");
             char[] expected = { 'e', 's' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), substring), "The substring did not contain the expected items.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), substring), "The substring did not contain the expected items.");
         }
 
         #endregion
@@ -365,7 +365,7 @@ namespace NDex.Tests
             var substring = "Sammy".ToSubstring();
             var nested = substring.Nest(1);
             char[] expected = { 'a', 'm', 'm', 'y' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the first item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the first item.");
         }
 
         /// <summary>
@@ -377,7 +377,7 @@ namespace NDex.Tests
             IReadOnlySublist<StringAdapter, char> substring = "Sammy".ToSubstring();
             var nested = substring.Nest(1);
             char[] expected = { 'a', 'm', 'm', 'y' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the first item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the first item.");
         }
 
         /// <summary>
@@ -389,7 +389,7 @@ namespace NDex.Tests
             var list = "Sammy".ToSubstring();
             var nested = list.Nest(1).Nest(1);
             char[] expected = { 'm', 'm', 'y' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the first item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the first item.");
         }
 
         /// <summary>
@@ -401,7 +401,7 @@ namespace NDex.Tests
             var list = "Sammy".ToSubstring();
             var nested = list.Nest(0, list.Count - 1);
             char[] expected = { 'S', 'a', 'm', 'm' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the last item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the last item.");
         }
 
         /// <summary>
@@ -413,7 +413,7 @@ namespace NDex.Tests
             IReadOnlySublist<StringAdapter, char> list = "Sammy".ToSubstring();
             var nested = list.Nest(0, list.Count - 1);
             char[] expected = { 'S', 'a', 'm', 'm' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the last item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the last item.");
         }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace NDex.Tests
             var list = "Sammy".ToSubstring();
             var nested = list.Nest(1, list.Count - 2); // we want to remove the front and back, two items
             char[] expected = { 'a', 'm', 'm' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), nested), "The offset did not pop the last item.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), nested), "The offset did not pop the last item.");
         }
 
         #endregion
@@ -631,7 +631,7 @@ namespace NDex.Tests
                 list.Add(item);
             }
             char[] expected = { 'o', 's' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.ToSublist()), "The correct values were not enumerated.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The correct values were not enumerated.");
         }
 
         /// <summary>
@@ -647,7 +647,7 @@ namespace NDex.Tests
                 list.Add(item);
             }
             char[] expected = { 'o', 's' };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.ToSublist()), "The correct values were not enumerated.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The correct values were not enumerated.");
         }
 
         #endregion

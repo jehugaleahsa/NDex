@@ -22,23 +22,23 @@ namespace NDex.Tests
 
             // build two lists
             var list1 = new List<int>(100);
-            Sublist.AddGenerated(list1.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list1.ToSublist());
             var list2 = new List<int>(100);
-            Sublist.AddGenerated(list2.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // make the lists sets
-            Sublist.RemoveRange(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
-            Sublist.RemoveRange(list2.ToSublist(Sublist.MakeSet(list2.ToSublist())));
+            Sublist.Clear(list1.ToSublist(Sublist.MakeSet(list1.ToSublist())));
+            Sublist.Clear(list2.ToSublist(Sublist.MakeSet(list2.ToSublist())));
 
             // find the unique values
             var difference = new List<int>(100);
-            Sublist.AddGenerated(difference.ToSublist(), 100, 0); // can't be bigger
-            int index = Sublist.CopySymmetricDifference(list1.ToSublist(), list2.ToSublist(), difference.ToSublist());
-            Sublist.RemoveRange(difference.ToSublist(index));
+            Sublist.Generate(100, 0).AddTo(difference.ToSublist()); // can't be bigger
+            int index = list1.ToSublist().SymmetricExcept(list2.ToSublist()).CopyTo(difference.ToSublist());
+            Sublist.Clear(difference.ToSublist(index));
 
             // this is the opposite of the intersection, so they should share no items
             var intersection = new List<int>();
-            Sublist.AddIntersection(list1.ToSublist(), list2.ToSublist(), intersection.ToSublist());
+            list1.ToSublist().Intersect(list2.ToSublist()).AddTo(intersection.ToSublist());
 
             bool result = Sublist.FindAny(intersection.ToSublist(), difference.ToSublist());
             Assert.IsFalse(result, "Found items in common in the intersection and symmetric difference.");
@@ -57,8 +57,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopySymmetricDifference(list1, list2, destination);
+            list1.SymmetricExcept(list2);
         }
 
         /// <summary>
@@ -70,9 +69,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopySymmetricDifference(list1, list2, destination, comparer);
+            list1.SymmetricExcept(list2, comparer);
         }
 
         /// <summary>
@@ -84,9 +82,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopySymmetricDifference(list1, list2, destination, comparison);
+            list1.SymmetricExcept(list2, comparison);
         }
 
         /// <summary>
@@ -98,8 +95,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopySymmetricDifference(list1, list2, destination);
+            list1.SymmetricExcept(list2);
         }
 
         /// <summary>
@@ -111,9 +107,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopySymmetricDifference(list1, list2, destination, comparer);
+            list1.SymmetricExcept(list2, comparer);
         }
 
         /// <summary>
@@ -125,9 +120,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopySymmetricDifference(list1, list2, destination, comparison);
+            list1.SymmetricExcept(list2, comparison);
         }
 
         /// <summary>
@@ -140,7 +134,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.CopySymmetricDifference(list1, list2, destination);
+            list1.SymmetricExcept(list2).CopyTo(destination);
         }
 
         /// <summary>
@@ -154,7 +148,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopySymmetricDifference(list1, list2, destination, comparer);
+            list1.SymmetricExcept(list2, comparer).CopyTo(destination);
         }
 
         /// <summary>
@@ -168,7 +162,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list2 = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopySymmetricDifference(list1, list2, destination, comparison);
+            list1.SymmetricExcept(list2, comparison).CopyTo(destination);
         }
 
         /// <summary>
@@ -180,9 +174,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.CopySymmetricDifference(list1, list2, destination, comparer);
+            list1.SymmetricExcept(list2, comparer);
         }
 
         /// <summary>
@@ -194,9 +187,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.CopySymmetricDifference(list1, list2, destination, comparison);
+            list1.SymmetricExcept(list2, comparison);
         }
 
         #endregion
@@ -211,12 +203,12 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, });
             IComparer<int> comparer = Comparer<int>.Default;
 
-            var result = Sublist.CopySymmetricDifference(list, list, destination, comparer);
+            var result = list.SymmetricExcept(list, comparer).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(0, result.DestinationOffset, "The destination offset was wrong.");
             int[] expected = { 0, 0, 0, 0, 0, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -232,12 +224,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopySymmetricDifference(list1, list2, destination);
+            var result = list1.SymmetricExcept(list2).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong index was returned.");
             int[] expected = { 1, 2, 3, 4, 5, 6 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -254,12 +246,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, });
 
-            var result = Sublist.CopySymmetricDifference(list1, list2, destination);
+            var result = list1.SymmetricExcept(list2).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The wrong index was returned.");
             int[] expected = { 3, 0, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -276,12 +268,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopySymmetricDifference(list1, list2, destination);
+            var result = list1.SymmetricExcept(list2).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The wrong index was returned.");
             int[] expected = { 3, 0, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -299,12 +291,12 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
 
-            var result = Sublist.CopySymmetricDifference(list1, list2, destination, comparison);
+            var result = list1.SymmetricExcept(list2, comparison).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(list2.Count, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The wrong index was returned.");
             int[] expected = { 1, 0, 0, 0, 0, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -321,12 +313,12 @@ namespace NDex.Tests
             var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
 
-            var result = Sublist.CopySymmetricDifference(list1, list2, destination);
+            var result = list1.SymmetricExcept(list2).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset1, "The first source offset was wrong.");
             Assert.AreEqual(1, result.SourceOffset2, "The second source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong index was returned.");
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);

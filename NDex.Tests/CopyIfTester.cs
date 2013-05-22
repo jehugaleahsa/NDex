@@ -20,11 +20,11 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5, 6 };
             // only keep the even items
-            int result = Sublist.CopyIf(list.ToSublist(), list.ToSublist(), item => item % 2 == 0);
+            int result = list.ToSublist().Where(item => item % 2 == 0).CopyTo(list.ToSublist());
             list.RemoveRange(result, list.Count - result);
 
             int[] expected = { 2, 4, 6 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.ToSublist()), "The items were not where they were expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The items were not where they were expected.");
         }
 
         #endregion
@@ -39,9 +39,8 @@ namespace NDex.Tests
         public void TestCopyIf_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, bool> predicate = i => true; // always true
-            Sublist.CopyIf(list, destination, predicate);
+            list.Where(predicate);
         }
 
         /// <summary>
@@ -54,7 +53,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, bool> predicate = i => true; // always true
-            Sublist.CopyIf(list, destination, predicate);
+            list.Where(predicate).CopyTo(destination);
         }
 
         /// <summary>
@@ -65,9 +64,8 @@ namespace NDex.Tests
         public void TestCopyIf_NullPredicate_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, bool> predicate = null; // always true
-            Sublist.CopyIf(list, destination, predicate);
+            list.Where(predicate);
         }
 
         #endregion
@@ -82,11 +80,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             Func<int, bool> predicate = i => true; // always true
-            var result = Sublist.CopyIf(list, destination, predicate);
+            var result = list.Where(predicate).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The result was at the wrong index.");
             int[] expected = { 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -100,11 +98,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             Func<int, bool> predicate = i => true; // always true
-            var result = Sublist.CopyIf(list, destination, predicate);
+            var result = list.Where(predicate).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(2, result.DestinationOffset, "The result was at the wrong index.");
             int[] expected = { 1, 2, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -118,11 +116,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0 });
             Func<int, bool> predicate = i => i % 2 == 0;
-            var result = Sublist.CopyIf(list, destination, predicate);
+            var result = list.Where(predicate).CopyTo(destination);
             Assert.AreEqual(3, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The result was at the wrong index.");
             int[] expected = { 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

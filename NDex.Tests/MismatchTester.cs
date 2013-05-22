@@ -22,9 +22,9 @@ namespace NDex.Tests
 
             // build two, small lists
             var list1 = new List<int>(5);
-            Sublist.AddGenerated(list1.ToSublist(), 5, i => random.Next(5));
+            Sublist.Generate(5, i => random.Next(5)).AddTo(list1.ToSublist());
             var list2 = new List<int>(5);
-            Sublist.AddGenerated(list2.ToSublist(), 5, i => random.Next(5));
+            Sublist.Generate(5, i => random.Next(5)).AddTo(list2.ToSublist());
 
             // now find the differences
             int index = Sublist.Mismatch(list1.ToSublist(), list2.ToSublist());

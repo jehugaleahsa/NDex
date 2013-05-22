@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a random string representing a password
             var password = new List<char>();
-            Sublist.AddGenerated(password.ToSublist(), 100, i => (char)random.Next(32, 127));
+            Sublist.Generate(100, i => (char)random.Next(32, 127)).AddTo(password.ToSublist());
             password.Insert(50, '>'); // insert an invalid character
 
             // have a list of characters that aren't allowed

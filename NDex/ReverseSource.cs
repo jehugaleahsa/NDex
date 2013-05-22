@@ -10,116 +10,43 @@ namespace NDex
     /// </summary>
     public static partial class Sublist
     {
-        #region AddReversed
+        /// <summary>
+        /// Adds the items in a list in reverse to a destination list.
+        /// </summary>
+        /// <typeparam name="TSourceList">The type of the list.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list whose items are to be added in reverse.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        public static ReverseSource<TSourceList, TSource> Reverse<TSourceList, TSource>(
+            this IReadOnlySublist<TSourceList, TSource> source)
+            where TSourceList : IList<TSource>
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            return new ReverseSource<TSourceList, TSource>(source);
+        }
 
         /// <summary>
         /// Adds the items in a list in reverse to a destination list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source">The list whose items are to be added in reverse.</param>
-        /// <param name="destination">The list to add the items to.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        public static IExpandableSublist<TDestinationList, T> AddReversed<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        public static InplaceReverseSource<TSourceList, TSource> Reverse<TSourceList, TSource>(
+            this IMutableSublist<TSourceList, TSource> source)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            int result = addReversed<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count);
-            return destination.Resize(result - destination.Offset, true);
+            return new InplaceReverseSource<TSourceList, TSource>(source);
         }
-
-        private static int addReversed<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = CopyReversed<TSourceList, TDestinationList, T>(
-                source, first, past,
-                destination, destinationPast, destination.Count);
-            return indexes.Item2;
-        }
-
-        #endregion
-
-        #region CopyReversed
-
-        /// <summary>
-        /// Copies the items in a list in reverse to a destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="source">The list to copy from.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <returns>The index into the destination past the last item copied.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <remarks>
-        /// If the destination is too small to hold all of the values in the source, then only the items at the beginning
-        /// of the source are copied.
-        /// </remarks>
-        public static ReverseResult CopyReversed<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            Tuple<int, int> indexes = CopyReversed<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count);
-            ReverseResult result = new ReverseResult();
-            result.SourceOffset = indexes.Item1 - source.Offset;
-            result.DestinationOffset = indexes.Item2 - destination.Offset;
-            return result;
-        }
-
-        internal static Tuple<int, int> CopyReversed<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int count1 = past - first;
-            int count2 = destinationPast - destinationFirst;
-            if (count2 < count1)
-            {
-                past -= count1 - count2;
-            }
-            int position = past;
-            while (first != position)
-            {
-                --position;
-                destination[destinationFirst] = source[position];
-                ++destinationFirst;
-            }
-            return new Tuple<int, int>(past, destinationFirst);
-        }
-
-        #endregion
     }
 
     #endregion
@@ -171,24 +98,87 @@ namespace NDex
 
     #region ReverseSource
 
-    internal sealed class ReverseSource<TSourceList, TSource> : Source<TSource, ReverseResult>
+    /// <summary>
+    /// Provides the information needed to copy or add items to a destination sublist, or perform the action in-place.
+    /// </summary>
+    /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items in the source.</typeparam>
+    public class ReverseSource<TSourceList, TSource> : Source<TSource, ReverseResult>
         where TSourceList : IList<TSource>
     {
-        private readonly IReadOnlySublist<TSourceList, TSource> source;
-
-        public ReverseSource(IReadOnlySublist<TSourceList, TSource> source)
+        internal ReverseSource(IReadOnlySublist<TSourceList, TSource> source)
         {
-            this.source = source;
+            Source = source;
         }
 
-        protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
+        /// <summary>
+        /// Gets the list that is the source of the items.
+        /// </summary>
+        protected IReadOnlySublist<TSourceList, TSource> Source { get; private set; }
+
+        /// <summary>
+        /// Adds the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
+        protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            return Sublist.AddReversed(source, destination);
+            int result = addReversed<TDestinationList>(
+                Source.List, Source.Offset, Source.Offset + Source.Count,
+                destination.List, destination.Offset + destination.Count);
+            return destination.Resize(result - destination.Offset, true);
         }
 
-        protected override ReverseResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
+        private static int addReversed<TDestinationList>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast)
+            where TDestinationList : IList<TSource>
         {
-            return Sublist.CopyReversed(source, destination);
+            Sublist.GrowAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
+            Tuple<int, int> indexes = Sublist.CopyReversed<TSourceList, TDestinationList, TSource>(
+                source, first, past,
+                destination, destinationPast, destination.Count);
+            return indexes.Item2;
+        }
+
+        /// <summary>
+        /// Copies the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>Information about the results of the operation.</returns>
+        protected sealed override ReverseResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
+        {
+            Tuple<int, int> indexes = Sublist.CopyReversed<TSourceList, TDestinationList, TSource>(
+                Source.List, Source.Offset, Source.Offset + Source.Count,
+                destination.List, destination.Offset, destination.Offset + destination.Count);
+            ReverseResult result = new ReverseResult();
+            result.SourceOffset = indexes.Item1 - Source.Offset;
+            result.DestinationOffset = indexes.Item2 - destination.Offset;
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Provides the information needed to copy or add items to a destination sublist, or perform the action in-place.
+    /// </summary>
+    /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items in the source.</typeparam>
+    public sealed class InplaceReverseSource<TSourceList, TSource> : ReverseSource<TSourceList, TSource>
+        where TSourceList : IList<TSource>
+    {
+        internal InplaceReverseSource(IMutableSublist<TSourceList, TSource> source)
+            : base(source)
+        {
+        }
+
+        /// <summary>
+        /// Performs the reverse in-place.
+        /// </summary>
+        public void InPlace()
+        {
+            Sublist.Reverse<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count);
         }
     }
 

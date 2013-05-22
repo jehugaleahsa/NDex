@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list of numbers
             var numbers = new List<double>(100);
-            Sublist.AddGenerated(numbers.ToSublist(), 100, i => random.NextDouble() * 100);
+            Sublist.Generate(100, i => random.NextDouble() * 100).AddTo(numbers.ToSublist());
 
             // convert to a list of strings
             var strings = new List<string>(100);
@@ -34,7 +34,7 @@ namespace NDex.Tests
 
             // check that the numbers are mostly the same
             // numbers will change a little due to precision issues
-            bool result = Sublist.AreEqual(numbers.ToSublist(), converted.ToSublist(), (n, c) => Math.Abs(n - c) < .0001);
+            bool result = Sublist.Equals(numbers.ToSublist(), converted.ToSublist(), (n, c) => Math.Abs(n - c) < .0001);
             Assert.IsTrue(result, "Could not convert between strings and numbers.");
         }
 
@@ -91,7 +91,7 @@ namespace NDex.Tests
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.Select(i => i * 2).AddTo(destination);
             int[] expected = { 2, 4, 6, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "Not all of the items were added as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "Not all of the items were added as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

@@ -25,7 +25,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(5);
-            Sublist.AddGenerated(list.ToSublist(), 5, i => random.Next(0, 10));
+            Sublist.Generate(5, i => random.Next(0, 10)).AddTo(list.ToSublist());
 
             // first, we must sort the items to make sure all permutations are enumerated
             Sublist.BubbleSort(list.ToSublist());
@@ -173,7 +173,7 @@ namespace NDex.Tests
             List<int[]> permutations = new List<int[]>() { list.ToArray() };
             while (Sublist.NextPermutation(list, Comparer<int>.Default.Compare))
             {
-                Assert.IsFalse(permutations.Any(item => Sublist.AreEqual(list, item.ToSublist())), "The same permutation appeared twice.");
+                Assert.IsFalse(permutations.Any(item => Sublist.Equals(list, item.ToSublist())), "The same permutation appeared twice.");
                 permutations.Add(list.ToArray());
             }
             Assert.AreEqual(120, permutations.Count, "Not all permutations were found.");

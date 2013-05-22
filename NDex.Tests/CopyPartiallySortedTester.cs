@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // create a list to hold the top three
             const int numberOfItems = 10;
@@ -30,7 +30,7 @@ namespace NDex.Tests
 
             // store the top three results
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            int result = Sublist.CopyPartiallySorted(list.ToSublist(), destination.ToSublist(), comparison);
+            int result = list.ToSublist().PartialSort(numberOfItems, comparison).CopyTo(destination.ToSublist());
             Assert.AreEqual(destination.Length, result, "The wrong number of items were copied.");
 
             // grab the three largest values from largest to smallest
@@ -42,7 +42,7 @@ namespace NDex.Tests
                 list.RemoveAt(maxIndex);
             }
 
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination.ToSublist()), "The top values weren't grabbed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination.ToSublist()), "The top values weren't grabbed.");
         }
 
         #endregion
@@ -57,8 +57,8 @@ namespace NDex.Tests
         public void TestCopyPartiallySorted_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyPartiallySorted(list, destination);
+            int numberOfItems = 0;
+            list.PartialSort(numberOfItems);
         }
 
         /// <summary>
@@ -69,9 +69,9 @@ namespace NDex.Tests
         public void TestCopyPartiallySorted_WithComparer_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
+            int numberOfItems = 0;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyPartiallySorted(list, destination, comparer);
+            list.PartialSort(numberOfItems, comparer);
         }
 
         /// <summary>
@@ -82,9 +82,10 @@ namespace NDex.Tests
         public void TestCopyPartiallySorted_WithComparison_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
+            int numberOfItems = 0;
             Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyPartiallySorted(list, destination, comparison);
+            list.PartialSort(numberOfItems, comparison);
         }
 
         /// <summary>
@@ -95,8 +96,9 @@ namespace NDex.Tests
         public void TestCopyPartiallySorted_NullDestination_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
+            int numberOfItems = 0;
             Sublist<List<int>, int> destination = null;
-            Sublist.CopyPartiallySorted(list, destination);
+            list.PartialSort(numberOfItems).CopyTo(destination);
         }
 
         /// <summary>
@@ -107,9 +109,10 @@ namespace NDex.Tests
         public void TestCopyPartiallySorted_WithComparer_NullDestination_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
+            int numberOfItems = 0;
             Sublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.CopyPartiallySorted(list, destination, comparer);
+            list.PartialSort(numberOfItems, comparer).CopyTo(destination);
         }
 
         /// <summary>
@@ -120,9 +123,10 @@ namespace NDex.Tests
         public void TestCopyPartiallySorted_WithComparison_NullDestination_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
+            int numberOfItems = 0;
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.CopyPartiallySorted(list, destination, comparison);
+            list.PartialSort(numberOfItems, comparison).CopyTo(destination);
         }
 
         /// <summary>
@@ -133,9 +137,9 @@ namespace NDex.Tests
         public void TestCopyPartiallySorted_NullComparer_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
+            int numberOfItems = 0;
             IComparer<int> comparer = null;
-            Sublist.CopyPartiallySorted(list, destination, comparer);
+            list.PartialSort(numberOfItems, comparer);
         }
 
         /// <summary>
@@ -146,9 +150,9 @@ namespace NDex.Tests
         public void TestCopyPartiallySorted_NullComparison_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
+            int numberOfItems = 0;
             Func<int, int, int> comparison = null;
-            Sublist.CopyPartiallySorted(list, destination, comparison);
+            list.PartialSort(numberOfItems, comparison);
         }
 
         #endregion
@@ -162,11 +166,11 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             IComparer<int> comparer = Comparer<int>.Default;
-            var result = Sublist.CopyPartiallySorted(list, destination, comparer);
+            var result = list.PartialSort(destination.Count, comparer).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The wrong destination index was returned.");
             int[] expected = { 1, 5, 7 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -179,11 +183,11 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
-            var result = Sublist.CopyPartiallySorted(list, destination);
+            var result = list.PartialSort(list.Count).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(5, result.DestinationOffset, "The wrong destination index was returned.");
             int[] expected = { 1, 5, 7, 8, 12, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

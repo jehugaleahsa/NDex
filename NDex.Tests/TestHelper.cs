@@ -9,7 +9,7 @@ namespace NDex.Tests
         {
             int count = list.Count;
             var wrapper = new List<int>();
-            Sublist.AddGenerated(wrapper.ToSublist(), 100, i => i);
+            Sublist.Generate(100, i => i).AddTo(wrapper.ToSublist());
             Sublist.AddTo(wrapper.ToSublist(), list.ToSublist(0, 0)); // add to front
             Sublist.AddTo(wrapper.ToSublist(), list.ToSublist()); // add to back
             var sublist = new Sublist<List<int>, int>(list, 100, count);

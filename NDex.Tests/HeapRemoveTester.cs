@@ -109,7 +109,7 @@ namespace NDex.Tests
             IComparer<int> comparer = Comparer<int>.Default;
             Sublist.HeapRemove(list, comparer);
             int[] expected = { 5, 10 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The top item was not moved to the end.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The top item was not moved to the end.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -120,7 +120,7 @@ namespace NDex.Tests
         public void TestHeap_EvenSized_MovesTopToEnd()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 100, i => i + 1); // 1..100
+            list = Sublist.Generate(100, i => i + 1).AddTo(list); // 1..100
 
             Sublist.MakeHeap(list);
             Sublist.HeapRemove(list);
@@ -136,7 +136,7 @@ namespace NDex.Tests
         public void TestHeap_OddSized_MovesTopToEnd()
         {
             var list = TestHelper.Wrap(new List<int>());
-            list = Sublist.AddGenerated(list, 99, i => i + 1); // 1..99
+            list = Sublist.Generate(99, i => i + 1).AddTo(list); // 1..99
 
             Sublist.MakeHeap(list);
             Sublist.HeapRemove(list);
@@ -153,7 +153,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            list = Sublist.AddGenerated(list, 64, i => i + 1); // 1..64
+            list = Sublist.Generate(64, i => i + 1).AddTo(list); // 1..64
 
             Sublist.MakeHeap(list, comparison);
             Sublist.HeapRemove(list, comparison);

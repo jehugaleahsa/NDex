@@ -343,7 +343,7 @@ namespace NDex.Tests
             int arrayIndex = 0;
             list.CopyTo(array, arrayIndex);
             int[] expected = { 0, 1, 2, 3, 4 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), array.ToSublist()), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), array.ToSublist()), "The items were not copied as expected.");
         }
 
         /// <summary>
@@ -357,7 +357,7 @@ namespace NDex.Tests
             int arrayIndex = 2;
             list.CopyTo(array, arrayIndex);
             int[] expected = { 0, 0, 1, 2, 3, 4, 5, 0, 0, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), array.ToSublist()), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), array.ToSublist()), "The items were not copied as expected.");
         }
 
         #endregion
@@ -407,7 +407,7 @@ namespace NDex.Tests
                 list.Add(item);
             }
             int[] expected = { 0, 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.ToSublist()), "The values were not enumerated.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The values were not enumerated.");
         }
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace NDex.Tests
                 list.Add(item);
             }
             object[] expected = { 0, 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.ToSublist()), "The values were not enumerated in reverse.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.ToSublist()), "The values were not enumerated in reverse.");
         }
 
         #endregion

@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // first build a list of random values.
             var values = new List<int>();
-            Sublist.AddGenerated(values.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(values.ToSublist());
 
             // now build one with just the unique values
             var set = new List<int>();

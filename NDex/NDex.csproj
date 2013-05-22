@@ -23,7 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\NDex.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\NDex.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,9 +36,11 @@
   <ItemGroup>
     <Compile Include="DistinctSource.cs" />
     <Compile Include="ExceptSource.cs" />
+    <Compile Include="GenerateSource.cs" />
     <Compile Include="IntersectSource.cs" />
     <Compile Include="MergeSource.cs" />
     <Compile Include="PartialSortSource.cs" />
+    <Compile Include="PartitionSource.cs" />
     <Compile Include="RandomSamplesSource.cs" />
     <Compile Include="ReplaceSource.cs" />
     <Compile Include="ReverseSource.cs" />

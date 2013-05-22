@@ -22,10 +22,10 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next());
+            Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // we'll partition the list and make sure evens and odds are separated
-            int index = Sublist.Partition(list.ToSublist(), i => i % 2 == 0);
+            int index = list.ToSublist().Partition(i => i % 2 == 0).InPlace();
             Assert.IsTrue(Sublist.TrueForAll(list.ToSublist(0, index), i => i % 2 == 0), "Odds were discovered in the front partition.");
             Assert.IsTrue(Sublist.TrueForAll(list.ToSublist(index), i => i % 2 != 0), "Evens were discovered in the back partition.");
         }
@@ -67,7 +67,7 @@ namespace NDex.Tests
         public void TestPartition_AllItemsSatisfy_ReturnsCount()
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8, });
-            int index = Sublist.Partition(list, i => i % 2 == 0);
+            int index = list.Partition(i => i % 2 == 0).InPlace();
             Assert.AreEqual(list.Count, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -79,7 +79,7 @@ namespace NDex.Tests
         public void TestPartition_NoItemsSatisfy_ReturnsZero()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7 });
-            int index = Sublist.Partition(list, i => i % 2 == 0);
+            int index = list.Partition(i => i % 2 == 0).InPlace();
             Assert.AreEqual(0, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -91,7 +91,7 @@ namespace NDex.Tests
         public void TestPartition_MatchingItemsInBack_MovedForward()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7, 2, 4, 6, 8 });
-            int index = Sublist.Partition(list, i => i % 2 == 0);
+            int index = list.Partition(i => i % 2 == 0).InPlace();
             Assert.AreEqual(4, index, "The wrong index was returned.");
 
             Assert.IsTrue(Sublist.TrueForAll(list.Nest(0, index), i => i % 2 == 0), "Odds were found in the front partition.");
@@ -112,7 +112,7 @@ namespace NDex.Tests
         public void TestPartition_MatchingItemsInFront_StayPut()
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8, 1, 3, 5, 7 });
-            int index = Sublist.Partition(list, i => i % 2 == 0);
+            int index = list.Partition(i => i % 2 == 0).InPlace();
             Assert.AreEqual(4, index, "The wrong index was returned.");
 
             Assert.IsTrue(Sublist.TrueForAll(list.Nest(0, index), i => i % 2 == 0), "Odds were found in the front partition.");
@@ -133,7 +133,7 @@ namespace NDex.Tests
         public void TestPartition_MatchingItemsInterweaved_MovedForward()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8 });
-            int index = Sublist.Partition(list, i => i % 2 == 0);
+            int index = list.Partition(i => i % 2 == 0).InPlace();
             Assert.AreEqual(4, index, "The wrong index was returned.");
 
             Assert.IsTrue(Sublist.TrueForAll(list.Nest(0, index), i => i % 2 == 0), "Odds were found in the front partition.");

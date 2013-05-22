@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // create a list to hold the top three
             const int numberOfItems = 10;
@@ -30,7 +30,7 @@ namespace NDex.Tests
 
             // store the top three results
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            Sublist.AddPartiallySorted(list.ToSublist(), numberOfItems, destination.ToSublist(), comparison);
+            list.ToSublist().PartialSort(numberOfItems, comparison).AddTo(destination.ToSublist());
 
             // grab the three largest values from largest to smallest
             var expected = new List<int>(numberOfItems);
@@ -41,7 +41,7 @@ namespace NDex.Tests
                 list.RemoveAt(maxIndex);
             }
 
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination.ToSublist()), "The top values weren't grabbed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination.ToSublist()), "The top values weren't grabbed.");
         }
 
         #endregion
@@ -57,8 +57,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddPartiallySorted(list, numberOfItems, destination);
+            list.PartialSort(numberOfItems);
         }
 
         /// <summary>
@@ -70,9 +69,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparer);
+            list.PartialSort(numberOfItems, comparer);
         }
 
         /// <summary>
@@ -84,9 +82,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparison);
+            list.PartialSort(numberOfItems, comparison);
         }
 
         /// <summary>
@@ -98,8 +95,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = -1;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddPartiallySorted(list, numberOfItems, destination);
+            list.PartialSort(numberOfItems);
         }
 
         /// <summary>
@@ -111,9 +107,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = -1;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparer);
+            list.PartialSort(numberOfItems, comparer);
         }
 
         /// <summary>
@@ -125,9 +120,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = -1;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparison);
+            list.PartialSort(numberOfItems, comparison);
         }
 
         /// <summary>
@@ -139,8 +133,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = 1;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.AddPartiallySorted(list, numberOfItems, destination);
+            list.PartialSort(numberOfItems);
         }
 
         /// <summary>
@@ -152,9 +145,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = 1;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparer);
+            list.PartialSort(numberOfItems, comparer);
         }
 
         /// <summary>
@@ -166,9 +158,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = 1;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparison);
+            list.PartialSort(numberOfItems, comparison);
         }
 
         /// <summary>
@@ -181,7 +172,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = 0;
             Sublist<List<int>, int> destination = null;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination);
+            list.PartialSort(numberOfItems).AddTo(destination);
         }
 
         /// <summary>
@@ -195,7 +186,7 @@ namespace NDex.Tests
             int numberOfItems = 0;
             Sublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparer);
+            list.PartialSort(numberOfItems, comparer).AddTo(destination);
         }
 
         /// <summary>
@@ -209,7 +200,7 @@ namespace NDex.Tests
             int numberOfItems = 0;
             Sublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparison);
+            list.PartialSort(numberOfItems, comparison).AddTo(destination);
         }
 
         /// <summary>
@@ -221,9 +212,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparer);
+            list.PartialSort(numberOfItems, comparer);
         }
 
         /// <summary>
@@ -235,9 +225,8 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.AddPartiallySorted(list, numberOfItems, destination, comparison);
+            list.PartialSort(numberOfItems, comparison);
         }
 
         #endregion
@@ -251,9 +240,9 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
-            destination = Sublist.AddPartiallySorted(list, numberOfItems, destination);
+            destination = list.PartialSort(numberOfItems).AddTo(destination);
             int[] expected = { 1, 5, 7 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -268,9 +257,9 @@ namespace NDex.Tests
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer = Comparer<int>.Default;
-            destination = Sublist.AddPartiallySorted(list, numberOfItems, destination, comparer);
+            destination = list.PartialSort(numberOfItems, comparer).AddTo(destination);
             int[] expected = { 1, 5, 7 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
@@ -285,9 +274,9 @@ namespace NDex.Tests
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
-            destination = Sublist.AddPartiallySorted(list, numberOfItems, destination, comparison);
+            destination = list.PartialSort(numberOfItems, comparison).AddTo(destination);
             int[] expected = { 12, 8, 7 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The items were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The items were not copied as expected.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }

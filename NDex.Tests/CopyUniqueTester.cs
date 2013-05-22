@@ -23,15 +23,15 @@ namespace NDex.Tests
 
             // build a list of random numbers
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // unique requires that elements be sorted
             Sublist.QuickSort(list.ToSublist());
 
             // now we create a set from the list
             var destination = new List<int>(100);
-            Sublist.AddGenerated(destination.ToSublist(), 100, 0);
-            int result = Sublist.CopyUnique(list.ToSublist(), destination.ToSublist());
+            Sublist.Generate(100, 0).AddTo(destination.ToSublist());
+            int result = list.ToSublist().Distinct().CopyTo(destination.ToSublist());
             destination.RemoveRange(result, destination.Count - result); // remove dangling elements
 
             // check that we have a valid set
@@ -51,8 +51,7 @@ namespace NDex.Tests
         public void TestCopyUnique_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
-            Sublist.CopyUnique(list, destination);
+            list.Distinct();
         }
 
         /// <summary>
@@ -63,9 +62,8 @@ namespace NDex.Tests
         public void TestCopyUnique_WithComparer_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.CopyUnique(list, destination, comparer);
+            list.Distinct(comparer);
         }
 
         /// <summary>
@@ -76,9 +74,8 @@ namespace NDex.Tests
         public void TestCopyUnique_WithComparison_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.CopyUnique(list, destination, comparison);
+            list.Distinct(comparison);
         }
 
         /// <summary>
@@ -90,7 +87,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
-            Sublist.CopyUnique(list, destination);
+            list.Distinct().CopyTo(destination);
         }
 
         /// <summary>
@@ -103,7 +100,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
-            Sublist.CopyUnique(list, destination, comparer);
+            list.Distinct(comparer).CopyTo(destination);
         }
 
         /// <summary>
@@ -116,7 +113,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list = new List<int>();
             Sublist<List<int>, int> destination = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
-            Sublist.CopyUnique(list, destination, comparison);
+            list.Distinct(comparison).CopyTo(destination);
         }
 
         /// <summary>
@@ -127,9 +124,8 @@ namespace NDex.Tests
         public void TestCopyUnique_NullComparer_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             IEqualityComparer<int> comparer = null;
-            Sublist.CopyUnique(list, destination, comparer);
+            list.Distinct(comparer);
         }
 
         /// <summary>
@@ -140,9 +136,8 @@ namespace NDex.Tests
         public void TestCopyUnique_NullComparison_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = new List<int>();
             Func<int, int, bool> comparison = null;
-            Sublist.CopyUnique(list, destination, comparison);
+            list.Distinct(comparison);
         }
 
         #endregion
@@ -156,12 +151,12 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            var result = Sublist.CopyUnique(list, destination, EqualityComparer<int>.Default.Equals);
+            var result = list.Distinct(EqualityComparer<int>.Default.Equals).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = { 1, 0, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -176,12 +171,12 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, });
 
-            var result = Sublist.CopyUnique(list, destination, EqualityComparer<int>.Default);
+            var result = list.Distinct(EqualityComparer<int>.Default).CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
             int[] expected = { 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), destination), "The values were not copied as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), destination), "The values were not copied as expected.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
@@ -196,7 +191,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>());
 
-            var result = Sublist.CopyUnique(list, destination);
+            var result = list.Distinct().CopyTo(destination);
             Assert.AreEqual(0, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
@@ -213,7 +208,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            var result = Sublist.CopyUnique(list, destination);
+            var result = list.Distinct().CopyTo(destination);
             Assert.AreEqual(0, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 
@@ -231,7 +226,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
 
-            var result = Sublist.CopyUnique(list, destination);
+            var result = list.Distinct().CopyTo(destination);
             Assert.AreEqual(4, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
 

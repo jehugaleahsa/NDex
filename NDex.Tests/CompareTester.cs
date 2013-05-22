@@ -21,17 +21,17 @@ namespace NDex.Tests
             Random random = new Random();
 
             var list1 = new List<int>(10);
-            Sublist.AddGenerated(list1.ToSublist(), 10, i => random.Next(0, 10));
+            Sublist.Generate(10, i => random.Next(0, 10)).AddTo(list1.ToSublist());
 
             var list2 = new List<int>(10);
-            Sublist.AddGenerated(list2.ToSublist(), 10, i => random.Next(0, 10));
+            Sublist.Generate(10, i => random.Next(0, 10)).AddTo(list2.ToSublist());
 
             // we know list1 and list2 should be equal to themselves
-            Assert.AreEqual(0, Sublist.Compare(list1.ToSublist(), list1.ToSublist()), "The first list did not equal itself.");
-            Assert.AreEqual(0, Sublist.Compare(list2.ToSublist(), list2.ToSublist()), "The second list did not equal itself.");
+            Assert.AreEqual(0, Sublist.CompareTo(list1.ToSublist(), list1.ToSublist()), "The first list did not equal itself.");
+            Assert.AreEqual(0, Sublist.CompareTo(list2.ToSublist(), list2.ToSublist()), "The second list did not equal itself.");
 
             // we can use mismatch to confirm that Comparer returned the correct value
-            int result = Sublist.Compare(list1.ToSublist(), list2.ToSublist());
+            int result = Sublist.CompareTo(list1.ToSublist(), list2.ToSublist());
             int difference = Sublist.Mismatch(list1.ToSublist(), list2.ToSublist());
             if (difference == list1.Count)
             {
@@ -59,7 +59,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
-            Sublist.Compare(list1, list2);
+            Sublist.CompareTo(list1, list2);
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.Compare(list1, list2, comparer);
+            Sublist.CompareTo(list1, list2, comparer);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = null;
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.Compare(list1, list2, comparison);
+            Sublist.CompareTo(list1, list2, comparison);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
-            Sublist.Compare(list1, list2);
+            Sublist.CompareTo(list1, list2);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             IComparer<int> comparer = Comparer<int>.Default;
-            Sublist.Compare(list1, list2, comparer);
+            Sublist.CompareTo(list1, list2, comparer);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
-            Sublist.Compare(list1, list2, comparison);
+            Sublist.CompareTo(list1, list2, comparison);
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             IComparer<int> comparer = null;
-            Sublist.Compare(list1, list2, comparer);
+            Sublist.CompareTo(list1, list2, comparer);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> list1 = new List<int>();
             Sublist<List<int>, int> list2 = new List<int>();
             Func<int, int, int> comparison = null;
-            Sublist.Compare(list1, list2, comparison);
+            Sublist.CompareTo(list1, list2, comparison);
         }
 
         #endregion
@@ -162,7 +162,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
 
-            int result = Sublist.Compare(list, list);
+            int result = Sublist.CompareTo(list, list);
 
             Assert.AreEqual(0, result, "The result was not zero.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -177,7 +177,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
 
-            int result = Sublist.Compare(list1, list2);
+            int result = Sublist.CompareTo(list1, list2);
 
             Assert.IsTrue(result < 0, "The result was not negative.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -193,7 +193,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
 
-            int result = Sublist.Compare(list1, list2);
+            int result = Sublist.CompareTo(list1, list2);
 
             Assert.IsTrue(result > 0, "The result was not positive.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -209,7 +209,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
 
-            int result = Sublist.Compare(list1, list2);
+            int result = Sublist.CompareTo(list1, list2);
 
             Assert.AreEqual(0, result, "The result was not zero.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -225,7 +225,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 2 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
 
-            int result = Sublist.Compare(list1, list2);
+            int result = Sublist.CompareTo(list1, list2);
 
             Assert.IsTrue(result < 0, "The result was not negative.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -241,7 +241,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 4 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
 
-            int result = Sublist.Compare(list1, list2);
+            int result = Sublist.CompareTo(list1, list2);
 
             Assert.IsTrue(result > 0, "The result was not positive.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -257,7 +257,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 4 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
 
-            int result = Sublist.Compare(list1, list2, Comparer<int>.Default);
+            int result = Sublist.CompareTo(list1, list2, Comparer<int>.Default);
 
             Assert.IsTrue(result > 0, "The result was not positive.");
             TestHelper.CheckHeaderAndFooter(list1);
@@ -273,7 +273,7 @@ namespace NDex.Tests
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 4 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
 
-            int result = Sublist.Compare(list1, list2, (x, y) => Comparer<int>.Default.Compare(y, x));
+            int result = Sublist.CompareTo(list1, list2, (x, y) => Comparer<int>.Default.Compare(y, x));
 
             Assert.IsTrue(result < 0, "The result was not negative.");
             TestHelper.CheckHeaderAndFooter(list1);

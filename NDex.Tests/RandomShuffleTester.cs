@@ -26,7 +26,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(5);
-            Sublist.AddGenerated(list.ToSublist(), 5, i => random.Next(5));
+            Sublist.Generate(5, i => random.Next(5)).AddTo(list.ToSublist());
             var set = new HashSet<int>(list);
 
             // try rearranging the items random until it is sorted (may never happen -- bad unit test)

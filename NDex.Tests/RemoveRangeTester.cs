@@ -24,14 +24,14 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // overwrite if an odd number
-            int index = Sublist.RemoveIf(list.ToSublist(), i => i % 2 == 1);
+            int index = list.ToSublist().Where(i => i % 2 == 1).InPlace();
 
             // now eliminate garbage at the end
             var remaining = list.ToSublist(index);
-            remaining = Sublist.RemoveRange(remaining);
+            remaining = Sublist.Clear(remaining);
             Assert.AreEqual(0, remaining.Count, "The Sublist ");
 
             Assert.AreEqual(index, list.Count, "All of the items were removed.");
@@ -50,7 +50,7 @@ namespace NDex.Tests
         public void TestRemoveRange_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist.RemoveRange(list);
+            Sublist.Clear(list);
         }
 
         #endregion
@@ -63,7 +63,7 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist();
 
-            list = Sublist.RemoveRange(list);
+            list = Sublist.Clear(list);
             Assert.AreEqual(0, list.Count, "Items remain in the Sublist.");
             Assert.AreEqual(0, list.List.Count, "Items remain in the underlying list.");
         }
@@ -76,11 +76,11 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist(0, 2);
 
-            list = Sublist.RemoveRange(list);
+            list = Sublist.Clear(list);
 
             Assert.AreEqual(0, list.Count, "Items remain in the Sublist.");
             int[] expected = { 3, 4, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.ToSublist()), "The wrong items were removed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.List.ToSublist()), "The wrong items were removed.");
         }
 
         /// <summary>
@@ -91,11 +91,11 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist(3);
 
-            list = Sublist.RemoveRange(list);
+            list = Sublist.Clear(list);
 
             Assert.AreEqual(0, list.Count, "Items remain in the Sublist.");
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.ToSublist()), "The wrong items were removed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.List.ToSublist()), "The wrong items were removed.");
         }
 
         /// <summary>
@@ -106,11 +106,11 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist(1, 3);
 
-            list = Sublist.RemoveRange(list);
+            list = Sublist.Clear(list);
 
             Assert.AreEqual(0, list.Count, "Items remain in the Sublist.");
             int[] expected = { 1, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.ToSublist()), "The wrong items were removed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.List.ToSublist()), "The wrong items were removed.");
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace NDex.Tests
         public void TestRemoveRange_Reversed_RemoveAllItems()
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist().Reversed();
-            list = Sublist.RemoveRange(list);
+            list = Sublist.Clear(list);
             Assert.AreEqual(0, list.Count, "Items remain in the Sublist.");
             Assert.AreEqual(0, list.List.Count, "Items remain in the underlying list.");
         }
@@ -133,11 +133,11 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist(0, 2).Reversed();
 
-            list = Sublist.RemoveRange(list);
+            list = Sublist.Clear(list);
 
             Assert.AreEqual(0, list.Count, "Items remain in the Sublist.");
             int[] expected = { 3, 4, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.List.ToSublist()), "The wrong items were removed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.List.List.ToSublist()), "The wrong items were removed.");
         }
 
         /// <summary>
@@ -148,11 +148,11 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist(3).Reversed();
 
-            list = Sublist.RemoveRange(list);
+            list = Sublist.Clear(list);
 
             Assert.AreEqual(0, list.Count, "Items remain in the Sublist.");
             int[] expected = { 1, 2, 3 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.List.ToSublist()), "The wrong items were removed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.List.List.ToSublist()), "The wrong items were removed.");
         }
 
         /// <summary>
@@ -163,11 +163,11 @@ namespace NDex.Tests
         {
             var list = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist(1, 3).Reversed();
 
-            list = Sublist.RemoveRange(list);
+            list = Sublist.Clear(list);
 
             Assert.AreEqual(0, list.Count, "Items remain in the Sublist.");
             int[] expected = { 1, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.List.List.ToSublist()), "The wrong items were removed.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.List.List.ToSublist()), "The wrong items were removed.");
         }
     }
 }

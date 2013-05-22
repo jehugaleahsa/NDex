@@ -10,281 +10,149 @@ namespace NDex
     /// </summary>
     public static partial class Sublist
     {
-        #region AddUnique
-
         /// <summary>
         /// Adds the unique items from a list to a destination list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source">The list of items to add.</param>
-        /// <param name="destination">The list to add the items to.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <remarks>The items in the list must be sorted according to the default ordering of the items.</remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        public static DistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+            this IReadOnlySublist<TSourceList, TSource> source)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return addUnique<TSourceList, TDestinationList, T>(source, destination, EqualityComparer<T>.Default.Equals);
+            return new DistinctSource<TSourceList, TSource>(source, EqualityComparer<TSource>.Default.Equals);
         }
 
         /// <summary>
         /// Adds the unique items from a list to a destination list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source">The list of items to add.</param>
-        /// <param name="destination">The list to add the items to.</param>
         /// <param name="comparer">The comparer to use to compare items.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <remarks>The list must be sorted.</remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            IEqualityComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        public static DistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+            this IReadOnlySublist<TSourceList, TSource> source,
+            IEqualityComparer<TSource> comparer)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
             if (comparer == null)
             {
                 throw new ArgumentNullException("comparer");
             }
-            return addUnique<TSourceList, TDestinationList, T>(source, destination, comparer.Equals);
+            return new DistinctSource<TSourceList, TSource>(source, comparer.Equals);
         }
 
         /// <summary>
         /// Adds the unique items from a list to a destination list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source">The list of items to add.</param>
-        /// <param name="destination">The list to add the items to.</param>
         /// <param name="comparison">The comparison delegate to use to compare items.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination list is null.</exception>
         /// <remarks>The list must be sorted.</remarks>
-        public static IExpandableSublist<TDestinationList, T> AddUnique<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        public static DistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+            this IReadOnlySublist<TSourceList, TSource> source,
+            Func<TSource, TSource, bool> comparison)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
             }
             if (comparison == null)
             {
                 throw new ArgumentNullException("comparison");
             }
-            return addUnique<TSourceList, TDestinationList, T>(source, destination, comparison);
+            return new DistinctSource<TSourceList, TSource>(source, comparison);
         }
-
-        private static IExpandableSublist<TDestinationList, T> addUnique<TSourceList, TDestinationList, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList, T> destination,
-            Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int result = addUnique<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset + destination.Count,
-                comparison);
-            return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addUnique<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            int pivot = destination.Count;
-            if (first != past)
-            {
-                destination.Add(source[first]);
-                for (int next = first + 1; next != past; first = next, ++next)
-                {
-                    if (!comparison(source[first], source[next]))
-                    {
-                        destination.Add(source[next]);
-                    }
-                }
-            }
-            RotateLeft<TDestinationList, T>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        #endregion
-
-        #region CopyUnique
 
         /// <summary>
-        /// Copies the items from a list that are unique to a destination.
+        /// Adds the unique items from a list to a destination list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy from.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list of items to add.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <remarks>The list must be sorted such that equivilent items appear adjacent.</remarks>
-        public static DistinctResult CopyUnique<TSourceList, TDestinationList, T>(IReadOnlySublist<TSourceList, T> source, IMutableSublist<TDestinationList, T> destination)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        /// <remarks>The items in the list must be sorted according to the default ordering of the items.</remarks>
+        public static InplaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+            this IMutableSublist<TSourceList, TSource> source)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
-            return copyUnique<TSourceList, TDestinationList, T>(source, destination, EqualityComparer<T>.Default.Equals);
+            return new InplaceDistinctSource<TSourceList, TSource>(source, EqualityComparer<TSource>.Default.Equals);
         }
 
         /// <summary>
-        /// Copies the items from a list that are unique to a destination.
+        /// Adds the unique items from a list to a destination list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy from.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="comparer">The compare to use to determine whether two items are equivilent.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list of items to add.</param>
+        /// <param name="comparer">The comparer to use to compare items.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>The list must be sorted such that equivilent items appear adjacent.</remarks>
-        public static DistinctResult CopyUnique<TSourceList, TDestinationList, T>(IReadOnlySublist<TSourceList, T> source, IMutableSublist<TDestinationList, T> destination, IEqualityComparer<T> comparer)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        /// <remarks>The list must be sorted.</remarks>
+        public static InplaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+            this IMutableSublist<TSourceList, TSource> source,
+            IEqualityComparer<TSource> comparer)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
-            }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
             }
             if (comparer == null)
             {
                 throw new ArgumentNullException("comparer");
             }
-            return copyUnique<TSourceList, TDestinationList, T>(source, destination, comparer.Equals);
+            return new InplaceDistinctSource<TSourceList, TSource>(source, comparer.Equals);
         }
 
         /// <summary>
-        /// Copies the items from a list that are unique to a destination.
+        /// Adds the unique items from a list to a destination list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList">The type of the destination.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to copy from.</param>
-        /// <param name="destination">The list to copy to.</param>
-        /// <param name="comparison">The delegate used to determine whether two items are equivilent.</param>
-        /// <returns>The index into the destination past the last copied item.</returns>
+        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <param name="source">The list of items to add.</param>
+        /// <param name="comparison">The comparison delegate to use to compare items.</param>
+        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>The list must be sorted such that equivilent items appear adjacent.</remarks>
-        public static DistinctResult CopyUnique<TSourceList, TDestinationList, T>(IReadOnlySublist<TSourceList, T> source, IMutableSublist<TDestinationList, T> destination, Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
+        /// <remarks>The list must be sorted.</remarks>
+        public static InplaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
+            this IMutableSublist<TSourceList, TSource> source,
+            Func<TSource, TSource, bool> comparison)
+            where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            if (destination == null)
-            {
-                throw new ArgumentNullException("destination");
-            }
             if (comparison == null)
             {
                 throw new ArgumentNullException("comparison");
             }
-            return copyUnique<TSourceList, TDestinationList, T>(source, destination, comparison);
+            return new InplaceDistinctSource<TSourceList, TSource>(source, comparison);
         }
-
-        private static DistinctResult copyUnique<TSourceList, TDestinationList, T>(IReadOnlySublist<TSourceList, T> source, IMutableSublist<TDestinationList, T> destination, Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            Tuple<int, int> indexes = copyUnique<TSourceList, TDestinationList, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + destination.Count,
-                comparison);
-            DistinctResult result = new DistinctResult();
-            result.SourceOffset = indexes.Item1 - source.Offset;
-            result.DestinationOffset = indexes.Item2 - destination.Offset;
-            return result;
-        }
-
-        private static Tuple<int, int> copyUnique<TSourceList, TDestinationList, T>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, bool> comparison)
-            where TSourceList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            if (first != past && destinationFirst != destinationPast)
-            {
-                destination[destinationFirst] = source[first];
-                ++destinationFirst;
-                for (int next = first + 1; next != past; first = next, ++next)
-                {
-                    if (!comparison(source[first], source[next]))
-                    {
-                        if (destinationFirst == destinationPast)
-                        {
-                            break;
-                        }
-                        destination[destinationFirst] = source[next];
-                        ++destinationFirst;
-                    }
-                }
-                ++first;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        #endregion
     }
 
     #endregion
@@ -336,26 +204,153 @@ namespace NDex
 
     #region DistinctSource
 
-    internal sealed class DistinctSource<TSourceList, TSource> : Source<TSource, DistinctResult>
+    /// <summary>
+    /// Provides the information needed to copy or add items to a destination sublist.
+    /// </summary>
+    /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items in the source.</typeparam>
+    public class DistinctSource<TSourceList, TSource> : Source<TSource, DistinctResult>
         where TSourceList : IList<TSource>
     {
-        private readonly IReadOnlySublist<TSourceList, TSource> source;
-        private readonly Func<TSource, TSource, bool> comparison;
-
-        public DistinctSource(IReadOnlySublist<TSourceList, TSource> source, Func<TSource, TSource, bool> comparison)
+        internal DistinctSource(IReadOnlySublist<TSourceList, TSource> source, Func<TSource, TSource, bool> comparison)
         {
-            this.source = source;
-            this.comparison = comparison;
+            Source = source;
+            Comparison = comparison;
         }
 
+        /// <summary>
+        /// Gets the list to get the unique items from.
+        /// </summary>
+        protected IReadOnlySublist<TSourceList, TSource> Source { get; private set; }
+
+        /// <summary>
+        /// Gets the comparison function used to detect duplicate items.
+        /// </summary>
+        protected Func<TSource, TSource, bool> Comparison { get; private set; }
+
+        /// <summary>
+        /// Adds the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            return Sublist.AddUnique(source, destination, comparison);
+            int result = addUnique<TDestinationList>(
+                Source.List, Source.Offset, Source.Offset + Source.Count,
+                destination.List, destination.Offset + destination.Count,
+                Comparison);
+            return destination.Resize(result - destination.Offset, true);
         }
 
+        private static int addUnique<TDestinationList>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, bool> comparison)
+            where TDestinationList : IList<TSource>
+        {
+            int pivot = destination.Count;
+            if (first != past)
+            {
+                destination.Add(source[first]);
+                for (int next = first + 1; next != past; first = next, ++next)
+                {
+                    if (!comparison(source[first], source[next]))
+                    {
+                        destination.Add(source[next]);
+                    }
+                }
+            }
+            Sublist.RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
+            return destinationPast + (destination.Count - pivot);
+        }
+
+        /// <summary>
+        /// Copies the result of the intermediate calculation to the given destination list.
+        /// </summary>
+        /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
+        /// <param name="destination">The sublist to copy the intermediate results to.</param>
+        /// <returns>Information about the results of the operation.</returns>
         protected override DistinctResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            return Sublist.CopyUnique(source, destination, comparison);
+            Tuple<int, int> indexes = copyUnique<TDestinationList>(
+                Source.List, Source.Offset, Source.Offset + Source.Count,
+                destination.List, destination.Offset, destination.Offset + destination.Count,
+                Comparison);
+            DistinctResult result = new DistinctResult();
+            result.SourceOffset = indexes.Item1 - Source.Offset;
+            result.DestinationOffset = indexes.Item2 - destination.Offset;
+            return result;
+        }
+
+        private static Tuple<int, int> copyUnique<TDestinationList>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, bool> comparison)
+            where TDestinationList : IList<TSource>
+        {
+            if (first != past && destinationFirst != destinationPast)
+            {
+                destination[destinationFirst] = source[first];
+                ++destinationFirst;
+                for (int next = first + 1; next != past; first = next, ++next)
+                {
+                    if (!comparison(source[first], source[next]))
+                    {
+                        if (destinationFirst == destinationPast)
+                        {
+                            break;
+                        }
+                        destination[destinationFirst] = source[next];
+                        ++destinationFirst;
+                    }
+                }
+                ++first;
+            }
+            return new Tuple<int, int>(first, destinationFirst);
+        }
+    }
+
+    /// <summary>
+    /// Provides the information needed to copy or add items to a destination sublist.
+    /// </summary>
+    /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items in the source.</typeparam>
+    public sealed class InplaceDistinctSource<TSourceList, TSource> : DistinctSource<TSourceList, TSource>
+        where TSourceList : IList<TSource>
+    {
+        internal InplaceDistinctSource(IMutableSublist<TSourceList, TSource> source, Func<TSource, TSource, bool> comparison)
+            : base(source, comparison)
+        {
+        }
+
+        /// <summary>
+        /// Performs the operation in-place.
+        /// </summary>
+        /// <returns>The integer past the last unique item.</returns>
+        public int InPlace()
+        {
+            int result = removeDuplicates(Source.List, Source.Offset, Source.Offset + Source.Count, Comparison);
+            result -= Source.Offset;
+            return result;
+        }
+
+        private static int removeDuplicates(TSourceList list, int first, int past, Func<TSource, TSource, bool> comparison)
+        {
+            first = Sublist.IndexOfDuplicates<TSourceList, TSource>(list, first, past, comparison);
+            if (first != past)
+            {
+                for (int next = first + 2; next != past; ++next)
+                {
+                    if (!comparison(list[first], list[next]))
+                    {
+                        ++first;
+                        list[first] = list[next];
+                    }
+                }
+                return first + 1;
+            }
+            return past;
         }
     }
 

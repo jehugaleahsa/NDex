@@ -27,7 +27,7 @@ namespace NDex.Tests
             var array = Enumerable.Range(0, 100).Select(i => random.Next(100)).ToArray();
 
             // overwrite even numbers
-            int index = Sublist.RemoveIf(array.ToSublist(), i => i % 2 == 0);
+            int index = array.ToSublist().Where(i => i % 2 == 0).InPlace();
 
             // now check that every number is odd
             var odds = array.ToSublist(0, index);
@@ -47,7 +47,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
-            Sublist.RemoveIf(list, predicate);
+            list.Where(predicate);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace NDex.Tests
         {
             Sublist<List<int>, int> list = new List<int>();
             Func<int, bool> predicate = null;
-            Sublist.RemoveIf(list, predicate);
+            list.Where(predicate);
         }
 
         #endregion
@@ -71,7 +71,7 @@ namespace NDex.Tests
         public void TestRemoveIf_AllSatisfy_ReturnsZero()
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8 });
-            int index = Sublist.RemoveIf(list, i => i % 2 == 0);
+            int index = list.Where(i => i % 2 == 0).InPlace();
             Assert.AreEqual(0, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -83,7 +83,7 @@ namespace NDex.Tests
         public void TestRemoveIf_NoneSatisfy_ReturnsCount()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7, 9 });
-            int index = Sublist.RemoveIf(list, i => i % 2 == 0);
+            int index = list.Where(i => i % 2 == 0).InPlace();
             Assert.AreEqual(list.Count, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -95,7 +95,7 @@ namespace NDex.Tests
         public void TestRemoveIf_BackSatisfies()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 4, 6 });
-            int index = Sublist.RemoveIf(list, i => i % 2 == 0);
+            int index = list.Where(i => i % 2 == 0).InPlace();
             Assert.AreEqual(3, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -107,10 +107,10 @@ namespace NDex.Tests
         public void TestRemoveIf_FrontSatisfies()
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 1, 3, 5, });
-            int index = Sublist.RemoveIf(list, i => i % 2 == 0);
+            int index = list.Where(i => i % 2 == 0).InPlace();
             Assert.AreEqual(3, index, "The wrong index was returned.");
             int[] expected = { 1, 3, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, index)), "The items were not where they were expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, index)), "The items were not where they were expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -121,10 +121,10 @@ namespace NDex.Tests
         public void TestRemoveIf_MiddleSatisfies()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            int index = Sublist.RemoveIf(list, i => i % 2 == 0);
+            int index = list.Where(i => i % 2 == 0).InPlace();
             Assert.AreEqual(3, index, "The wrong index was returned.");
             int[] expected = { 1, 3, 5 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list.Nest(0, index)), "The items were not where they were expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list.Nest(0, index)), "The items were not where they were expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

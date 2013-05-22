@@ -8,41 +8,6 @@ using NDex.Properties;
 
 namespace NDex
 {
-    #region PartitionAddResult
-
-    /// <summary>
-    /// Holds the results of the AddPartitioned method.
-    /// </summary>
-    public sealed class PartitionAddResult<TDestinationList1, TDestinationList2, T>
-    {
-        /// <summary>
-        /// Initializes a new instance of an AddPartitionedResult.
-        /// </summary>
-        internal PartitionAddResult()
-        {
-        }
-
-        /// <summary>
-        /// Gets the subset wrapping the first destination list.
-        /// </summary>
-        public IExpandableSublist<TDestinationList1, T> Destination1
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Gets the subset wrapping the second destination list.
-        /// </summary>
-        public IExpandableSublist<TDestinationList2, T> Destination2
-        {
-            get;
-            internal set;
-        }
-    }
-
-    #endregion
-
     #region CopyToResult
 
     /// <summary>
@@ -83,50 +48,6 @@ namespace NDex
         public static implicit operator int(CopyToResult result)
         {
             return result.DestinationOffset;
-        }
-    }
-
-    #endregion
-
-    #region PartitionCopyResult
-
-    /// <summary>
-    /// Holds the result of copying the result of a Partition operation.
-    /// </summary>
-    public sealed class PartitionCopyResult
-    {
-        /// <summary>
-        /// Initializes a new instance of a PartitionCopyResult.
-        /// </summary>
-        internal PartitionCopyResult()
-        {
-        }
-
-        /// <summary>
-        /// Gets the index into the source list where the items stopped being copied.
-        /// </summary>
-        public int SourceOffset
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Gets the index into the first destination list.
-        /// </summary>
-        public int DestinationOffset1
-        {
-            get;
-            internal set;
-        }
-
-        /// <summary>
-        /// Gets the index into the second destination list.
-        /// </summary>
-        public int DestinationOffset2
-        {
-            get;
-            internal set;
         }
     }
 
@@ -332,429 +253,6 @@ namespace NDex
     }
 
     #endregion
-
-    /// <summary>
-    /// Provides methods for creating and working with instances of Sublist.
-    /// </summary>
-    public static partial class Sublist
-    {
-        #region AddGenerated
-
-        /// <summary>
-        /// Copies the given value into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="value">The value to fill the list with.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
-        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, T value)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0)
-            {
-                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
-            }
-            int past = list.Offset + list.Count;
-            addGenerated<TList, T>(list.List, past, past + numberOfItems, value);
-            return list.Resize(list.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TList, T>(TList list, int first, int past, T value)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list.Insert(first, value);
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Copies the result of each call to the generator into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>The generator will be called to set each item in the list.</remarks>
-        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, Func<T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0)
-            {
-                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            int past = list.Offset + list.Count;
-            addGenerated<TList, T>(list.List, past, past + numberOfItems, generator);
-            return list.Resize(list.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TList, T>(TList list, int first, int past, Func<T> generator)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list.Insert(first, generator());
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Copies the result of each call to the generator into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>
-        /// The generator will be called to set each item in the list. 
-        /// The relative index of the item is passed with each call to the generator.
-        /// </remarks>
-        public static IExpandableSublist<TList, T> AddGenerated<TList, T>(IExpandableSublist<TList, T> list, int numberOfItems, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0)
-            {
-                string message = String.Format(CultureInfo.CurrentCulture, Resources.TooSmall, 0);
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, message);
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            int past = list.Offset + list.Count;
-            addGenerated<TList, T>(list.List, past, past + numberOfItems, generator);
-            return list.Resize(list.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TList, T>(TList list, int first, int past, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list.Insert(first, generator(first - adjustment));
-                ++first;
-            }
-        }
-
-        #endregion
-
-        #region CopyGenerated
-
-        /// <summary>
-        /// Copies the given value into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="value">The value to fill the list with.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
-        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, T value)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, value);
-        }
-
-        private static void copyGenerated<TList, T>(TList list, int first, int past, T value)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list[first] = value;
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Copies the result of each call to the generator into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>The generator will be called to set each item in the list.</remarks>
-        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, Func<T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
-        }
-
-        private static void copyGenerated<TList, T>(TList list, int first, int past, Func<T> generator)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                list[first] = generator();
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Copies the result of each call to the generator into the list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to fill.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>
-        /// The generator will be called to set each item in the list. 
-        /// The relative index of the item is passed with each call to the generator.
-        /// </remarks>
-        public static void CopyGenerated<TList, T>(IMutableSublist<TList, T> list, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            copyGenerated<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
-        }
-
-        private static void copyGenerated<TList, T>(TList list, int first, int past, Func<int, T> generator)
-            where TList : IList<T>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list[first] = generator(first - adjustment);
-                ++first;
-            }
-        }
-
-        #endregion
-    }
-
-    /// <summary>
-    /// Provides methods for creating and working with instances of Sublist.
-    /// </summary>
-    public static partial class Sublist
-    {
-        #region AddPartitioned
-
-        /// <summary>
-        /// Adds the items from a list satisfying the predicate to the first destination list and the remaining
-        /// to the second destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList1">The type of the first destination list.</typeparam>
-        /// <typeparam name="TDestinationList2">The type of the second destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to partition.</param>
-        /// <param name="destination1">The list to add the items that satisfy the predicate.</param>
-        /// <param name="destination2">The list to add the items that don't satisfy the predicate.</param>
-        /// <param name="predicate">The condition an item must satisfy to be added to the first destination list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The first destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static PartitionAddResult<TDestinationList1, TDestinationList2, T> AddPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IExpandableSublist<TDestinationList1, T> destination1,
-            IExpandableSublist<TDestinationList2, T> destination2,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList1 : IList<T>
-            where TDestinationList2 : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination1 == null)
-            {
-                throw new ArgumentNullException("destination1");
-            }
-            if (destination2 == null)
-            {
-                throw new ArgumentNullException("destination2");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            Tuple<int, int> indexes = addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination1.List, destination1.Offset + destination1.Count,
-                destination2.List, destination2.Offset + destination2.Count,
-                predicate);
-            PartitionAddResult<TDestinationList1, TDestinationList2, T> result = new PartitionAddResult<TDestinationList1, TDestinationList2, T>();
-            result.Destination1 = destination1.Resize(indexes.Item1 - destination1.Offset, true);
-            result.Destination2 = destination2.Resize(indexes.Item2 - destination2.Offset, true);
-            return result;
-        }
-
-        private static Tuple<int, int> addPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-            TSourceList source, int first, int past,
-            TDestinationList1 destination1, int destinationPast1,
-            TDestinationList2 destination2, int destinationPast2,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList1 : IList<T>
-            where TDestinationList2 : IList<T>
-        {
-            int pivot1 = destination1.Count;
-            int pivot2 = destination2.Count;
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    destination1.Add(source[first]);
-                }
-                else
-                {
-                    destination2.Add(source[first]);
-                }
-                ++first;
-            }
-            RotateLeft<TDestinationList1, T>(destination1, destinationPast1, pivot1, destination1.Count);
-            RotateLeft<TDestinationList2, T>(destination2, destinationPast2, pivot2, destination2.Count);
-            destinationPast1 += destination1.Count - pivot1;
-            destinationPast2 += destination2.Count - pivot2;
-            return new Tuple<int, int>(destinationPast1, destinationPast2);
-        }
-
-        #endregion
-
-        #region CopyPartitioned
-
-        /// <summary>
-        /// Copies the items from a list satisfying the predicate into the first destination list and the remaining
-        /// into the second destination list.
-        /// </summary>
-        /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TDestinationList1">The type of the first destination list.</typeparam>
-        /// <typeparam name="TDestinationList2">The type of the second destination list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list to partition.</param>
-        /// <param name="destination1">The list to copy the items that satisfy the predicate.</param>
-        /// <param name="destination2">The list to copy the items that don't satisfy the predicate.</param>
-        /// <param name="predicate">The condition an item must satisfy to be copied to the first destination list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The first destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second destination is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static PartitionCopyResult CopyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-            IReadOnlySublist<TSourceList, T> source,
-            IMutableSublist<TDestinationList1, T> destination1,
-            IMutableSublist<TDestinationList2, T> destination2,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList1 : IList<T>
-            where TDestinationList2 : IList<T>
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (destination1 == null)
-            {
-                throw new ArgumentNullException("destination1");
-            }
-            if (destination2 == null)
-            {
-                throw new ArgumentNullException("destination2");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            Tuple<int, int, int> indexes = copyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-                source.List, source.Offset, source.Offset + source.Count,
-                destination1.List, destination1.Offset, destination1.Offset + destination1.Count,
-                destination2.List, destination2.Offset, destination2.Offset + destination2.Count,
-                predicate);
-            PartitionCopyResult result = new PartitionCopyResult();
-            result.SourceOffset = indexes.Item1 - source.Offset;
-            result.DestinationOffset1 = indexes.Item2 - destination1.Offset;
-            result.DestinationOffset2 = indexes.Item3 - destination2.Offset;
-            return result;
-        }
-
-        private static Tuple<int, int, int> copyPartitioned<TSourceList, TDestinationList1, TDestinationList2, T>(
-            TSourceList source, int first, int past,
-            TDestinationList1 destination1, int destinationFirst1, int destinationPast1,
-            TDestinationList2 destination2, int destinationFirst2, int destinationPast2,
-            Func<T, bool> predicate)
-            where TSourceList : IList<T>
-            where TDestinationList1 : IList<T>
-            where TDestinationList2 : IList<T>
-        {
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    if (destinationFirst1 == destinationPast1)
-                    {
-                        break;
-                    }
-                    destination1[destinationFirst1] = source[first];
-                    ++destinationFirst1;
-                }
-                else
-                {
-                    if (destinationFirst2 == destinationPast2)
-                    {
-                        break;
-                    }
-                    destination2[destinationFirst2] = source[first];
-                    ++destinationFirst2;
-                }
-                ++first;
-            }
-            return new Tuple<int, int, int>(first, destinationFirst1, destinationFirst2);
-        }
-
-        #endregion
-    }
 
     /// <summary>
     /// Provides methods for creating and working with instances of Sublist.
@@ -1080,6 +578,58 @@ namespace NDex
             }
         }
 
+        internal static int GetReducedOffset<TList, T>(TList list, int first, int past, int shift)
+            where TList : IList<T>
+        {
+            int count = past - first;
+            shift %= count;
+            if (shift < 0)
+            {
+                shift += count;
+            }
+            return shift;
+        }
+
+        internal static void RotateLeft<TList, T>(TList list, int first, int middle, int past)
+            where TList : IList<T>
+        {
+            int shift = middle - first;
+            int count = past - first;
+            for (int factor = shift; factor != 0; )
+            {
+                int temp = count % factor;
+                count = factor;
+                factor = temp;
+            }
+            if (count < past - first)
+            {
+                while (count > 0)
+                {
+                    int hole = first + count;
+                    T value = list[hole];
+                    int temp = hole + shift;
+                    int next = temp == past ? first : temp;
+                    int current = hole;
+                    while (next != hole)
+                    {
+                        list[current] = list[next];
+                        current = next;
+                        int difference = past - next;
+                        if (shift < difference)
+                        {
+                            next += shift;
+                        }
+                        else
+                        {
+                            next = first + (shift - difference);
+                        }
+                    }
+                    list[current] = value;
+                    --count;
+                }
+            }
+        }
+
         #endregion
         
         #region Aggregate
@@ -1096,7 +646,7 @@ namespace NDex
         /// <exception cref="System.InvalidOperationException">The list did not contain any items.</exception>
         /// <exception cref="System.ArgumentNullException">The aggregator function is null.</exception>
         public static T Aggregate<TList, T>(
-            IReadOnlySublist<TList, T> list,
+            this IReadOnlySublist<TList, T> list,
             Func<T, T, T> aggregator)
             where TList : IList<T>
         {
@@ -1128,7 +678,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The aggregator function is null.</exception>
         public static TAggregate Aggregate<TList, T, TAggregate>(
-            IReadOnlySublist<TList, T> list,
+            this IReadOnlySublist<TList, T> list,
             TAggregate seed,
             Func<TAggregate, T, TAggregate> aggregator)
             where TList : IList<T>
@@ -1161,7 +711,7 @@ namespace NDex
 
         #endregion
 
-        #region AreDisjoint
+        #region IsDisjoint
 
         /// <summary>
         /// Determines if two lists share no items.
@@ -1178,7 +728,7 @@ namespace NDex
         /// This algorithm assumes that both lists are sorted according to the default order of the items.
         /// Both lists must contain distinct values.
         /// </remarks>
-        public static bool AreDisjoint<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static bool IsDisjoint<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -1210,8 +760,8 @@ namespace NDex
         /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
         /// comparer respects that order. Both lists must contain distinct values.
         /// </remarks>
-        public static bool AreDisjoint<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
+        public static bool IsDisjoint<TList1, TList2, T>(
+            this IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IComparer<T> comparer)
             where TList1 : IList<T>
@@ -1250,8 +800,8 @@ namespace NDex
         /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
         /// comparison delegate respects that order. Both lists must contain distinct values.
         /// </remarks>
-        public static bool AreDisjoint<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
+        public static bool IsDisjoint<TList1, T1, TList2, T2>(
+            this IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, int> comparison)
             where TList1 : IList<T1>
@@ -1313,7 +863,7 @@ namespace NDex
 
         #endregion
 
-        #region AreEqual
+        #region Equals
 
         /// <summary>
         /// Determines whether two lists have all the same items in the same order.
@@ -1326,7 +876,7 @@ namespace NDex
         /// <returns>True if the lists contain the same items in the same order; otherwise, false.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static bool AreEqual<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static bool Equals<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -1354,8 +904,8 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool AreEqual<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
+        public static bool Equals<TList1, TList2, T>(
+            this IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IEqualityComparer<T> comparer)
             where TList1 : IList<T>
@@ -1390,8 +940,8 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool AreEqual<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
+        public static bool Equals<TList1, T1, TList2, T2>(
+            this IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, bool> comparison)
             where TList1 : IList<T1>
@@ -1462,7 +1012,7 @@ namespace NDex
         /// <remarks>
         /// This algorithm assumes that the list is sorted according to the default order of the items.
         /// </remarks>
-        public static SearchResult BinarySearch<TList, T>(IReadOnlySublist<TList, T> list, T value)
+        public static SearchResult BinarySearch<TList, T>(this IReadOnlySublist<TList, T> list, T value)
             where TList : IList<T>
         {
             if (list == null)
@@ -1487,7 +1037,7 @@ namespace NDex
         /// This algorithm assumes that the list is sorted using a meaningful ordering and that the
         /// comparer respects that order.
         /// </remarks>
-        public static SearchResult BinarySearch<TList, T>(IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
+        public static SearchResult BinarySearch<TList, T>(this IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -1517,7 +1067,7 @@ namespace NDex
         /// This algorithm assumes that the list is sorted using a meaningful ordering and that the
         /// comparison delegate respects that order.
         /// </remarks>
-        public static SearchResult BinarySearch<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
+        public static SearchResult BinarySearch<TList, T, TSearch>(this IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -1573,7 +1123,7 @@ namespace NDex
         /// <typeparam name="T">The type of the items in the list.</typeparam>
         /// <param name="list">The list to sort.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void BubbleSort<TList, T>(IMutableSublist<TList, T> list)
+        public static void BubbleSort<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -1592,7 +1142,7 @@ namespace NDex
         /// <param name="comparer">The comparer to use to compare items.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void BubbleSort<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void BubbleSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -1615,7 +1165,7 @@ namespace NDex
         /// <param name="comparison">The comparison delegate to use to compare items.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void BubbleSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void BubbleSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -1657,7 +1207,7 @@ namespace NDex
 
         #endregion
 
-        #region Compare
+        #region CompareTo
 
         /// <summary>
         /// Compares the items in two lists returning the first non-zero result, 
@@ -1677,7 +1227,7 @@ namespace NDex
         /// otherwise, if the second list is longer, a positive number is returned,
         /// otherwise, if the lists are equal, zero is returned.
         /// </returns>
-        public static int Compare<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static int CompareTo<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -1711,8 +1261,8 @@ namespace NDex
         /// otherwise, if the second list is longer, a positive number is returned,
         /// otherwise, if the lists are equal, zero is returned.
         /// </returns>
-        public static int Compare<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
+        public static int CompareTo<TList1, TList2, T>(
+            this IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IComparer<T> comparer)
             where TList1 : IList<T>
@@ -1753,8 +1303,8 @@ namespace NDex
         /// otherwise, if the second list is longer, a positive number is returned,
         /// otherwise, if the lists are equal, zero is returned.
         /// </returns>
-        public static int Compare<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
+        public static int CompareTo<TList1, T1, TList2, T2>(
+            this IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, int> comparison)
             where TList1 : IList<T1>
@@ -1909,6 +1459,28 @@ namespace NDex
             }
         }
 
+        internal static Tuple<int, int> CopyReversed<TSourceList, TDestinationList, T>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast)
+            where TSourceList : IList<T>
+            where TDestinationList : IList<T>
+        {
+            int count1 = past - first;
+            int count2 = destinationPast - destinationFirst;
+            if (count2 < count1)
+            {
+                past -= count1 - count2;
+            }
+            int position = past;
+            while (first != position)
+            {
+                --position;
+                destination[destinationFirst] = source[position];
+                ++destinationFirst;
+            }
+            return new Tuple<int, int>(past, destinationFirst);
+        }
+
         #endregion
 
         #region CountIf
@@ -1921,7 +1493,7 @@ namespace NDex
         /// <param name="list">The list to count items in.</param>
         /// <param name="predicate">The condition that an item must satisfy to be counted.</param>
         /// <returns>The number of items that satisfy the predicate.</returns>
-        public static int CountIf<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
+        public static int CountIf<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
             where TList : IList<T>
         {
             if (list == null)
@@ -1963,7 +1535,7 @@ namespace NDex
         /// <param name="value">The value to search for.</param>
         /// <returns>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static SearchResult Find<TList, T>(IReadOnlySublist<TList, T> list, T value)
+        public static SearchResult Find<TList, T>(this IReadOnlySublist<TList, T> list, T value)
             where TList : IList<T>
         {
             if (list == null)
@@ -1984,7 +1556,7 @@ namespace NDex
         /// <returns>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static SearchResult Find<TList, T>(IReadOnlySublist<TList, T> list, T value, IEqualityComparer<T> comparer)
+        public static SearchResult Find<TList, T>(this IReadOnlySublist<TList, T> list, T value, IEqualityComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -2010,7 +1582,7 @@ namespace NDex
         /// <returns>>The index of the value in the list -or- an index past the last item in the list, if the value is not found.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static SearchResult Find<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
+        public static SearchResult Find<TList, T, TSearch>(this IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, bool> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -2058,7 +1630,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static SearchResult Find<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
+        public static SearchResult Find<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
             where TList : IList<T>
         {
             if (list == null)
@@ -2115,7 +1687,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static SearchResult FindAny<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static SearchResult FindAny<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -2147,7 +1719,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
         public static SearchResult FindAny<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
+            this IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IEqualityComparer<T> comparer)
             where TList1 : IList<T>
@@ -2186,7 +1758,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         public static SearchResult FindAny<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
+            this IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, bool> comparison)
             where TList1 : IList<T1>
@@ -2261,7 +1833,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>The list must be sorted according to the default order of the items.</remarks>
-        public static SearchResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list)
+        public static SearchResult FindDuplicates<TList, T>(this IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -2284,7 +1856,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
         /// <remarks>The list must be sorted such that equivalent items are adjacent.</remarks>
-        public static SearchResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list, IEqualityComparer<T> comparer)
+        public static SearchResult FindDuplicates<TList, T>(this IReadOnlySublist<TList, T> list, IEqualityComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -2311,7 +1883,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         /// <remarks>The list must be sorted such that equivalent items are adjacent.</remarks>
-        public static SearchResult FindDuplicates<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
+        public static SearchResult FindDuplicates<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, bool> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -2329,14 +1901,14 @@ namespace NDex
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
-            int index = indexOfDuplicates<TList, T>(list.List, list.Offset, past, comparison);
+            int index = IndexOfDuplicates<TList, T>(list.List, list.Offset, past, comparison);
             SearchResult result = new SearchResult();
             result.Index = index - list.Offset;
             result.Exists = index != past;
             return result;
         }
 
-        private static int indexOfDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
+        internal static int IndexOfDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
             where TList : IList<T>
         {
             if (first != past)
@@ -2370,7 +1942,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        public static SearchResult FindSequence<TList1, TList2, T>(IReadOnlySublist<TList1, T> list, IReadOnlySublist<TList2, T> sequence)
+        public static SearchResult FindSequence<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list, IReadOnlySublist<TList2, T> sequence)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -2402,7 +1974,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
         public static SearchResult FindSequence<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list,
+            this IReadOnlySublist<TList1, T> list,
             IReadOnlySublist<TList2, T> sequence,
             IEqualityComparer<T> comparer)
             where TList1 : IList<T>
@@ -2441,7 +2013,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         public static SearchResult FindSequence<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list,
+            this IReadOnlySublist<TList1, T1> list,
             IReadOnlySublist<TList2, T2> sequence,
             Func<T1, T2, bool> comparison)
             where TList1 : IList<T1>
@@ -2470,7 +2042,7 @@ namespace NDex
             where TList2 : IList<T2>
         {
             int past = list.Offset + list.Count;
-            int index = indexOfSequence<TList1, T1, TList2, T2>(
+            int index = IndexOfSequence<TList1, T1, TList2, T2>(
                 list.List, list.Offset, past,
                 sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
                 comparison);
@@ -2480,7 +2052,7 @@ namespace NDex
             return result;
         }
 
-        private static int indexOfSequence<TList1, T1, TList2, T2>(
+        internal static int IndexOfSequence<TList1, T1, TList2, T2>(
             TList1 list1, int first1, int past1,
             TList2 list2, int first2, int past2,
             Func<T1, T2, bool> comparison)
@@ -2521,7 +2093,7 @@ namespace NDex
         /// <param name="action">The action to perform on each item.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The action delegate is null.</exception>
-        public static void ForEach<TList, T>(IReadOnlySublist<TList, T> list, Action<T> action)
+        public static void ForEach<TList, T>(this IReadOnlySublist<TList, T> list, Action<T> action)
             where TList : IList<T>
         {
             if (list == null)
@@ -2557,7 +2129,7 @@ namespace NDex
         /// <param name="list">The heap to add the value to.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>The list must be a max heap.</remarks>
-        public static void HeapAdd<TList, T>(IMutableSublist<TList, T> list)
+        public static void HeapAdd<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -2577,7 +2149,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
         /// <remarks>The list must be a heap according to the comparer.</remarks>
-        public static void HeapAdd<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void HeapAdd<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -2601,7 +2173,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         /// <remarks>The list must be a heap according to the comparison delegate.</remarks>
-        public static void HeapAdd<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void HeapAdd<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -2662,7 +2234,7 @@ namespace NDex
         /// <param name="list">The heap to remove the top item from.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>The list must be a max heap.</remarks>
-        public static void HeapRemove<TList, T>(IMutableSublist<TList, T> list)
+        public static void HeapRemove<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -2682,7 +2254,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The compare is null.</exception>
         /// <remarks>The list must be a heap according to the comparer.</remarks>
-        public static void HeapRemove<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void HeapRemove<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -2706,7 +2278,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         /// <remarks>The list must be a heap according to the comparison delegate.</remarks>
-        public static void HeapRemove<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void HeapRemove<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -2735,7 +2307,7 @@ namespace NDex
                 int last = past - 1;
                 T value = list[last];
                 list[last] = list[first];
-                adjustHeap<TList, T>(list, first, 0, last - first, value, comparison);
+                AdjustHeap<TList, T>(list, first, 0, last - first, value, comparison);
             }
         }
 
@@ -2751,7 +2323,7 @@ namespace NDex
         /// <param name="list">The heap to sort.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>The list must be a max heap.</remarks>
-        public static void HeapSort<TList, T>(IMutableSublist<TList, T> list)
+        public static void HeapSort<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -2771,7 +2343,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
         /// <remarks>The list must be a heap according to the comparer.</remarks>
-        public static void HeapSort<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void HeapSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -2795,7 +2367,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         /// <remarks>The list must be a heap according to the comparison delegate.</remarks>
-        public static void HeapSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void HeapSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -2812,10 +2384,10 @@ namespace NDex
         private static void heapSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
-            heapSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
+            HeapSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
         }
 
-        private static void heapSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+        internal static void HeapSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             while (past - first > 1)
@@ -2836,7 +2408,7 @@ namespace NDex
         /// <typeparam name="T">The type of the items in the list.</typeparam>
         /// <param name="list">The list to sort.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void InsertionSort<TList, T>(IMutableSublist<TList, T> list)
+        public static void InsertionSort<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -2855,7 +2427,7 @@ namespace NDex
         /// <param name="comparer">The comparer to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void InsertionSort<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void InsertionSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -2878,7 +2450,7 @@ namespace NDex
         /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void InsertionSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void InsertionSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -2939,7 +2511,7 @@ namespace NDex
         /// The index in which the list stops being a valid heap -or- an index past the last item in the list, if the entire list is a valid heap.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static CheckResult IsHeap<TList, T>(IReadOnlySublist<TList, T> list)
+        public static CheckResult IsHeap<TList, T>(this IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -2961,7 +2533,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static CheckResult IsHeap<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static CheckResult IsHeap<TList, T>(this IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -2987,7 +2559,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static CheckResult IsHeap<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        public static CheckResult IsHeap<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -3047,7 +2619,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static CheckResult IsPartitioned<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
+        public static CheckResult IsPartitioned<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
             where TList : IList<T>
         {
             if (list == null)
@@ -3088,7 +2660,7 @@ namespace NDex
         /// The index in which the list stops being a valid set -or- an index past the last item in the list, if the entire list is a set.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static CheckResult IsSet<TList, T>(IReadOnlySublist<TList, T> list)
+        public static CheckResult IsSet<TList, T>(this IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -3110,7 +2682,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static CheckResult IsSet<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static CheckResult IsSet<TList, T>(this IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -3136,7 +2708,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static CheckResult IsSet<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        public static CheckResult IsSet<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -3197,7 +2769,7 @@ namespace NDex
         /// This algorithm assumes that both lists are sorted according to the default order of the items. 
         /// Both lists must contain distinct values.
         /// </remarks>
-        public static CheckResult IsSubset<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static CheckResult IsSubset<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -3230,7 +2802,7 @@ namespace NDex
         /// comparison delegate respects that order. Both lists must contain distinct values.
         /// </remarks>
         public static CheckResult IsSubset<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
+            this IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IComparer<T> comparer)
             where TList1 : IList<T>
@@ -3270,7 +2842,7 @@ namespace NDex
         /// comparison delegate respects that order. Both lists must contain distinct values.
         /// </remarks>
         public static CheckResult IsSubset<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
+            this IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, int> comparison)
             where TList1 : IList<T1>
@@ -3348,7 +2920,7 @@ namespace NDex
         /// <param name="list">The list to search.</param>
         /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static CheckResult IsSorted<TList, T>(IReadOnlySublist<TList, T> list)
+        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -3368,7 +2940,7 @@ namespace NDex
         /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static CheckResult IsSorted<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -3392,7 +2964,7 @@ namespace NDex
         /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static CheckResult IsSorted<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -3446,7 +3018,7 @@ namespace NDex
         /// <param name="index">The index into the list to move the expected item.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- outside the bounds of the list.</exception>
-        public static void ItemAt<TList, T>(IMutableSublist<TList, T> list, int index)
+        public static void ItemAt<TList, T>(this IMutableSublist<TList, T> list, int index)
             where TList : IList<T>
         {
             if (list == null)
@@ -3471,7 +3043,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- outside the bounds of the list.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void ItemAt<TList, T>(IMutableSublist<TList, T> list, int index, IComparer<T> comparer)
+        public static void ItemAt<TList, T>(this IMutableSublist<TList, T> list, int index, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -3500,7 +3072,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- outside the bounds of the list.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void ItemAt<TList, T>(IMutableSublist<TList, T> list, int index, Func<T, T, int> comparison)
+        public static void ItemAt<TList, T>(this IMutableSublist<TList, T> list, int index, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -3559,7 +3131,7 @@ namespace NDex
         /// <remarks>
         /// This algorithm assumes that the list is sorted according to the default order of the items.
         /// </remarks>
-        public static LowerAndUpperBoundResult LowerAndUpperBound<TList, T>(IReadOnlySublist<TList, T> list, T value)
+        public static LowerAndUpperBoundResult LowerAndUpperBound<TList, T>(this IReadOnlySublist<TList, T> list, T value)
             where TList : IList<T>
         {
             if (list == null)
@@ -3584,7 +3156,7 @@ namespace NDex
         /// This algorithm assumes that the list is sorted using a meaningful ordering and that the
         /// comparison delegate respects that order.
         /// </remarks>
-        public static LowerAndUpperBoundResult LowerAndUpperBound<TList, T>(IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
+        public static LowerAndUpperBoundResult LowerAndUpperBound<TList, T>(this IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -3615,7 +3187,7 @@ namespace NDex
         /// comparison delegate respects that order.
         /// </remarks>
         public static LowerAndUpperBoundResult LowerAndUpperBound<TList, T, TSearch>(
-            IReadOnlySublist<TList, T> list,
+            this IReadOnlySublist<TList, T> list,
             TSearch value,
             Func<T, TSearch, int> comparison)
             where TList : IList<T>
@@ -3694,7 +3266,7 @@ namespace NDex
         /// <returns>The first index in a sorted list where the given value would belong.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>This algorithm assumes that the list is sorted according to the default order of the items.</remarks>
-        public static int LowerBound<TList, T>(IReadOnlySublist<TList, T> list, T value)
+        public static int LowerBound<TList, T>(this IReadOnlySublist<TList, T> list, T value)
             where TList : IList<T>
         {
             if (list == null)
@@ -3719,7 +3291,7 @@ namespace NDex
         /// This algorithm assumes that the list is sorted using a meaningful ordering and that the
         /// comparer respects that order.
         /// </remarks>
-        public static int LowerBound<TList, T>(IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
+        public static int LowerBound<TList, T>(this IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -3749,7 +3321,7 @@ namespace NDex
         /// This algorithm assumes that the list is sorted using a meaningful ordering and that the
         /// comparison delegate respects that order.
         /// </remarks>
-        public static int LowerBound<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
+        public static int LowerBound<TList, T, TSearch>(this IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -3807,7 +3379,7 @@ namespace NDex
         /// <typeparam name="T">The type of the items in the list.</typeparam>
         /// <param name="list">The list to rearrange into a heap.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void MakeHeap<TList, T>(IMutableSublist<TList, T> list)
+        public static void MakeHeap<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -3826,7 +3398,7 @@ namespace NDex
         /// <param name="comparer">The comparer to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void MakeHeap<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void MakeHeap<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -3849,7 +3421,7 @@ namespace NDex
         /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void MakeHeap<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void MakeHeap<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -3866,21 +3438,21 @@ namespace NDex
         private static void makeHeap<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
-            makeHeap<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
+            MakeHeap<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
         }
 
-        private static void makeHeap<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+        internal static void MakeHeap<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             int bottom = past - first;
             for (int hole = bottom / 2; hole > 0; )
             {
                 --hole;
-                adjustHeap<TList, T>(list, first, hole, bottom, list[first + hole], comparison);
+                AdjustHeap<TList, T>(list, first, hole, bottom, list[first + hole], comparison);
             }
         }
 
-        private static void adjustHeap<TList, T>(
+        internal static void AdjustHeap<TList, T>(
             TList list,
             int first,
             int hole,
@@ -3926,7 +3498,7 @@ namespace NDex
         /// Only items with an index less than the return value are part of the set.
         /// The remaining items are garbage.
         /// </remarks>
-        public static int MakeSet<TList, T>(IMutableSublist<TList, T> list)
+        public static int MakeSet<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -3950,7 +3522,7 @@ namespace NDex
         /// Only items with an index less than the return value are part of the set.
         /// The remaining items are garbage.
         /// </remarks>
-        public static int MakeSet<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static int MakeSet<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -3978,7 +3550,7 @@ namespace NDex
         /// Only items with an index less than the return value are part of the set.
         /// The remaining items are garbage.
         /// </remarks>
-        public static int MakeSet<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static int MakeSet<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -4040,7 +3612,7 @@ namespace NDex
         /// <param name="list">The list to search.</param>
         /// <returns>The index of the largest item in the list -or- the index past the end of the list if it is empty.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static int Maximum<TList, T>(IReadOnlySublist<TList, T> list)
+        public static int Maximum<TList, T>(this IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -4060,7 +3632,7 @@ namespace NDex
         /// <returns>The index of the largest item in the list -or- the index past the end of the list if it is empty.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static int Maximum<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static int Maximum<TList, T>(this IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -4084,7 +3656,7 @@ namespace NDex
         /// <returns>The index of the largest item in the list -or- the index past the end of the list if it is empty.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static int Maximum<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        public static int Maximum<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -4139,7 +3711,7 @@ namespace NDex
         /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, T>(IMutableSublist<TList, T> list)
+        public static void MergeSort<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -4165,7 +3737,7 @@ namespace NDex
         /// Making it too small will impact performance negatively.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, TBuffer, T>(IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer)
+        public static void MergeSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer)
             where TList : IList<T>
             where TBuffer : IList<T>
         {
@@ -4193,7 +3765,7 @@ namespace NDex
         /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void MergeSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -4225,7 +3797,7 @@ namespace NDex
         /// Making it too small will impact performance negatively.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, TBuffer, T>(IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, IComparer<T> comparer)
+        public static void MergeSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, IComparer<T> comparer)
             where TList : IList<T>
             where TBuffer : IList<T>
         {
@@ -4257,7 +3829,7 @@ namespace NDex
         /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void MergeSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -4289,7 +3861,7 @@ namespace NDex
         /// Making it too small will impact performance negatively.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, TBuffer, T>(IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, Func<T, T, int> comparison)
+        public static void MergeSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, Func<T, T, int> comparison)
             where TList : IList<T>
             where TBuffer : IList<T>
         {
@@ -4392,10 +3964,10 @@ namespace NDex
                 for (int past1 = middle + chunkSize; past1 < past; first1 = middle, middle = past1, past1 += chunkSize)
                 {
                     bufferMiddle = Copy<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
-                    copyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past1, list, first1, past1, comparison);
+                    CopyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past1, list, first1, past1, comparison);
                 }
                 bufferMiddle = Copy<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
-                copyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past, list, first1, past, comparison);
+                CopyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past, list, first1, past, comparison);
             }
         }
 
@@ -4423,7 +3995,7 @@ namespace NDex
                 if (count1 <= count2 && count1 <= bufferCount)
                 {
                     int bufferMiddle = Copy<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
-                    copyMerged<TBuffer, TList, TList, T>(
+                    CopyMerged<TBuffer, TList, TList, T>(
                         buffer, bufferFirst, bufferMiddle,
                         list, middle, past,
                         list, first, past,
@@ -4541,6 +4113,43 @@ namespace NDex
             return destinationPast;
         }
 
+        internal static Tuple<int, int, int> CopyMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
+            {
+                int result = comparison(source2[first2], source1[first1]);
+                if (result < 0)
+                {
+                    destination[destinationFirst] = source2[first2];
+                    ++first2;
+                }
+                else
+                {
+                    destination[destinationFirst] = source1[first1];
+                    ++first1;
+                }
+                ++destinationFirst;
+            }
+            Tuple<int, int> indexes1 = Sublist.Copy<TSourceList1, TDestinationList, TSource>(
+                source1, first1, past1,
+                destination, destinationFirst, destinationPast);
+            first1 = indexes1.Item1;
+            destinationFirst = indexes1.Item2;
+            Tuple<int, int> indexes2 = Sublist.Copy<TSourceList2, TDestinationList, TSource>(
+                source2, first2, past2,
+                destination, destinationFirst, destinationPast);
+            first2 = indexes2.Item1;
+            destinationFirst = indexes2.Item2;
+            return new Tuple<int, int, int>(first1, first2, destinationFirst);
+        }
+
         #endregion
 
         #region Minimum
@@ -4553,7 +4162,7 @@ namespace NDex
         /// <param name="list">The list to search.</param>
         /// <returns>The index of the smaller item in the list -or- the index past the end of the list, if it is empty.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static int Minimum<TList, T>(IReadOnlySublist<TList, T> list)
+        public static int Minimum<TList, T>(this IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -4573,7 +4182,7 @@ namespace NDex
         /// <returns>The index of the smaller item in the list -or- the index past the end of the list, if it is empty.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static int Minimum<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static int Minimum<TList, T>(this IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -4597,7 +4206,7 @@ namespace NDex
         /// <returns>The index of the smaller item in the list -or- the index past the end of the list, if it is empty.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static int Minimum<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        public static int Minimum<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -4651,7 +4260,7 @@ namespace NDex
         /// The indexes of the smallest and largest items in the list, in that order -or- indexes past the end of the list if it is empty.
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static MinimumMaximumResult MinimumMaximum<TList, T>(IReadOnlySublist<TList, T> list)
+        public static MinimumMaximumResult MinimumMaximum<TList, T>(this IReadOnlySublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -4673,7 +4282,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static MinimumMaximumResult MinimumMaximum<TList, T>(IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+        public static MinimumMaximumResult MinimumMaximum<TList, T>(this IReadOnlySublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -4699,7 +4308,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static MinimumMaximumResult MinimumMaximum<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+        public static MinimumMaximumResult MinimumMaximum<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -4767,7 +4376,7 @@ namespace NDex
         /// </returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static int Mismatch<TList1, TList2, T>(IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+        public static int Mismatch<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -4801,7 +4410,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
         public static int Mismatch<TList1, TList2, T>(
-            IReadOnlySublist<TList1, T> list1,
+            this IReadOnlySublist<TList1, T> list1,
             IReadOnlySublist<TList2, T> list2,
             IEqualityComparer<T> comparer)
             where TList1 : IList<T>
@@ -4841,7 +4450,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         public static int Mismatch<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
+            this IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, bool> comparison)
             where TList1 : IList<T1>
@@ -4914,7 +4523,7 @@ namespace NDex
         /// This algorithm assumes that, in order to enumerate every permutation, 
         /// the list is initially sorted according to the default ordering of the items.
         /// </remarks>
-        public static bool NextPermutation<TList, T>(IMutableSublist<TList, T> list)
+        public static bool NextPermutation<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -4941,7 +4550,7 @@ namespace NDex
         /// This algorithm assumes that, in order to enumerate every permutation, 
         /// the list is initially sorted according to the comparer.
         /// </remarks>
-        public static bool NextPermutation<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static bool NextPermutation<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -4972,7 +4581,7 @@ namespace NDex
         /// This algorithm assumes that, in order to enumerate every permutation, 
         /// the list is initially sorted according to the comparer.
         /// </remarks>
-        public static bool NextPermutation<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static bool NextPermutation<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -5015,188 +4624,30 @@ namespace NDex
                     T temp = list[previous];
                     list[previous] = list[middle];
                     list[middle] = temp;
-                    reverse<TList, T>(list, previous1, past);
+                    Reverse<TList, T>(list, previous1, past);
                     return true;
                 }
 
                 if (previous == first)
                 {
-                    reverse<TList, T>(list, first, past);
+                    Reverse<TList, T>(list, first, past);
                     return false;
                 }
             }
         }
 
-        #endregion
-
-        #region PartialSort
-
-        /// <summary>
-        /// Sorts a list such that the first items appear as if the entire list were sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in a list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="numberOfItems">The number of items to sort.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The number of items is negative -or- larger than the size of the list.</exception>
-        public static void PartialSort<TList, T>(IMutableSublist<TList, T> list, int numberOfItems)
+        internal static void Reverse<TList, T>(TList list, int first, int past)
             where TList : IList<T>
         {
-            if (list == null)
+            int half = first + (past - first) / 2;
+            while (first != half)
             {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0 || numberOfItems > list.Count)
-            {
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
-            }
-            partialSort<TList, T>(list, numberOfItems, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list such that the first items appear as if the entire list were sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The list to sort.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="numberOfItems">The number of items to sort.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The number of items is negative -or- larger than the size of the list.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void PartialSort<TList, T>(IMutableSublist<TList, T> list, int numberOfItems, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0 || numberOfItems > list.Count)
-            {
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            partialSort<TList, T>(list, numberOfItems, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list such that the first items appear as if the entire list were sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The list to sort.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="numberOfItems">The number of items to sort.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The number of items is negative -or- larger than the size of the list.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void PartialSort<TList, T>(IMutableSublist<TList, T> list, int numberOfItems, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (numberOfItems < 0 || numberOfItems > list.Count)
-            {
-                throw new ArgumentOutOfRangeException("numberOfItems", numberOfItems, Resources.IndexOutOfRange);
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            partialSort<TList, T>(list, numberOfItems, comparison);
-        }
-
-        private static void partialSort<TList, T>(IMutableSublist<TList, T> list, int numberOfItems, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            partialSort<TList, T>(list.List, list.Offset, list.Offset + numberOfItems, list.Offset + list.Count, comparison);
-        }
-
-        private static void partialSort<TList, T>(TList list, int first, int middle, int past, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (past - first > 1)
-            {
-                makeHeap<TList, T>(list, first, middle, comparison);
-                int numberOfItems = middle - first;
-                for (int next = middle; next != past; ++next)
-                {
-                    if (comparison(list[next], list[first]) < 0)
-                    {
-                        T value = list[next];
-                        list[next] = list[first];
-                        adjustHeap<TList, T>(list, first, 0, numberOfItems, value, comparison);
-                    }
-                }
-                heapSort<TList, T>(list, first, middle, comparison);
-            }
-        }
-
-        #endregion
-
-        #region Partition
-
-        /// <summary>
-        /// Partitions a list such that the items satisfying the predicate are moved to the front
-        /// and the rest are moved to the back.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to partition.</param>
-        /// <param name="predicate">The condition an item must satisfy to be moved to the front.</param>
-        /// <returns>The index past the last item to satisfy the predicate.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static int Partition<TList, T>(IMutableSublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int result = partition<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int partition<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            while (true)
-            {
-                while (first != past && predicate(list[first]))
-                {
-                    ++first;
-                }
-                if (first == past)
-                {
-                    break;
-                }
                 --past;
-                while (first != past && !predicate(list[past]))
-                {
-                    --past;
-                }
-                if (first == past)
-                {
-                    break;
-                }
                 T temp = list[first];
                 list[first] = list[past];
                 list[past] = temp;
                 ++first;
             }
-            return first;
         }
 
         #endregion
@@ -5218,7 +4669,7 @@ namespace NDex
         /// This algorithm assumes that, in order to enumerate every permutation, 
         /// the list is initially sorted according to the default ordering of the items.
         /// </remarks>
-        public static bool PreviousPermutation<TList, T>(IMutableSublist<TList, T> list)
+        public static bool PreviousPermutation<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -5245,7 +4696,7 @@ namespace NDex
         /// This algorithm assumes that, in order to enumerate every permutation, 
         /// the list is initially sorted in reverse according to the comparer.
         /// </remarks>
-        public static bool PreviousPermutation<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static bool PreviousPermutation<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -5276,7 +4727,7 @@ namespace NDex
         /// This algorithm assumes that, in order to enumerate every permutation, 
         /// the list is initially sorted in reverse according to the comparer.
         /// </remarks>
-        public static bool PreviousPermutation<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static bool PreviousPermutation<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -5319,12 +4770,12 @@ namespace NDex
                     T temp = list[previous];
                     list[previous] = list[middle];
                     list[middle] = temp;
-                    reverse<TList, T>(list, previous1, past);
+                    Reverse<TList, T>(list, previous1, past);
                     return true;
                 }
                 if (previous == first)
                 {
-                    reverse<TList, T>(list, first, past);
+                    Reverse<TList, T>(list, first, past);
                     return false;
                 }
             }
@@ -5341,7 +4792,7 @@ namespace NDex
         /// <typeparam name="T">The type of the items in the list.</typeparam>
         /// <param name="list">The list to sort.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void QuickSort<TList, T>(IMutableSublist<TList, T> list)
+        public static void QuickSort<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -5360,7 +4811,7 @@ namespace NDex
         /// <param name="comparer">The comparer to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void QuickSort<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void QuickSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -5383,7 +4834,7 @@ namespace NDex
         /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void QuickSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void QuickSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -5425,8 +4876,8 @@ namespace NDex
             }
             if (past - first > _sortMax)
             {
-                makeHeap<TList, T>(list, first, past, comparison);
-                heapSort<TList, T>(list, first, past, comparison);
+                MakeHeap<TList, T>(list, first, past, comparison);
+                HeapSort<TList, T>(list, first, past, comparison);
             }
             else if (past - first > 1)
             {
@@ -5534,7 +4985,7 @@ namespace NDex
         /// <param name="random">The random generator to use to shuffle the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The random generator is null.</exception>
-        public static void RandomShuffle<TList, T>(IMutableSublist<TList, T> list, Random random)
+        public static void RandomShuffle<TList, T>(this IMutableSublist<TList, T> list, Random random)
             where TList : IList<T>
         {
             if (list == null)
@@ -5557,7 +5008,7 @@ namespace NDex
         /// <param name="generator">The generator to use to shuffle the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
-        public static void RandomShuffle<TList, T>(IMutableSublist<TList, T> list, Func<int> generator)
+        public static void RandomShuffle<TList, T>(this IMutableSublist<TList, T> list, Func<int> generator)
             where TList : IList<T>
         {
             if (list == null)
@@ -5597,167 +5048,7 @@ namespace NDex
 
         #endregion
 
-        #region RemoveDuplicates
-
-        /// <summary>
-        /// Overwrites duplicate items in a list with the next non-duplicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to overwrite the duplicates in.</param>
-        /// <returns>The index past the last non-duplicate item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>
-        /// The list is expected to be sorted according to the default order of the items.
-        /// Use this algorithm when either the size of the list is fixed
-        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
-        /// </remarks>
-        public static int RemoveDuplicates<TList, T>(IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            return removeDuplicates<TList, T>(list, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Overwrites duplicate items in a list with the next non-duplicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to overwrite the duplicates in.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>The index past the last non-duplicate item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The list is expected to be sorted such that equivalent items appear adjacent to one another.
-        /// Use this algorithm when either the size of the list is fixed
-        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
-        /// </remarks>
-        public static int RemoveDuplicates<TList, T>(IMutableSublist<TList, T> list, IEqualityComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return removeDuplicates<TList, T>(list, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Overwrites duplicate items in a list with the next non-duplicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to overwrite the duplicates in.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <returns>The index past the last non-duplicate item.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The list is expected to be sorted such that equivalent items appear adjacent to one another.
-        /// Use this algorithm when either the size of the list is fixed
-        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
-        /// </remarks>26
-        public static int RemoveDuplicates<TList, T>(IMutableSublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return removeDuplicates<TList, T>(list, comparison);
-        }
-
-        private static int removeDuplicates<TList, T>(IMutableSublist<TList, T> list, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            int result = removeDuplicates<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int removeDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
-            where TList : IList<T>
-        {
-            first = indexOfDuplicates<TList, T>(list, first, past, comparison);
-            if (first != past)
-            {
-                for (int next = first + 2; next != past; ++next)
-                {
-                    if (!comparison(list[first], list[next]))
-                    {
-                        ++first;
-                        list[first] = list[next];
-                    }
-                }
-                return first + 1;
-            }
-            return past;
-        }
-
-        #endregion
-
-        #region RemoveIf
-
-        /// <summary>
-        /// Overwrites the items in a list that satisfy the predicate with items that do not.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to overwrite items in.</param>
-        /// <param name="predicate">The condition an item must satisfy to be overwritten.</param>
-        /// <returns>The index past the last item not satisfying the predicate.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>
-        /// Use this algorithm when either the size of the list is fixed
-        /// -or- it is more efficient to first move valid items to the front of the list and then remove those remaining from the back.
-        /// </remarks>
-        public static int RemoveIf<TList, T>(IMutableSublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            int result = removeIf<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int removeIf<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            for (int position = first; position != past; ++position)
-            {
-                if (!predicate(list[position]))
-                {
-                    list[first] = list[position];
-                    ++first;
-                }
-            }
-            return first;
-        }
-
-        #endregion
-
-        #region RemoveRange
+        #region Clear
 
         /// <summary>
         /// Removes all of the items in the range defined by a Sublist.
@@ -5766,7 +5057,7 @@ namespace NDex
         /// <typeparam name="T">The type of the items in the list.</typeparam>
         /// <param name="list">The list containing the items to remove.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static IExpandableSublist<TList, T> RemoveRange<TList, T>(IExpandableSublist<TList, T> list)
+        public static IExpandableSublist<TList, T> Clear<TList, T>(this IExpandableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -5786,7 +5077,7 @@ namespace NDex
             }
             else
             {
-                removeRange<TList, T>(list, first, past);
+                RemoveRange<TList, T>(list, first, past);
             }
         }
 
@@ -5801,7 +5092,7 @@ namespace NDex
             }
         }
 
-        private static void removeRange<TList, T>(TList list, int first, int past)
+        internal static void RemoveRange<TList, T>(TList list, int first, int past)
             where TList : IList<T>
         {
             first = Copy<TList, TList, T>(list, past, list.Count, list, first, list.Count).Item2;
@@ -5810,407 +5101,6 @@ namespace NDex
             {
                 --past;
                 list.RemoveAt(past);
-            }
-        }
-
-        #endregion
-
-        #region Replace
-
-        /// <summary>
-        /// Replaces any items in a list that satisfy the predicate with the replacement value.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to replace the items in.</param>
-        /// <param name="predicate">The condition an item must satisfy to be replaced.</param>
-        /// <param name="replacement">The value to replace the items with.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static void Replace<TList, T>(IMutableSublist<TList, T> list, Func<T, bool> predicate, T replacement)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            replace<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate, replacement);
-        }
-
-        private static void replace<TList, T>(TList list, int first, int past, Func<T, bool> predicate, T replacement)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                if (predicate(list[first]))
-                {
-                    list[first] = replacement;
-                }
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Replaces any items in a list that satisfy the predicate with the results of calling the generator.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to replace the items in.</param>
-        /// <param name="predicate">The condition an item must satisfy to be replaced.</param>
-        /// <param name="generator">The generator delegate to call to generate the replacement values.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        public static void Replace<TList, T>(IMutableSublist<TList, T> list, Func<T, bool> predicate, Func<T, T> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            replace<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate, generator);
-        }
-
-        private static void replace<TList, T>(TList list, int first, int past, Func<T, bool> predicate, Func<T, T> generator)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                if (predicate(list[first]))
-                {
-                    list[first] = generator(list[first]);
-                }
-                ++first;
-            }
-        }
-
-        /// <summary>
-        /// Replaces each occurrence of the given sequence with the replacement sequence.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list to replace the sequences in.</typeparam>
-        /// <typeparam name="TSequenceList">The type of the list to find the sequence in.</typeparam>
-        /// <typeparam name="TReplacementList">The type of the replacement list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to replace the sequences in.</param>
-        /// <param name="sequence">The sequence to search for.</param>
-        /// <param name="replacement">The sequence to use as a replacement.</param>
-        /// <returns>A new sublist wrapping the list with all of its replacements.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
-        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
-        public static IExpandableSublist<TList, T> Replace<TList, TSequenceList, TReplacementList, T>(
-            IExpandableSublist<TList, T> list,
-            IReadOnlySublist<TSequenceList, T> sequence,
-            IReadOnlySublist<TReplacementList, T> replacement)
-            where TList : IList<T>
-            where TSequenceList : IList<T>
-            where TReplacementList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            return replace<TList, TSequenceList, TReplacementList, T, T>(list, sequence, replacement, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Replaces each occurrence of the given sequence with the replacement sequence.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list to replace the sequences in.</typeparam>
-        /// <typeparam name="TSequenceList">The type of the list to find the sequence in.</typeparam>
-        /// <typeparam name="TReplacementList">The type of the replacement list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to replace the sequences in.</param>
-        /// <param name="sequence">The sequence to search for.</param>
-        /// <param name="replacement">The sequence to use as a replacement.</param>
-        /// <param name="comparer">An equality comparer to comparer values in the list and in the sequence.</param>
-        /// <returns>A new sublist wrapping the list with all of its replacements.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
-        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static IExpandableSublist<TList, T> Replace<TList, TSequenceList, TReplacementList, T>(
-            IExpandableSublist<TList, T> list,
-            IReadOnlySublist<TSequenceList, T> sequence,
-            IReadOnlySublist<TReplacementList, T> replacement,
-            IEqualityComparer<T> comparer)
-            where TList : IList<T>
-            where TSequenceList : IList<T>
-            where TReplacementList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return replace<TList, TSequenceList, TReplacementList, T, T>(list, sequence, replacement, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Replaces each occurrence of the given sequence with the replacement sequence.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list to replace the sequences in.</typeparam>
-        /// <typeparam name="TSequenceList">The type of the list to find the sequence in.</typeparam>
-        /// <typeparam name="TReplacementList">The type of the replacement list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <typeparam name="TSequence">The type of the items in the sequence list.</typeparam>
-        /// <param name="list">The list to replace the sequences in.</param>
-        /// <param name="sequence">The sequence to search for.</param>
-        /// <param name="replacement">The sequence to use as a replacement.</param>
-        /// <param name="comparison">A function to compare values in the list and in the sequence.</param>
-        /// <returns>A new sublist wrapping the list with all of its replacements.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The sequence is null.</exception>
-        /// <exception cref="System.ArgumentException">The sequence is empty.</exception>
-        /// <exception cref="System.ArgumentNullException">The replacement list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
-        public static IExpandableSublist<TList, T> Replace<TList, TSequenceList, TReplacementList, T, TSequence>(
-            IExpandableSublist<TList, T> list,
-            IReadOnlySublist<TSequenceList, TSequence> sequence,
-            IReadOnlySublist<TReplacementList, T> replacement,
-            Func<T, TSequence, bool> comparison)
-            where TList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacementList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (sequence == null)
-            {
-                throw new ArgumentNullException("sequence");
-            }
-            if (sequence.Count == 0)
-            {
-                throw new ArgumentException(Resources.ReplaceEmptySequence, "sequence");
-            }
-            if (replacement == null)
-            {
-                throw new ArgumentNullException("replacement");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return replace<TList, TSequenceList, TReplacementList, T, TSequence>(list, sequence, replacement, comparison);
-        }
-
-        private static IExpandableSublist<TList, T> replace<TList, TSequenceList, TReplacementList, T, TSequence>(
-            IExpandableSublist<TList, T> list,
-            IReadOnlySublist<TSequenceList, TSequence> sequence,
-            IReadOnlySublist<TReplacementList, T> replacement,
-            Func<T, TSequence, bool> comparison)
-            where TList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacementList : IList<T>
-        {
-            int past = replace<TList, TSequenceList, TReplacementList, T, TSequence>(
-                list.List, list.Offset, list.Offset + list.Count,
-                sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
-                replacement.List, replacement.Offset, replacement.Offset + replacement.Count,
-                comparison);
-            return list.Resize(past - list.Offset, true);
-        }
-
-        private static int replace<TList, TSequenceList, TReplacementList, T, TSequence>(
-            TList list, int first, int past, 
-            TSequenceList sequence, int sequenceFirst, int sequencePast, 
-            TReplacementList replacement, int replacementFirst, int replacementPast, 
-            Func<T, TSequence, bool> comparison)
-            where TList : IList<T>
-            where TSequenceList : IList<TSequence>
-            where TReplacementList : IList<T>
-        {
-            int temp = past;
-            int sequenceCount = sequencePast - sequenceFirst;
-            int replacementCount = replacementPast - replacementFirst;
-            first = indexOfSequence<TList, T, TSequenceList, TSequence>(list, first, past, sequence, sequenceFirst, sequencePast, comparison);
-
-            while (first != past)
-            {
-                if (sequenceCount < replacementCount)
-                {
-                    int difference = replacementCount - sequenceCount;
-                    GrowAndShift<TList, T>(list, first, difference);
-                    past += difference;
-                }
-                else if (sequenceCount > replacementCount)
-                {
-                    int index = first + sequenceCount;
-                    int difference = sequenceCount - replacementCount;
-                    Copy<TList, TList, T>(list, index, past, list, index - difference, past);
-                    past -= difference;
-                }
-                first = Copy<TReplacementList, TList, T>(replacement, replacementFirst, replacementPast, list, first, past).Item2;
-                first = indexOfSequence<TList, T, TSequenceList, TSequence>(list, first, past, sequence, sequenceFirst, sequencePast, comparison);
-            }
-            if (past < temp)
-            {
-                removeRange<TList, T>(list, past, temp);
-            }
-            return past;
-        }
-
-        #endregion
-
-        #region Reverse
-
-        /// <summary>
-        /// Reverses the items in a list.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to reverse.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void Reverse<TList, T>(IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            reverse<TList, T>(list.List, list.Offset, list.Offset + list.Count);
-        }
-
-        private static void reverse<TList, T>(TList list, int first, int past)
-            where TList : IList<T>
-        {
-            int half = first + (past - first) / 2;
-            while (first != half)
-            {
-                --past;
-                T temp = list[first];
-                list[first] = list[past];
-                list[past] = temp;
-                ++first;
-            }
-        }
-
-        #endregion
-
-        #region RotateLeft
-
-        /// <summary>
-        /// Rotates the items in a list the specified amount to the left.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to rotate.</param>
-        /// <param name="shift">The amount to shift the items to the left.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>
-        /// If the shift is negative, the algoritm simulates rotating the items to the right. If the shift is larger than the number of items, 
-        /// the algorithm will simulate a complete rotation as many times as necessary.
-        /// </remarks>
-        public static void RotateLeft<TList, T>(IMutableSublist<TList, T> list, int shift)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            rotateLeftUnreduced<TList, T>(list.List, list.Offset, list.Offset + list.Count, shift);
-        }
-
-        private static void rotateLeftUnreduced<TList, T>(TList list, int first, int past, int shift)
-            where TList : IList<T>
-        {
-            int middle = getReducedOffset<TList, T>(list, first, past, shift);
-            middle += first;
-            RotateLeft<TList, T>(list, first, middle, past);
-        }
-
-        private static int getReducedOffset<TList, T>(TList list, int first, int past, int shift)
-            where TList : IList<T>
-        {
-            int count = past - first;
-            shift %= count;
-            if (shift < 0)
-            {
-                shift += count;
-            }
-            return shift;
-        }
-
-        internal static void RotateLeft<TList, T>(TList list, int first, int middle, int past)
-            where TList : IList<T>
-        {
-            int shift = middle - first;
-            int count = past - first;
-            for (int factor = shift; factor != 0; )
-            {
-                int temp = count % factor;
-                count = factor;
-                factor = temp;
-            }
-            if (count < past - first)
-            {
-                while (count > 0)
-                {
-                    int hole = first + count;
-                    T value = list[hole];
-                    int temp = hole + shift;
-                    int next = temp == past ? first : temp;
-                    int current = hole;
-                    while (next != hole)
-                    {
-                        list[current] = list[next];
-                        current = next;
-                        int difference = past - next;
-                        if (shift < difference)
-                        {
-                            next += shift;
-                        }
-                        else
-                        {
-                            next = first + (shift - difference);
-                        }
-                    }
-                    list[current] = value;
-                    --count;
-                }
             }
         }
 
@@ -6225,7 +5115,7 @@ namespace NDex
         /// <typeparam name="T">The type of the items in the list.</typeparam>
         /// <param name="list">The list to sort.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void SelectionSort<TList, T>(IMutableSublist<TList, T> list)
+        public static void SelectionSort<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -6244,7 +5134,7 @@ namespace NDex
         /// <param name="comparer">The comparer to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void SelectionSort<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void SelectionSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -6267,7 +5157,7 @@ namespace NDex
         /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void SelectionSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void SelectionSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -6314,7 +5204,7 @@ namespace NDex
         /// <typeparam name="T">The type of the items in the list.</typeparam>
         /// <param name="list">The list to sort.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void ShellSort<TList, T>(IMutableSublist<TList, T> list)
+        public static void ShellSort<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -6333,7 +5223,7 @@ namespace NDex
         /// <param name="comparer">The comparer to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void ShellSort<TList, T>(IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void ShellSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -6356,7 +5246,7 @@ namespace NDex
         /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void ShellSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void ShellSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -6414,7 +5304,7 @@ namespace NDex
         /// <remarks>
         /// This algorithm requires temporarily storing the items that do not satisfy the predicate in another container.
         /// </remarks>
-        public static int StablePartition<TList, T>(IMutableSublist<TList, T> list, Func<T, bool> predicate)
+        public static int StablePartition<TList, T>(this IMutableSublist<TList, T> list, Func<T, bool> predicate)
             where TList : IList<T>
         {
             if (list == null)
@@ -6454,7 +5344,7 @@ namespace NDex
 
         #endregion
 
-        #region SwapRanges
+        #region SwapWith
 
         /// <summary>
         /// Swaps the items between two lists.
@@ -6468,7 +5358,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <remarks>The algorithm will stop when all of the items from the shorter list are swapped.</remarks>
-        public static int SwapRanges<TList1, TList2, T>(IMutableSublist<TList1, T> list1, IMutableSublist<TList2, T> list2)
+        public static int SwapWith<TList1, TList2, T>(this IMutableSublist<TList1, T> list1, IMutableSublist<TList2, T> list2)
             where TList1 : IList<T>
             where TList2 : IList<T>
         {
@@ -6518,7 +5408,7 @@ namespace NDex
         /// <returns>True if every item in the list satisfies the predicate; otherwise, false.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static bool TrueForAll<TList, T>(IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
+        public static bool TrueForAll<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
             where TList : IList<T>
         {
             if (list == null)
@@ -6560,7 +5450,7 @@ namespace NDex
         /// <returns>The last index in a sorted list where the given value would belong.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <remarks>This algorithm assumes that the list is sorted according to the default order of the items.</remarks>
-        public static int UpperBound<TList, T>(IReadOnlySublist<TList, T> list, T value)
+        public static int UpperBound<TList, T>(this IReadOnlySublist<TList, T> list, T value)
             where TList : IList<T>
         {
             if (list == null)
@@ -6582,7 +5472,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
         /// <remarks>This algorithm assumes that the list is sorted according to the given comparer.</remarks>
-        public static int UpperBound<TList, T>(IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
+        public static int UpperBound<TList, T>(this IReadOnlySublist<TList, T> list, T value, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -6609,7 +5499,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
         /// <remarks>This algorithm assumes that the list is sorted according to the given comparison delegate.</remarks>
-        public static int UpperBound<TList, T, TSearch>(IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
+        public static int UpperBound<TList, T, TSearch>(this IReadOnlySublist<TList, T> list, TSearch value, Func<T, TSearch, int> comparison)
             where TList : IList<T>
         {
             if (list == null)

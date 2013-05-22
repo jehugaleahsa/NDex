@@ -22,7 +22,7 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(100));
+            Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             for (int index = 0; index != list.Count; ++index)
             {
@@ -30,7 +30,7 @@ namespace NDex.Tests
                 int position = Sublist.LowerBound(sortedRange, list[index]);
                 var rotationRange = sortedRange.Nest(position);
                 rotationRange = rotationRange.Resize(rotationRange.Count + 1, false);
-                Sublist.RotateLeft(rotationRange, -1); // move the last item to the front
+                rotationRange.RotateLeft(-1).InPlace();  // move the last item to the front
             }
 
             Assert.IsTrue(Sublist.IsSorted(list.ToSublist()), "The list was not sorted.");
@@ -62,9 +62,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             int shift = 2;
-            Sublist.RotateLeft(list, shift);
+            list.RotateLeft(shift).InPlace();
             int[] expected = { 3, 4, 5, 1, 2 };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The values were not rotated as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The values were not rotated as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -76,9 +76,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             int shift = -1;
-            Sublist.RotateLeft(list, shift);
+            list.RotateLeft(shift).InPlace();
             int[] expected = { 5, 1, 2, 3, 4, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The values were not rotated as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The values were not rotated as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -90,9 +90,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
             int shift = list.Count + 1;
-            Sublist.RotateLeft(list, shift);
+            list.RotateLeft(shift).InPlace();
             int[] expected = { 2, 3, 4, 5, 1, };
-            Assert.IsTrue(Sublist.AreEqual(expected.ToSublist(), list), "The values were not rotated as expected.");
+            Assert.IsTrue(Sublist.Equals(expected.ToSublist(), list), "The values were not rotated as expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

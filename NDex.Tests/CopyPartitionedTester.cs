@@ -22,16 +22,16 @@ namespace NDex.Tests
 
             // build a list
             var list = new List<int>(100);
-            Sublist.AddGenerated(list.ToSublist(), 100, i => random.Next(0, 100));
+            Sublist.Generate(100, i => random.Next(0, 100)).AddTo(list.ToSublist());
 
             // partition into two
             var evens = new List<int>(100);
-            Sublist.AddGenerated(evens.ToSublist(), 100, 0);
+            Sublist.Generate(100, 0).AddTo(evens.ToSublist());
             var odds = new List<int>(100);
-            Sublist.AddGenerated(odds.ToSublist(), 100, 0);
-            PartitionCopyResult result = Sublist.CopyPartitioned(list.ToSublist(), evens.ToSublist(), odds.ToSublist(), i => i % 2 == 0);
-            Sublist.RemoveRange(evens.ToSublist(result.DestinationOffset1));
-            Sublist.RemoveRange(odds.ToSublist(result.DestinationOffset2));
+            Sublist.Generate(100, 0).AddTo(odds.ToSublist());
+            var result = list.ToSublist().Partition(i => i % 2 == 0).CopyTo(evens.ToSublist(), odds.ToSublist());
+            Sublist.Clear(evens.ToSublist(result.DestinationOffset1));
+            Sublist.Clear(odds.ToSublist(result.DestinationOffset2));
 
             // sort all three lists -- we need to check if all values were added
             Sublist.QuickSort(list.ToSublist());
@@ -48,7 +48,7 @@ namespace NDex.Tests
             Sublist.AddTo(evens.ToSublist(), combined.ToSublist());
             Sublist.AddTo(odds.ToSublist(), combined.ToSublist());
             Sublist.QuickSort(combined.ToSublist());
-            bool hasAllItems = Sublist.AreEqual(list.ToSublist(), combined.ToSublist());
+            bool hasAllItems = Sublist.Equals(list.ToSublist(), combined.ToSublist());
             Assert.IsTrue(hasAllItems, "Not all items were partitioned.");
         }
 
@@ -64,10 +64,8 @@ namespace NDex.Tests
         public void TestCopyPartitioned_NullList_Throws()
         {
             Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination1 = new List<int>();
-            Sublist<List<int>, int> destination2 = new List<int>();
             Func<int, bool> predicate = i => true;
-            Sublist.CopyPartitioned(list, destination1, destination2, predicate);
+            list.Partition(predicate);
         }
 
         /// <summary>
@@ -81,7 +79,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> destination1 = null;
             Sublist<List<int>, int> destination2 = new List<int>();
             Func<int, bool> predicate = i => true;
-            Sublist.CopyPartitioned(list, destination1, destination2, predicate);
+            list.Partition(predicate).CopyTo(destination1, destination2);
         }
 
         /// <summary>
@@ -95,7 +93,7 @@ namespace NDex.Tests
             Sublist<List<int>, int> destination1 = new List<int>();
             Sublist<List<int>, int> destination2 = null;
             Func<int, bool> predicate = i => true;
-            Sublist.CopyPartitioned(list, destination1, destination2, predicate);
+            list.Partition(predicate).CopyTo(destination1, destination2);
         }
 
         /// <summary>
@@ -106,10 +104,8 @@ namespace NDex.Tests
         public void TestCopyPartitioned_NullPredicate_Throws()
         {
             Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination1 = new List<int>();
-            Sublist<List<int>, int> destination2 = new List<int>();
             Func<int, bool> predicate = null;
-            Sublist.CopyPartitioned(list, destination1, destination2, predicate);
+            list.Partition(predicate);
         }
 
         #endregion
@@ -124,15 +120,15 @@ namespace NDex.Tests
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             var odds = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
-            PartitionCopyResult result = Sublist.CopyPartitioned(list, evens, odds, i => i % 2 == 0);
+            var result = list.Partition(i => i % 2 == 0).CopyTo(evens, odds);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(evens.Count, result.DestinationOffset1, "The first destination offset was wrong.");
             Assert.AreEqual(odds.Count, result.DestinationOffset2, "The second destination offset was wrong.");
 
             int[] expectedEvens = { 2, 4, 6, 8 };
-            Assert.IsTrue(Sublist.AreEqual(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
+            Assert.IsTrue(Sublist.Equals(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
             int[] expectedOdds = { 1, 3, 5, 7, 9 };
-            Assert.IsTrue(Sublist.AreEqual(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
+            Assert.IsTrue(Sublist.Equals(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(evens);
@@ -149,15 +145,15 @@ namespace NDex.Tests
             var odds = TestHelper.Wrap(new List<int>() { 0 }); // can't hold 2
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
 
-            PartitionCopyResult result = Sublist.CopyPartitioned(list, odds, evens, i => i % 2 != 0);
+            var result = list.Partition(i => i % 2 != 0).CopyTo(odds, evens);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset1, "The first index was wrong.");
             Assert.AreEqual(1, result.DestinationOffset2, "The second index was wrong.");
 
             int[] expectedOdds = { 1 };
-            Assert.IsTrue(Sublist.AreEqual(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
+            Assert.IsTrue(Sublist.Equals(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
             int[] expectedEvens = { 2, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
+            Assert.IsTrue(Sublist.Equals(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(evens);
@@ -174,15 +170,15 @@ namespace NDex.Tests
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             var odds = TestHelper.Wrap(new List<int>() { 0 }); // can't hold 3
 
-            PartitionCopyResult result = Sublist.CopyPartitioned(list, evens, odds, i => i % 2 == 0);
+            var result = list.Partition(i => i % 2 == 0).CopyTo(evens, odds);
             Assert.AreEqual(2, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(1, result.DestinationOffset1, "The first index was wrong.");
             Assert.AreEqual(1, result.DestinationOffset2, "The second index was wrong.");
 
             int[] expectedEvens = { 2, 0, 0, 0 };
-            Assert.IsTrue(Sublist.AreEqual(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
+            Assert.IsTrue(Sublist.Equals(expectedEvens.ToSublist(), evens), "Not all the evens were partitioned out.");
             int[] expectedOdds = { 1 };
-            Assert.IsTrue(Sublist.AreEqual(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
+            Assert.IsTrue(Sublist.Equals(expectedOdds.ToSublist(), odds), "Not all the odds were partitioned out.");
 
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(evens);
