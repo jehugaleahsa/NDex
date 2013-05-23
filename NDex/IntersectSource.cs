@@ -11,7 +11,7 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Adds the items that appear in both lists to a destination list.
+        /// Finds the items that appear in both lists.
         /// </summary>
         /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
         /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
@@ -21,10 +21,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items. Neither of
-        /// the lists can contain duplicate items.
-        /// </remarks>
+        /// <remarks>The lists must be sets.</remarks>
         public static IntersectSource<TSourceList1, TSourceList2, TSource> Intersect<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2)
@@ -43,21 +40,19 @@ namespace NDex
         }
 
         /// <summary>
-        /// Adds the items that appear in both lists to a destination list.
+        /// Finds the items that appear in both lists.
         /// </summary>
         /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
         /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source1">The first list.</param>
         /// <param name="source2">The second list.</param>
-        /// <param name="comparer">The comparer to use to compare items from the first and second lists.</param>
+        /// <param name="comparer">The comparer to use to compare the items.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer and must not contain duplicates.
-        /// </remarks>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        /// <remarks>The lists must be sets.</remarks>
         public static IntersectSource<TSourceList1, TSourceList2, TSource> Intersect<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
@@ -81,21 +76,19 @@ namespace NDex
         }
 
         /// <summary>
-        /// Adds the items that appear in both lists to a destination list.
+        /// Finds the items that appear in both lists.
         /// </summary>
         /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
         /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
         /// <param name="source1">The first list.</param>
         /// <param name="source2">The second list.</param>
-        /// <param name="comparison">The delegate used to compare items from the first and second lists.</param>
+        /// <param name="comparison">A function that can compare the list items.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate and must not contain duplicates.
-        /// </remarks>
+        /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
+        /// <remarks>The lists must be sets.</remarks>
         public static IntersectSource<TSourceList1, TSourceList2, TSource> Intersect<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
@@ -124,7 +117,7 @@ namespace NDex
     #region IntersectResult
 
     /// <summary>
-    /// Holds the results of copying the results of an Intersect operation.
+    /// Holds the results of copying an Intersect operation.
     /// </summary>
     public sealed class IntersectResult
     {
@@ -209,42 +202,12 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = addIntersection<TDestinationList>(
+            int result = Sublist.AddIntersection<TSourceList1, TSourceList2, TDestinationList, TSource>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
             return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addIntersection<TDestinationList>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TDestinationList : IList<TSource>
-        {
-            int pivot = destination.Count;
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                    ++first2;
-                }
-            }
-            Sublist.RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
         }
 
         /// <summary>
@@ -255,7 +218,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected sealed override IntersectResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int, int> indexes = copyIntersection<TDestinationList>(
+            Tuple<int, int, int> indexes = Sublist.CopyIntersection<TSourceList1, TSourceList2, TDestinationList, TSource>(
                 source1.List, source2.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
@@ -265,35 +228,6 @@ namespace NDex
             result.SourceOffset2 = indexes.Item2 - source2.Offset;
             result.DestinationOffset = indexes.Item3 - destination.Offset;
             return result;
-        }
-
-        private static Tuple<int, int, int> copyIntersection<TDestinationList>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TDestinationList : IList<TSource>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++first2;
-                    ++destinationFirst;
-                }
-            }
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
     }
 

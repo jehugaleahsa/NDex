@@ -11,7 +11,7 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Combines the items from the given lists.
+        /// Combines the items in the lists.
         /// </summary>
         /// <typeparam name="TSourceList1">The type of the first underlying list.</typeparam>
         /// <typeparam name="TSource1">The type of the items in the first underlying list.</typeparam>
@@ -53,7 +53,7 @@ namespace NDex
     #region ZipResult
 
     /// <summary>
-    /// Holds the results of a zip operation that's copied into a destination list.
+    /// Holds the results of copying a Zip operation.
     /// </summary>
     public sealed class ZipResult
     {
@@ -126,7 +126,7 @@ namespace NDex
 
         protected override IExpandableSublist<TDestinationList, TDestination> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TDestination> destination)
         {
-            int result = addCombined<TDestinationList>(
+            int result = Sublist.addCombined<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
@@ -134,26 +134,9 @@ namespace NDex
             return destination.Resize(result - destination.Offset, true);
         }
 
-        private static int addCombined<TDestinationList>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<TSource1, TSource2, TDestination> combiner)
-            where TDestinationList : IList<TDestination>
-        {
-            int count = Math.Min(past1 - first1, past2 - first2);
-            Sublist.GrowAndShift<TDestinationList, TDestination>(destination, destinationPast, count);
-            Tuple<int, int, int> indexes = copyCombined<TDestinationList>(
-                source1, first1, past1,
-                source2, first2, past2,
-                destination, destinationPast, destination.Count,
-                combiner);
-            return indexes.Item3;
-        }
-
         protected override ZipResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TDestination> destination)
         {
-            Tuple<int, int, int> indexes = copyCombined<TDestinationList>(
+            Tuple<int, int, int> indexes = Sublist.copyCombined<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
@@ -163,23 +146,6 @@ namespace NDex
             result.SourceOffset2 = indexes.Item2 - source2.Offset;
             result.DestinationOffset = indexes.Item3 - destination.Offset;
             return result;
-        }
-
-        private static Tuple<int, int, int> copyCombined<TDestinationList>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource1, TSource2, TDestination> combiner)
-            where TDestinationList : IList<TDestination>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                destination[destinationFirst] = combiner(source1[first1], source2[first2]);
-                ++first1;
-                ++first2;
-                ++destinationFirst;
-            }
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
     }
 

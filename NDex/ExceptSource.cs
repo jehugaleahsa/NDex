@@ -21,6 +21,7 @@ namespace NDex
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <remarks>The lists must be sets.</remarks>
         public static ExceptSource<TSourceList1, TSourceList2, TSource> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2)
@@ -51,6 +52,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        /// <remarks>The lists must be sets.</remarks>
         public static ExceptSource<TSourceList1, TSourceList2, TSource> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
@@ -86,6 +88,7 @@ namespace NDex
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
+        /// <remarks>The lists must be sets.</remarks>
         public static ExceptSource<TSourceList1, TSourceList2, TSource> Except<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
@@ -114,7 +117,7 @@ namespace NDex
     #region ExceptResult
 
     /// <summary>
-    /// Holds the results of an Except operation that's copied to the destination list.
+    /// Holds the results of copying an Except operation.
     /// </summary>
     public sealed class ExceptResult
     {
@@ -199,43 +202,12 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = addDifference<TDestinationList>(
+            int result = Sublist.AddDifference<TSourceList1, TSourceList2, TDestinationList, TSource>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
             return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addDifference<TDestinationList>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TDestinationList : IList<TSource>
-        {
-            int pivot = destination.Count;
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    ++first1;
-                    ++first2;
-                }
-            }
-            Sublist.Add<TSourceList1, TDestinationList, TSource>(source1, first1, past1, destination, destination.Count);
-            Sublist.RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
         }
 
         /// <summary>
@@ -246,7 +218,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected sealed override ExceptResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int, int> indexes = copyDifference<TDestinationList>(
+            Tuple<int, int, int> indexes = Sublist.CopyDifference<TSourceList1, TSourceList2, TDestinationList, TSource>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
@@ -256,40 +228,6 @@ namespace NDex
             result.SourceOffset2 = indexes.Item2 - source2.Offset;
             result.DestinationOffset = indexes.Item3 - destination.Offset;
             return result;
-        }
-
-        private static Tuple<int, int, int> copyDifference<TDestinationList>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TDestinationList : IList<TSource>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++destinationFirst;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    ++first1;
-                    ++first2;
-                }
-            }
-            Tuple<int, int> indexes = Sublist.Copy<TSourceList1, TDestinationList, TSource>(
-                source1, first1, past1,
-                destination, destinationFirst, destinationPast);
-            first1 = indexes.Item1;
-            destinationFirst = indexes.Item2;
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
     }
 

@@ -11,12 +11,12 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Adds the items from a list that satisfy the predicate to a destination list.
+        /// Gets the items satisfying the given predicate.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to conditionally add.</param>
-        /// <param name="predicate">The condition an item must satisfy to be added to the destination.</param>
+        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
+        /// <param name="source">The list of items.</param>
+        /// <param name="predicate">The function to use to determine whether an item satisfies the predicate.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
@@ -37,12 +37,12 @@ namespace NDex
         }
 
         /// <summary>
-        /// Adds the items from a list that satisfy the predicate to a destination list.
+        /// Gets the items satisfying the given predicate.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list of items to conditionally add.</param>
-        /// <param name="predicate">The condition an item must satisfy to be added to the destination.</param>
+        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
+        /// <param name="source">The list of items.</param>
+        /// <param name="predicate">The function to use to determine whether an item satisfies the predicate.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
@@ -68,7 +68,7 @@ namespace NDex
     #region WhereResult
 
     /// <summary>
-    /// Holds the results of copying the results of a Where operation.
+    /// Holds the results of copying a Where operation.
     /// </summary>
     public sealed class WhereResult
     {
@@ -144,30 +144,11 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = addIf<TDestinationList>(
+            int result = Sublist.AddIf<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset + destination.Count,
                 Predicate);
             return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addIf<TDestinationList>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, bool> predicate)
-            where TDestinationList : IList<TSource>
-        {
-            int pivot = destination.Count;
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    destination.Add(source[first]);
-                }
-                ++first;
-            }
-            Sublist.RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
         }
 
         /// <summary>
@@ -178,7 +159,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected sealed override WhereResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int> indexes = copyIf<TDestinationList>(
+            Tuple<int, int> indexes = Sublist.CopyIf<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
                 Predicate);
@@ -186,28 +167,6 @@ namespace NDex
             result.SourceOffset = indexes.Item1 - Source.Offset;
             result.DestinationOffset = indexes.Item2 - destination.Offset;
             return result;
-        }
-
-        private static Tuple<int, int> copyIf<TDestinationList>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, bool> predicate)
-            where TDestinationList : IList<TSource>
-        {
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    if (destinationFirst == destinationPast)
-                    {
-                        break;
-                    }
-                    destination[destinationFirst] = source[first];
-                    ++destinationFirst;
-                }
-                ++first;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
         }
     }
 
@@ -230,22 +189,9 @@ namespace NDex
         /// <returns>The index past the last remaining item.</returns>
         public int InPlace()
         {
-            int result = removeIf(Source.List, Source.Offset, Source.Offset + Source.Count, Predicate);
+            int result = Sublist.RemoveIf<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count, Predicate);
             result -= Source.Offset;
             return result;
-        }
-
-        private static int removeIf(TSourceList list, int first, int past, Func<TSource, bool> predicate)
-        {
-            for (int position = first; position != past; ++position)
-            {
-                if (!predicate(list[position]))
-                {
-                    list[first] = list[position];
-                    ++first;
-                }
-            }
-            return first;
         }
     }
 

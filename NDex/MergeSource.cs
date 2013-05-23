@@ -11,20 +11,17 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, adding the items
-        /// to a destination list.
+        /// Gets the items from two sorted lists such that the items are still sorted.
         /// </summary>
         /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
         /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
+        /// <param name="source1">The first list.</param>
+        /// <param name="source2">The second list.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <remarks>
-        /// The items in the lists must be sorted according to the default ordering of the items.
-        /// </remarks>
+        /// <remarks>The lists must be sorted.</remarks>
         public static MergeSource<TSourceList1, TSourceList2, TSource> Merge<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2)
@@ -43,22 +40,19 @@ namespace NDex
         }
 
         /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, adding the items
-        /// to a destination list.
+        /// Gets the items from two sorted lists such that the items are still sorted.
         /// </summary>
         /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
         /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
-        /// <param name="comparer">The comparer to use to compare items from the lists.</param>
+        /// <param name="source1">The first list.</param>
+        /// <param name="source2">The second list.</param>
+        /// <param name="comparer">The comparer to use to compare the items.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparer.
-        /// </remarks>
+        /// <remarks>The lists must be sorted.</remarks>
         public static MergeSource<TSourceList1, TSourceList2, TSource> Merge<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
@@ -82,22 +76,19 @@ namespace NDex
         }
 
         /// <summary>
-        /// Merges the items from two lists such that they remain in sorted order, adding the items
-        /// to a destination list.
+        /// Gets the items from two sorted lists such that the items are still sorted.
         /// </summary>
         /// <typeparam name="TSourceList1">The type of the first list.</typeparam>
         /// <typeparam name="TSourceList2">The type of the second list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
-        /// <param name="source1">The first list to merge.</param>
-        /// <param name="source2">The second list to merge.</param>
-        /// <param name="comparison">The delegate to use to compare items from the lists.</param>
+        /// <param name="source1">The first list.</param>
+        /// <param name="source2">The second list.</param>
+        /// <param name="comparison">A function to compare the items.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// The first and second lists must be sorted according to the comparison delegate.
-        /// </remarks>
+        /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
+        /// <remarks>The lists must be sorted.</remarks>
         public static MergeSource<TSourceList1, TSourceList2, TSource> Merge<TSourceList1, TSourceList2, TSource>(
             this IReadOnlySublist<TSourceList1, TSource> source1,
             IReadOnlySublist<TSourceList2, TSource> source2,
@@ -126,7 +117,7 @@ namespace NDex
     #region MergeResult
 
     /// <summary>
-    /// Holds the results of copying the results of an Merge operation.
+    /// Holds the results of copying a Merge operation.
     /// </summary>
     public sealed class MergeResult
     {
@@ -211,28 +202,12 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = addMerged<TDestinationList>(
+            int result = Sublist.AddMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
                 comparison);
             return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addMerged<TDestinationList>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TDestinationList : IList<TSource>
-        {
-            Sublist.GrowAndShift<TDestinationList, TSource>(destination, destinationPast, (past1 - first1) + (past2 - first2));
-            Tuple<int, int, int> indexes = Sublist.CopyMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
-                source1, first1, past1,
-                source2, first2, past2,
-                destination, destinationPast, destination.Count,
-                comparison);
-            return indexes.Item3;
         }
 
         /// <summary>

@@ -11,11 +11,11 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Adds the items in a list in reverse to a destination list.
+        /// Gets the items in reverse order.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list whose items are to be added in reverse.</param>
+        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
+        /// <param name="source">The list to reverse.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         public static ReverseSource<TSourceList, TSource> Reverse<TSourceList, TSource>(
@@ -30,11 +30,11 @@ namespace NDex
         }
 
         /// <summary>
-        /// Adds the items in a list in reverse to a destination list.
+        /// Gets the items in reverse order.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
-        /// <param name="source">The list whose items are to be added in reverse.</param>
+        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
+        /// <param name="source">The list to reverse.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         public static InPlaceReverseSource<TSourceList, TSource> Reverse<TSourceList, TSource>(
@@ -54,7 +54,7 @@ namespace NDex
     #region ReverseResult
 
     /// <summary>
-    /// Holds the results of copying the results of a Reverse operation.
+    /// Holds the results of copying a Reverse operation.
     /// </summary>
     public sealed class ReverseResult
     {
@@ -124,22 +124,10 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = addReversed<TDestinationList>(
+            int result = Sublist.AddReversed<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset + destination.Count);
             return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addReversed<TDestinationList>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast)
-            where TDestinationList : IList<TSource>
-        {
-            Sublist.GrowAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = Sublist.CopyReversed<TSourceList, TDestinationList, TSource>(
-                source, first, past,
-                destination, destinationPast, destination.Count);
-            return indexes.Item2;
         }
 
         /// <summary>

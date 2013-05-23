@@ -13,12 +13,12 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Copies the given value into the list.
+        /// Generates the given value the specified number of items.
         /// </summary>
-        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="value">The value to fill the list with.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <typeparam name="TSource">The type of the value.</typeparam>
+        /// <param name="numberOfItems">The number of values to generate.</param>
+        /// <param name="value">The value to generate.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">The number of items is negative.</exception>
         /// <remarks>If T is a reference type, each item in the list will refer to the same instance.</remarks>
         public static GenerateWithConstantSource<TSource> Generate<TSource>(int numberOfItems, TSource value)
         {
@@ -31,14 +31,13 @@ namespace NDex
         }
 
         /// <summary>
-        /// Copies the result of each call to the generator into the list.
+        /// Generates the specified number of items by calling the given generator.
         /// </summary>
-        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>The generator will be called to set each item in the list.</remarks>
+        /// <typeparam name="TSource">The type of the values returned by the generator.</typeparam>
+        /// <param name="numberOfItems">The number of values to generate.</param>
+        /// <param name="generator">A function to generate the values.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">The number of items is negative.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
         public static GenerateWithGeneratorSource<TSource> Generate<TSource>(int numberOfItems, Func<TSource> generator)
         {
             if (numberOfItems < 0)
@@ -54,17 +53,14 @@ namespace NDex
         }
 
         /// <summary>
-        /// Copies the result of each call to the generator into the list.
+        /// Generates the specified number of items by calling the given generator.
         /// </summary>
-        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="numberOfItems">The number of items to add.</param>
-        /// <param name="generator">The delegate to use to fill the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator delegate is null.</exception>
-        /// <remarks>
-        /// The generator will be called to set each item in the list. 
-        /// The relative index of the item is passed with each call to the generator.
-        /// </remarks>
+        /// <typeparam name="TSource">The type of the values returned by the generator.</typeparam>
+        /// <param name="numberOfItems">The number of values to generate.</param>
+        /// <param name="generator">A function to generate the values.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">The number of items is negative.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
+        /// <remarks>The generator will be passed integer values starting from 0.</remarks>
         public static GenerateWithIndexedGeneratorSource<TSource> Generate<TSource>(int numberOfItems, Func<int, TSource> generator)
         {
             if (numberOfItems < 0)
@@ -87,7 +83,7 @@ namespace NDex
     /// <summary>
     /// Provides the information needed to copy or add items to a destination sublist.
     /// </summary>
-    /// <typeparam name="TSource">The type of the destination's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items to generate.</typeparam>
     public sealed class GenerateWithConstantSource<TSource> : Source<TSource, int>
     {
         private readonly int numberOfItems;
@@ -109,18 +105,8 @@ namespace NDex
         {
             int first = destination.Offset + destination.Count;
             int past2 = first + numberOfItems;
-            addGenerated<TDestinationList>(destination.List, first, past2, value);
+            Sublist.AddGenerated<TDestinationList, TSource>(destination.List, first, past2, value);
             return destination.Resize(destination.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TSourceList>(TSourceList list, int first, int past, TSource value)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                list.Insert(first, value);
-                ++first;
-            }
         }
 
         /// <summary>
@@ -132,25 +118,15 @@ namespace NDex
         protected override int SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             int past = Math.Min(destination.Offset + numberOfItems, destination.Offset + destination.Count);
-            copyGenerated<TDestinationList>(destination.List, destination.Offset, past, value);
+            Sublist.CopyGenerated<TDestinationList, TSource>(destination.List, destination.Offset, past, value);
             return past - destination.Offset;
-        }
-
-        private static void copyGenerated<TSourceList>(TSourceList list, int first, int past, TSource value)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                list[first] = value;
-                ++first;
-            }
         }
     }
 
     /// <summary>
     /// Provides the information needed to copy or add items to a destination sublist.
     /// </summary>
-    /// <typeparam name="TSource">The type of the destination's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items to generate.</typeparam>
     public sealed class GenerateWithGeneratorSource<TSource> : Source<TSource, int>
     {
         private readonly int numberOfItems;
@@ -171,18 +147,8 @@ namespace NDex
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
             int past = destination.Offset + destination.Count;
-            addGenerated<TDestinationList>(destination.List, past, past + numberOfItems, generator);
+            Sublist.AddGenerated<TDestinationList, TSource>(destination.List, past, past + numberOfItems, generator);
             return destination.Resize(destination.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TSourceList>(TSourceList list, int first, int past, Func<TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                list.Insert(first, generator());
-                ++first;
-            }
         }
 
         /// <summary>
@@ -194,25 +160,15 @@ namespace NDex
         protected override int SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             int past = Math.Min(destination.Offset + destination.Count, destination.Offset + numberOfItems);
-            copyGenerated<TDestinationList>(destination.List, destination.Offset, past, generator);
+            Sublist.CopyGenerated<TDestinationList, TSource>(destination.List, destination.Offset, past, generator);
             return past - destination.Offset;
-        }
-
-        private static void copyGenerated<TSourceList>(TSourceList list, int first, int past, Func<TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                list[first] = generator();
-                ++first;
-            }
         }
     }
 
     /// <summary>
     /// Provides the information needed to copy or add items to a destination sublist.
     /// </summary>
-    /// <typeparam name="TSource">The type of the destination's underlying list.</typeparam>
+    /// <typeparam name="TSource">The type of the items to generate.</typeparam>
     public sealed class GenerateWithIndexedGeneratorSource<TSource> : Source<TSource, int>
     {
         private readonly int numberOfItems;
@@ -233,19 +189,8 @@ namespace NDex
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
             int past = destination.Offset + destination.Count;
-            addGenerated<TDestinationList>(destination.List, past, past + numberOfItems, generator);
+            Sublist.AddGenerated<TDestinationList, TSource>(destination.List, past, past + numberOfItems, generator);
             return destination.Resize(destination.Count + numberOfItems, true);
-        }
-
-        private static void addGenerated<TSourceList>(TSourceList list, int first, int past, Func<int, TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list.Insert(first, generator(first - adjustment));
-                ++first;
-            }
         }
 
         /// <summary>
@@ -257,19 +202,8 @@ namespace NDex
         protected override int SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             int past = Math.Min(destination.Offset + destination.Count, destination.Offset + numberOfItems);
-            copyGenerated<TDestinationList>(destination.List, destination.Offset, past, generator);
+            Sublist.CopyGenerated<TDestinationList, TSource>(destination.List, destination.Offset, past, generator);
             return past - destination.Offset;
-        }
-
-        private static void copyGenerated<TSourceList>(TSourceList list, int first, int past, Func<int, TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list[first] = generator(first - adjustment);
-                ++first;
-            }
         }
     }
 

@@ -11,13 +11,12 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Adds the items from a list satisfying the predicate to the first destination list and the remaining
-        /// to the second destination list.
+        /// Separates the items satisfying the given predicate from those that don't.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
         /// <param name="source">The list to partition.</param>
-        /// <param name="predicate">The condition an item must satisfy to be added to the first destination list.</param>
+        /// <param name="predicate">A function to see if an item satisfies a condition.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
         public static PartitionSource<TSourceList, TSource> Partition<TSourceList, TSource>(
@@ -37,13 +36,12 @@ namespace NDex
         }
 
         /// <summary>
-        /// Adds the items from a list satisfying the predicate to the first destination list and the remaining
-        /// to the second destination list.
+        /// Separates the items satisfying the given predicate from those that don't.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
-        /// <typeparam name="TSource">The type of the items in the lists.</typeparam>
+        /// <typeparam name="TSource">The type of the items in the list.</typeparam>
         /// <param name="source">The list to partition.</param>
-        /// <param name="predicate">The condition an item must satisfy to be added to the first destination list.</param>
+        /// <param name="predicate">A function to see if an item satisfies a condition.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
         public static InPlacePartitionSource<TSourceList, TSource> Partition<TSourceList, TSource>(
@@ -68,7 +66,7 @@ namespace NDex
     #region PartitionResult
 
     /// <summary>
-    /// Holds the results of the AddPartitioned method.
+    /// Holds the results of adding a partitioned list to two destinations.
     /// </summary>
     public sealed class AddPartitionedResult<TDestinationList1, TDestinationList2, T>
     {
@@ -80,7 +78,7 @@ namespace NDex
         }
 
         /// <summary>
-        /// Gets the subset wrapping the first destination list.
+        /// Gets the sublist wrapping the first destination list.
         /// </summary>
         public IExpandableSublist<TDestinationList1, T> Destination1
         {
@@ -89,7 +87,7 @@ namespace NDex
         }
 
         /// <summary>
-        /// Gets the subset wrapping the second destination list.
+        /// Gets the sublist wrapping the second destination list.
         /// </summary>
         public IExpandableSublist<TDestinationList2, T> Destination2
         {
@@ -99,12 +97,12 @@ namespace NDex
     }
 
     /// <summary>
-    /// Holds the result of copying the result of a Partition operation.
+    /// Holds the results of copying a partitioned list to two destinations.
     /// </summary>
     public sealed class CopyPartitionedResult
     {
         /// <summary>
-        /// Initializes a new instance of a PartitionCopyResult.
+        /// Initializes a new instance of a CopyPartitionedResult.
         /// </summary>
         internal CopyPartitionedResult()
         {
@@ -193,7 +191,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination2");
             }
-            Tuple<int, int> indexes = addPartitioned<TDestinationList1, TDestinationList2>(
+            Tuple<int, int> indexes = Sublist.AddPartitioned<TSourceList, TDestinationList1, TDestinationList2, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination1.List, destination1.Offset + destination1.Count,
                 destination2.List, destination2.Offset + destination2.Count,
@@ -202,35 +200,6 @@ namespace NDex
             result.Destination1 = destination1.Resize(indexes.Item1 - destination1.Offset, true);
             result.Destination2 = destination2.Resize(indexes.Item2 - destination2.Offset, true);
             return result;
-        }
-
-        private static Tuple<int, int> addPartitioned<TDestinationList1, TDestinationList2>(
-            TSourceList source, int first, int past,
-            TDestinationList1 destination1, int destinationPast1,
-            TDestinationList2 destination2, int destinationPast2,
-            Func<TSource, bool> predicate)
-            where TDestinationList1 : IList<TSource>
-            where TDestinationList2 : IList<TSource>
-        {
-            int pivot1 = destination1.Count;
-            int pivot2 = destination2.Count;
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    destination1.Add(source[first]);
-                }
-                else
-                {
-                    destination2.Add(source[first]);
-                }
-                ++first;
-            }
-            Sublist.RotateLeft<TDestinationList1, TSource>(destination1, destinationPast1, pivot1, destination1.Count);
-            Sublist.RotateLeft<TDestinationList2, TSource>(destination2, destinationPast2, pivot2, destination2.Count);
-            destinationPast1 += destination1.Count - pivot1;
-            destinationPast2 += destination2.Count - pivot2;
-            return new Tuple<int, int>(destinationPast1, destinationPast2);
         }
 
         /// <summary>
@@ -257,7 +226,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination2");
             }
-            Tuple<int, int, int> indexes = copyPartitioned<TDestinationList1, TDestinationList2>(
+            Tuple<int, int, int> indexes = Sublist.CopyPartitioned<TSourceList, TDestinationList1, TDestinationList2, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination1.List, destination1.Offset, destination1.Offset + destination1.Count,
                 destination2.List, destination2.Offset, destination2.Offset + destination2.Count,
@@ -267,39 +236,6 @@ namespace NDex
             result.DestinationOffset1 = indexes.Item2 - destination1.Offset;
             result.DestinationOffset2 = indexes.Item3 - destination2.Offset;
             return result;
-        }
-
-        private static Tuple<int, int, int> copyPartitioned<TDestinationList1, TDestinationList2>(
-            TSourceList source, int first, int past,
-            TDestinationList1 destination1, int destinationFirst1, int destinationPast1,
-            TDestinationList2 destination2, int destinationFirst2, int destinationPast2,
-            Func<TSource, bool> predicate)
-            where TDestinationList1 : IList<TSource>
-            where TDestinationList2 : IList<TSource>
-        {
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    if (destinationFirst1 == destinationPast1)
-                    {
-                        break;
-                    }
-                    destination1[destinationFirst1] = source[first];
-                    ++destinationFirst1;
-                }
-                else
-                {
-                    if (destinationFirst2 == destinationPast2)
-                    {
-                        break;
-                    }
-                    destination2[destinationFirst2] = source[first];
-                    ++destinationFirst2;
-                }
-                ++first;
-            }
-            return new Tuple<int, int, int>(first, destinationFirst1, destinationFirst2);
         }
     }
 
@@ -323,38 +259,9 @@ namespace NDex
         /// </summary>
         public int InPlace()
         {
-            int index = partition(Source.List, Source.Offset, Source.Offset + Source.Count, Predicate);
+            int index = Sublist.Partition<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count, Predicate);
             index -= Source.Offset;
             return index;
-        }
-
-        private static int partition(TSourceList list, int first, int past, Func<TSource, bool> predicate)
-        {
-            while (true)
-            {
-                while (first != past && predicate(list[first]))
-                {
-                    ++first;
-                }
-                if (first == past)
-                {
-                    break;
-                }
-                --past;
-                while (first != past && !predicate(list[past]))
-                {
-                    --past;
-                }
-                if (first == past)
-                {
-                    break;
-                }
-                TSource temp = list[first];
-                list[first] = list[past];
-                list[past] = temp;
-                ++first;
-            }
-            return first;
         }
     }
 

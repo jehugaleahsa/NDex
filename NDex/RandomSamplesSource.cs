@@ -12,20 +12,17 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Randomly adds the requested number of items from a list to a destination list.
+        /// Gets the specified number of items at random from the list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the list.</typeparam>
         /// <param name="source">The list of items to randomly choose values from.</param>
-        /// <param name="numberOfSamples">The number of items to add to the destination.</param>
+        /// <param name="numberOfSamples">The number of items to get.</param>
         /// <param name="random">The random number generator to use.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// The number of samples is negative -or- larger than the size of the list.
-        /// </exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The number of samples is negative -or- larger than the size of the list.</exception>
         /// <exception cref="System.ArgumentNullException">The random number generator is null.</exception>
-        /// <remarks>The order that the items appear in the destination is not guaranteed.</remarks>
         public static RandomSamplesSource<TSourceList, TSource> RandomSamples<TSourceList, TSource>(
             this IReadOnlySublist<TSourceList, TSource> source,
             int numberOfSamples,
@@ -48,20 +45,17 @@ namespace NDex
         }
 
         /// <summary>
-        /// Randomly adds the requested number of items from a list to a destination list.
+        /// Gets the specified number of items at random from the list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the list.</typeparam>
         /// <param name="source">The list of items to randomly choose values from.</param>
-        /// <param name="numberOfSamples">The number of items to add to the destination.</param>
-        /// <param name="generator">The random number generator to use.</param>
+        /// <param name="numberOfSamples">The number of items to get.</param>
+        /// <param name="generator">A function that will generate a random number.</param>
         /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">
-        /// The number of samples is negative -or- larger than the size of the list.
-        /// </exception>
-        /// <exception cref="System.ArgumentNullException">The random number generator is null.</exception>
-        /// <remarks>The order that the items appear in the destination is not guaranteed.</remarks>
+        /// <exception cref="System.ArgumentOutOfRangeException">The number of samples is negative -or- larger than the size of the list.</exception>
+        /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
         public static RandomSamplesSource<TSourceList, TSource> RandomSamples<TSourceList, TSource>(
             this IReadOnlySublist<TSourceList, TSource> source,
             int numberOfSamples,
@@ -89,7 +83,7 @@ namespace NDex
     #region RandomSamplesResult
 
     /// <summary>
-    /// Holds the results of copying the results of a RandomSamples operation.
+    /// Holds the results of copying a RandomSamples operation.
     /// </summary>
     public sealed class RandomSamplesResult
     {
@@ -163,26 +157,12 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = addRandomSamples<TDestinationList>(
+            int result = Sublist.AddRandomSamples<TSourceList, TDestinationList, TSource>(
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count,
                 numberOfSamples,
                 generator);
             return destination.Resize(result - destination.Offset, true);
-        }
-
-        private static int addRandomSamples<TDestinationList>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            int numberOfSamples,
-            Func<int> generator)
-            where TDestinationList : IList<TSource>
-        {
-            Sublist.GrowAndShift<TDestinationList, TSource>(destination, destinationPast, numberOfSamples);
-            return copyRandomSamples<TDestinationList>(
-                source, first, past,
-                destination, destinationPast, destinationPast + numberOfSamples,
-                generator);
         }
 
         /// <summary>
@@ -193,44 +173,15 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected override RandomSamplesResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            int index = copyRandomSamples<TDestinationList>(
+            int past = Math.Min(destination.Offset + destination.Count, destination.Offset + numberOfSamples);
+            int index = Sublist.CopyRandomSamples<TSourceList, TDestinationList, TSource>(
                 source.List, source.Offset, source.Offset + source.Count,
-                destination.List, destination.Offset, destination.Offset + numberOfSamples,
+                destination.List, destination.Offset, past,
                 generator);
             RandomSamplesResult result = new RandomSamplesResult();
             result.SourceOffset = source.Count;
             result.DestinationOffset = index - destination.Offset;
             return result;
-        }
-
-        private static int copyRandomSamples<TDestinationList>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<int> generator)
-            where TDestinationList : IList<TSource>
-        {
-            for (int index = destinationFirst; first != past && index != destinationPast; ++index)
-            {
-                destination[index] = source[first];
-                ++first;
-            }
-            int numberOfSamples = destinationPast - destinationFirst;
-            int total = numberOfSamples;
-            while (first != past)
-            {
-                ++total;
-                int likelihood = generator() % total;
-                if (likelihood < 0)
-                {
-                    likelihood += total;
-                }
-                if (likelihood < numberOfSamples)
-                {
-                    destination[destinationFirst + likelihood] = source[first];
-                }
-                ++first;
-            }
-            return destinationPast;
         }
     }
 
