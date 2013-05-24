@@ -144,7 +144,7 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = Sublist.AddIf<TSourceList, TDestinationList, TSource>(
+            int result = Sublist.AddWhere<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset + destination.Count,
                 Predicate);
@@ -159,7 +159,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected sealed override WhereResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int> indexes = Sublist.CopyIf<TSourceList, TDestinationList, TSource>(
+            Tuple<int, int> indexes = Sublist.CopyWhere<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
                 Predicate);
@@ -189,7 +189,7 @@ namespace NDex
         /// <returns>The index past the last remaining item.</returns>
         public int InPlace()
         {
-            int result = Sublist.RemoveIf<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count, Predicate);
+            int result = Sublist.Where<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count, Predicate);
             result -= Source.Offset;
             return result;
         }

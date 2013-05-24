@@ -105,7 +105,7 @@ namespace NDex
         {
             int first = destination.Offset + destination.Count;
             int past2 = first + numberOfItems;
-            Sublist.AddGenerated<TDestinationList, TSource>(destination.List, first, past2, value);
+            Sublist.AddGenerate<TDestinationList, TSource>(destination.List, first, past2, value);
             return destination.Resize(destination.Count + numberOfItems, true);
         }
 
@@ -118,7 +118,7 @@ namespace NDex
         protected override int SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             int past = Math.Min(destination.Offset + numberOfItems, destination.Offset + destination.Count);
-            Sublist.CopyGenerated<TDestinationList, TSource>(destination.List, destination.Offset, past, value);
+            Sublist.CopyGenerate<TDestinationList, TSource>(destination.List, destination.Offset, past, value);
             return past - destination.Offset;
         }
     }
@@ -147,7 +147,7 @@ namespace NDex
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
             int past = destination.Offset + destination.Count;
-            Sublist.AddGenerated<TDestinationList, TSource>(destination.List, past, past + numberOfItems, generator);
+            Sublist.AddGenerate<TDestinationList, TSource>(destination.List, past, past + numberOfItems, generator);
             return destination.Resize(destination.Count + numberOfItems, true);
         }
 
@@ -160,7 +160,7 @@ namespace NDex
         protected override int SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             int past = Math.Min(destination.Offset + destination.Count, destination.Offset + numberOfItems);
-            Sublist.CopyGenerated<TDestinationList, TSource>(destination.List, destination.Offset, past, generator);
+            Sublist.CopyGenerate<TDestinationList, TSource>(destination.List, destination.Offset, past, generator);
             return past - destination.Offset;
         }
     }
@@ -189,7 +189,7 @@ namespace NDex
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
             int past = destination.Offset + destination.Count;
-            Sublist.AddGenerated<TDestinationList, TSource>(destination.List, past, past + numberOfItems, generator);
+            Sublist.AddGenerate<TDestinationList, TSource>(destination.List, past, past + numberOfItems, generator);
             return destination.Resize(destination.Count + numberOfItems, true);
         }
 
@@ -202,7 +202,7 @@ namespace NDex
         protected override int SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             int past = Math.Min(destination.Offset + destination.Count, destination.Offset + numberOfItems);
-            Sublist.CopyGenerated<TDestinationList, TSource>(destination.List, destination.Offset, past, generator);
+            Sublist.CopyGenerate<TDestinationList, TSource>(destination.List, destination.Offset, past, generator);
             return past - destination.Offset;
         }
     }

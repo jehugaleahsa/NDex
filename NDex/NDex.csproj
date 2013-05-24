@@ -42,6 +42,7 @@
     <Compile Include="PartialSortSource.cs" />
     <Compile Include="PartitionSource.cs" />
     <Compile Include="RandomSamplesSource.cs" />
+    <Compile Include="RandomShuffleSource.cs" />
     <Compile Include="ReplaceSource.cs" />
     <Compile Include="ReverseSource.cs" />
     <Compile Include="RotateLeftSource.cs" />

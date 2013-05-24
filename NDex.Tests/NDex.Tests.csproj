@@ -43,6 +43,9 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RandomShuffleAddTester.cs" />
+    <Compile Include="RandomShuffleCopyTester.cs" />
+    <Compile Include="SelectInPlaceTester.cs" />
     <Compile Include="ZipAddTester.cs" />
     <Compile Include="SelectAddTester.cs" />
     <Compile Include="ExceptAddTester.cs" />
@@ -121,7 +124,7 @@
     <Compile Include="PreviousPermutationTester.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuickSortTester.cs" />
-    <Compile Include="RandomShuffleTester.cs" />
+    <Compile Include="RandomShuffleInPlaceTester.cs" />
     <Compile Include="ReadOnlyListTester.cs" />
     <Compile Include="ClearTester.cs" />
     <Compile Include="ReplaceInPlaceTester.cs" />

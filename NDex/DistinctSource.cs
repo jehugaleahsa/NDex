@@ -240,7 +240,7 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = Sublist.AddUnique<TSourceList, TDestinationList, TSource>(
+            int result = Sublist.AddDistinct<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset + destination.Count,
                 Comparison);
@@ -255,7 +255,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected sealed override DistinctResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int> indexes = Sublist.CopyUnique<TSourceList, TDestinationList, TSource>(
+            Tuple<int, int> indexes = Sublist.CopyDistinct<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
                 Comparison);
@@ -285,7 +285,7 @@ namespace NDex
         /// <returns>The integer past the last unique item.</returns>
         public int InPlace()
         {
-            int result = Sublist.RemoveDuplicates<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count, Comparison);
+            int result = Sublist.Distinct<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count, Comparison);
             result -= Source.Offset;
             return result;
         }

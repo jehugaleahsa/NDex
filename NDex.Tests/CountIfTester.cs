@@ -32,7 +32,7 @@ namespace NDex.Tests
             var list = new List<int>(100);
             list.AddRange(evens);
             list.AddRange(odds);
-            list.ToSublist().RandomShuffle(random);
+            list.ToSublist().RandomShuffle(random).InPlace();
 
             int result = list.ToSublist().CountIf(i => i % 2 == 0);
             Assert.AreEqual(50, result, "Counted the wrong number of evens.");

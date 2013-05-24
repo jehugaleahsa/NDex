@@ -286,7 +286,7 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = Sublist.AddPartiallySorted<TSourceList, TDestinationList, TSource>(
+            int result = Sublist.AddPartialSort<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + NumberOfItems, Source.Offset + Source.Count,
                 destination.List, destination.Offset + destination.Count,
                 Comparison);
@@ -302,7 +302,7 @@ namespace NDex
         protected sealed override PartialSortResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
             int past = Math.Min(destination.Offset + NumberOfItems, destination.Offset + destination.Count);
-            int index = Sublist.CopyPartiallySorted<TSourceList, TDestinationList, TSource>(
+            int index = Sublist.CopyPartialSort<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, past,
                 Comparison);
@@ -314,7 +314,7 @@ namespace NDex
     }
 
     /// <summary>
-    /// Provides the information needed to copy or add items to a destination sublist.
+    /// Provides the information needed to copy or add items to a destination sublist or perform the operation in-place.
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>

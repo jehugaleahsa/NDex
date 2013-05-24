@@ -191,7 +191,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination2");
             }
-            Tuple<int, int> indexes = Sublist.AddPartitioned<TSourceList, TDestinationList1, TDestinationList2, TSource>(
+            Tuple<int, int> indexes = Sublist.AddPartition<TSourceList, TDestinationList1, TDestinationList2, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination1.List, destination1.Offset + destination1.Count,
                 destination2.List, destination2.Offset + destination2.Count,
@@ -226,7 +226,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination2");
             }
-            Tuple<int, int, int> indexes = Sublist.CopyPartitioned<TSourceList, TDestinationList1, TDestinationList2, TSource>(
+            Tuple<int, int, int> indexes = Sublist.CopyPartition<TSourceList, TDestinationList1, TDestinationList2, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination1.List, destination1.Offset, destination1.Offset + destination1.Count,
                 destination2.List, destination2.Offset, destination2.Offset + destination2.Count,

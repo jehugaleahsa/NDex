@@ -530,7 +530,7 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = Sublist.AddReplaced<TSourceList, TDestinationList, TSource>(
+            int result = Sublist.AddReplace<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset + destination.Count,
                 Predicate,
@@ -546,7 +546,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected sealed override ReplaceResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int> indexes = Sublist.CopyReplaced<TSourceList, TDestinationList, TSource>(
+            Tuple<int, int> indexes = Sublist.CopyReplace<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
                 Predicate,
@@ -599,7 +599,7 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = Sublist.AddReplaced<TSourceList, TDestinationList, TSource>(
+            int result = Sublist.AddReplace<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset + destination.Count,
                 Predicate,
@@ -615,7 +615,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected sealed override ReplaceResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int> indexes = Sublist.CopyReplaced<TSourceList, TDestinationList, TSource>(
+            Tuple<int, int> indexes = Sublist.CopyReplace<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
                 Predicate,
@@ -680,7 +680,7 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = Sublist.AddReplaced<TSourceList, TSequenceList, TReplacementList, TDestinationList, TSource, TSequence>(
+            int result = Sublist.AddReplace<TSourceList, TSequenceList, TReplacementList, TDestinationList, TSource, TSequence>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 Sequence.List, Sequence.Offset, Sequence.Offset + Sequence.Count,
                 Replacement.List, Replacement.Offset, Replacement.Offset + Replacement.Count,
@@ -697,7 +697,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected sealed override ReplaceResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int> indexes = Sublist.CopyReplaced<TSourceList, TSequenceList, TReplacementList, TDestinationList, TSource, TSequence>(
+            Tuple<int, int> indexes = Sublist.CopyReplace<TSourceList, TSequenceList, TReplacementList, TDestinationList, TSource, TSequence>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 Sequence.List, Sequence.Offset, Sequence.Offset + Sequence.Count,
                 Replacement.List, Replacement.Offset, Replacement.Offset + Replacement.Count,

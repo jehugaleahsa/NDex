@@ -202,7 +202,7 @@ namespace NDex
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
         protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = Sublist.AddMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            int result = Sublist.AddMerge<TSourceList1, TSourceList2, TDestinationList, TSource>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,

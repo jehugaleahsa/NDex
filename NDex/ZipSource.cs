@@ -126,7 +126,7 @@ namespace NDex
 
         protected override IExpandableSublist<TDestinationList, TDestination> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TDestination> destination)
         {
-            int result = Sublist.addCombined<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
+            int result = Sublist.AddZip<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset + destination.Count,
@@ -136,7 +136,7 @@ namespace NDex
 
         protected override ZipResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TDestination> destination)
         {
-            Tuple<int, int, int> indexes = Sublist.copyCombined<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
+            Tuple<int, int, int> indexes = Sublist.CopyZip<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
                 source1.List, source1.Offset, source1.Offset + source1.Count,
                 source2.List, source2.Offset, source2.Offset + source2.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,

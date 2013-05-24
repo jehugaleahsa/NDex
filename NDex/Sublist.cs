@@ -491,20 +491,20 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            int result = Add<TSourceList, TDestinationList, T>(
+            int result = add<TSourceList, TDestinationList, T>(
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset + destination.Count);
             return destination.Resize(result - destination.Offset, true);
         }
 
-        internal static int Add<TSourceList, TDestinationList, T>(
+        private static int add<TSourceList, TDestinationList, T>(
             TSourceList source, int first, int past,
             TDestinationList destination, int destinationPast)
             where TDestinationList : IList<T>
             where TSourceList : IList<T>
         {
-            GrowAndShift<TDestinationList, T>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = Copy<TSourceList, TDestinationList, T>(
+            growAndShift<TDestinationList, T>(destination, destinationPast, past - first);
+            Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, T>(
                 source, first, past,
                 destination, destinationPast, destination.Count);
             return indexes.Item2;
@@ -544,8 +544,8 @@ namespace NDex
             {
                 return addAndRotate<TDestinationList, T>(destination, first, past, source);
             }
-            GrowAndShift<TDestinationList, T>(destination, past, collection.Count);
-            return copy<TDestinationList, T>(source, destination, past, destination.Count);
+            growAndShift<TDestinationList, T>(destination, past, collection.Count);
+            return copyTo<TDestinationList, T>(source, destination, past, destination.Count);
         }
 
         private static int addAndRotate<TDestinationList, T>(TDestinationList destination, int first, int past, IEnumerable<T> collection)
@@ -556,791 +556,41 @@ namespace NDex
             {
                 destination.Add(item);
             }
-            RotateLeft<TDestinationList, T>(destination, past, pivot, destination.Count);
+            rotateLeft<TDestinationList, T>(destination, past, pivot, destination.Count);
             return past + (destination.Count - pivot);
         }
 
         #endregion
 
-        #region Distinct
+        #region AdjustHeap
 
-        internal static int AddUnique<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, bool> comparison)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int pivot = destination.Count;
-            if (first != past)
-            {
-                destination.Add(source[first]);
-                for (int next = first + 1; next != past; first = next, ++next)
-                {
-                    if (!comparison(source[first], source[next]))
-                    {
-                        destination.Add(source[next]);
-                    }
-                }
-            }
-            Sublist.RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        internal static Tuple<int, int> CopyUnique<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSource, bool> comparison)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            if (first != past && destinationFirst != destinationPast)
-            {
-                destination[destinationFirst] = source[first];
-                ++destinationFirst;
-                for (int next = first + 1; next != past; first = next, ++next)
-                {
-                    if (!comparison(source[first], source[next]))
-                    {
-                        if (destinationFirst == destinationPast)
-                        {
-                            break;
-                        }
-                        destination[destinationFirst] = source[next];
-                        ++destinationFirst;
-                    }
-                }
-                ++first;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        internal static int RemoveDuplicates<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, TSource, bool> comparison)
-            where TSourceList : IList<TSource>
-        {
-            first = Sublist.IndexOfDuplicates<TSourceList, TSource>(list, first, past, comparison);
-            if (first != past)
-            {
-                for (int next = first + 2; next != past; ++next)
-                {
-                    if (!comparison(list[first], list[next]))
-                    {
-                        ++first;
-                        list[first] = list[next];
-                    }
-                }
-                return first + 1;
-            }
-            return past;
-        }
-
-        #endregion
-
-        #region Except
-
-        internal static int AddDifference<TSourceList1, TSourceList2, TDestinationList, TSource>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList1 : IList<TSource>
-            where TSourceList2 : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int pivot = destination.Count;
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    ++first1;
-                    ++first2;
-                }
-            }
-            Add<TSourceList1, TDestinationList, TSource>(source1, first1, past1, destination, destination.Count);
-            RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        internal static Tuple<int, int, int> CopyDifference<TSourceList1, TSourceList2, TDestinationList, TSource>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList1 : IList<TSource>
-            where TSourceList2 : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++destinationFirst;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    ++first1;
-                    ++first2;
-                }
-            }
-            Tuple<int, int> indexes = Copy<TSourceList1, TDestinationList, TSource>(
-                source1, first1, past1,
-                destination, destinationFirst, destinationPast);
-            first1 = indexes.Item1;
-            destinationFirst = indexes.Item2;
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
-        }
-
-        #endregion
-
-        #region Generate
-
-        internal static void AddGenerated<TSourceList, TSource>(TSourceList list, int first, int past, TSource value)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                list.Insert(first, value);
-                ++first;
-            }
-        }
-
-        internal static void CopyGenerated<TSourceList, TSource>(TSourceList list, int first, int past, TSource value)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                list[first] = value;
-                ++first;
-            }
-        }
-
-        internal static void AddGenerated<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                list.Insert(first, generator());
-                ++first;
-            }
-        }
-
-        internal static void CopyGenerated<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                list[first] = generator();
-                ++first;
-            }
-        }
-
-        internal static void AddGenerated<TSourceList, TSource>(TSourceList list, int first, int past, Func<int, TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list.Insert(first, generator(first - adjustment));
-                ++first;
-            }
-        }
-
-        internal static void CopyGenerated<TSourceList, TSource>(TSourceList list, int first, int past, Func<int, TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            int adjustment = first;
-            while (first != past)
-            {
-                list[first] = generator(first - adjustment);
-                ++first;
-            }
-        }
-
-        #endregion
-
-        #region Intersect
-
-        internal static int AddIntersection<TSourceList1, TSourceList2, TDestinationList, TSource>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList1 : IList<TSource>
-            where TSourceList2 : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int pivot = destination.Count;
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                    ++first2;
-                }
-            }
-            RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        internal static Tuple<int, int, int> CopyIntersection<TSourceList1, TSourceList2, TDestinationList, TSource>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList1 : IList<TSource>
-            where TSourceList2 : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++first2;
-                    ++destinationFirst;
-                }
-            }
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
-        }
-
-        #endregion
-
-        #region Merge
-
-        internal static int AddMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList1 : IList<TSource>
-            where TSourceList2 : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            GrowAndShift<TDestinationList, TSource>(destination, destinationPast, (past1 - first1) + (past2 - first2));
-            Tuple<int, int, int> indexes = Sublist.CopyMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
-                source1, first1, past1,
-                source2, first2, past2,
-                destination, destinationPast, destination.Count,
-                comparison);
-            return indexes.Item3;
-        }
-
-        #endregion
-
-        #region PartialSort
-
-        internal static int AddPartiallySorted<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int middle, int past,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int count = middle - first;
-            GrowAndShift<TDestinationList, TSource>(destination, destinationPast, count);
-            return CopyPartiallySorted<TSourceList, TDestinationList, TSource>(
-                source, first, past,
-                destination, destinationPast, destinationPast + count,
-                comparison);
-        }
-
-        internal static int CopyPartiallySorted<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int numberOfItems = destinationPast - destinationFirst;
-            Tuple<int, int> indexes = Copy<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast);
-            first = indexes.Item1;
-            int destinationMiddle = indexes.Item2;
-            MakeHeap<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
-
-            while (first != past)
-            {
-                if (comparison(source[first], destination[destinationFirst]) < 0)
-                {
-                    AdjustHeap<TDestinationList, TSource>(destination, destinationFirst, 0, numberOfItems, source[first], comparison);
-                }
-                ++first;
-            }
-            HeapSort<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
-            return destinationMiddle;
-        }
-
-        internal static void PartialSort<TSourceList, TSource>(TSourceList list, int first, int middle, int past, Func<TSource, TSource, int> comparison)
-            where TSourceList : IList<TSource>
-        {
-            if (past - first > 1)
-            {
-                MakeHeap<TSourceList, TSource>(list, first, middle, comparison);
-                int numberOfItems = middle - first;
-                for (int next = middle; next != past; ++next)
-                {
-                    if (comparison(list[next], list[first]) < 0)
-                    {
-                        TSource value = list[next];
-                        list[next] = list[first];
-                        AdjustHeap<TSourceList, TSource>(list, first, 0, numberOfItems, value, comparison);
-                    }
-                }
-                HeapSort<TSourceList, TSource>(list, first, middle, comparison);
-            }
-        }
-
-        #endregion
-
-        #region Partition
-
-        internal static Tuple<int, int> AddPartitioned<TSourceList, TDestinationList1, TDestinationList2, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList1 destination1, int destinationPast1,
-            TDestinationList2 destination2, int destinationPast2,
-            Func<TSource, bool> predicate)
-            where TSourceList : IList<TSource>
-            where TDestinationList1 : IList<TSource>
-            where TDestinationList2 : IList<TSource>
-        {
-            int pivot1 = destination1.Count;
-            int pivot2 = destination2.Count;
-            while (first != past)
-            {
-                if (predicate(source[first]))
-                {
-                    destination1.Add(source[first]);
-                }
-                else
-                {
-                    destination2.Add(source[first]);
-                }
-                ++first;
-            }
-            RotateLeft<TDestinationList1, TSource>(destination1, destinationPast1, pivot1, destination1.Count);
-            RotateLeft<TDestinationList2, TSource>(destination2, destinationPast2, pivot2, destination2.Count);
-            destinationPast1 += destination1.Count - pivot1;
-            destinationPast2 += destination2.Count - pivot2;
-            return new Tuple<int, int>(destinationPast1, destinationPast2);
-        }
-
-        internal static Tuple<int, int, int> CopyPartitioned<TSourceList, TDestinationList1, TDestinationList2, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList1 destination1, int destinationFirst1, int destinationPast1,
-            TDestinationList2 destination2, int destinationFirst2, int destinationPast2,
-            Func<TSource, bool> predicate)
-            where TSourceList : IList<TSource>
-            where TDestinationList1 : IList<TSource>
-            where TDestinationList2 : IList<TSource>
-        {
-            while (first != past && destinationFirst1 != destinationPast1 && destinationFirst2 != destinationPast2)
-            {
-                if (predicate(source[first]))
-                {
-                    destination1[destinationFirst1] = source[first];
-                    ++destinationFirst1;
-                }
-                else
-                {
-                    destination2[destinationFirst2] = source[first];
-                    ++destinationFirst2;
-                }
-                ++first;
-            }
-            Tuple<int, int> indexes = copyWhile<TSourceList, TDestinationList1, TSource>(
-                source, first, past, 
-                destination1, destinationFirst1, destinationPast1, 
-                predicate);
-            first = indexes.Item1;
-            destinationFirst1 = indexes.Item2;
-            indexes = copyWhileNot<TSourceList, TDestinationList2, TSource>(
-                source, first, past,
-                destination2, destinationFirst2, destinationPast2,
-                predicate);
-            first = indexes.Item1;
-            destinationFirst2 = indexes.Item2;
-            return new Tuple<int, int, int>(first, destinationFirst1, destinationFirst2);
-        }
-
-        internal static int Partition<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, bool> predicate)
-            where TSourceList : IList<TSource>
-        {
-            while (true)
-            {
-                while (first != past && predicate(list[first]))
-                {
-                    ++first;
-                }
-                if (first == past)
-                {
-                    break;
-                }
-                --past;
-                while (first != past && !predicate(list[past]))
-                {
-                    --past;
-                }
-                if (first == past)
-                {
-                    break;
-                }
-                TSource temp = list[first];
-                list[first] = list[past];
-                list[past] = temp;
-                ++first;
-            }
-            return first;
-        }
-
-        #endregion
-
-        #region RandomSamples
-
-        internal static int AddRandomSamples<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            int numberOfSamples,
-            Func<int> generator)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            GrowAndShift<TDestinationList, TSource>(destination, destinationPast, numberOfSamples);
-            return CopyRandomSamples<TSourceList, TDestinationList, TSource>(
-                source, first, past,
-                destination, destinationPast, destinationPast + numberOfSamples,
-                generator);
-        }
-
-        internal static int CopyRandomSamples<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<int> generator)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            first = Copy<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast).Item1;
-            int numberOfSamples = destinationPast - destinationFirst;
-            int total = numberOfSamples;
-            while (first != past)
-            {
-                ++total;
-                int likelihood = generator() % total;
-                if (likelihood < 0)
-                {
-                    likelihood += total;
-                }
-                if (likelihood < numberOfSamples)
-                {
-                    destination[destinationFirst + likelihood] = source[first];
-                }
-                ++first;
-            }
-            return destinationPast;
-        }
-
-        #endregion
-
-        #region CopyWhile
-
-        private static Tuple<int, int> copyWhile<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, bool> predicate)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            while (first != past && destinationFirst != destinationPast && predicate(source[first]))
-            {
-                destination[destinationFirst] = source[first];
-                ++first;
-                ++destinationFirst;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        private static Tuple<int, int> copyWhileNot<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, bool> predicate)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            while (first != past && destinationFirst != destinationPast && !predicate(source[first]))
-            {
-                destination[destinationFirst] = source[first];
-                ++first;
-                ++destinationFirst;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        #endregion
-
-        #region Grow
-
-        internal static int GrowAndShift<TList, T>(TList list, int middle, int growBy)
+        private static void adjustHeap<TList, T>(
+            TList list,
+            int first,
+            int hole,
+            int bottom,
+            T value,
+            Func<T, T, int> comparison)
             where TList : IList<T>
         {
-            int oldCount = list.Count;
-            grow<TList, T>(list, oldCount + growBy, default(T));
-            int index = copyBackward<TList, TList, T>(list, middle, oldCount, list, 0, list.Count);
-            return index;
-        }
-
-        private static void grow<TList, T>(TList list, int size, T value)
-            where TList : IList<T>
-        {
-            while (list.Count < size)
+            int top = hole;
+            int index = 2 * hole + 2;
+            while (index < bottom)
             {
-                list.Add(value);
-            }
-        }
-
-        #endregion
-
-        #region Replace
-
-        internal static int AddReplaced<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, bool> predicate,
-            TSource replacement)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            GrowAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = CopyReplaced<TSourceList, TDestinationList, TSource>(
-                source, first, past,
-                destination, destinationPast, destination.Count,
-                predicate,
-                replacement);
-            return indexes.Item2;
-        }
-
-        internal static Tuple<int, int> CopyReplaced<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, bool> predicate,
-            TSource replacement)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            while (first != past && destinationFirst != destinationPast)
-            {
-                if (predicate(source[first]))
+                if (comparison(list[first + index], list[first + (index - 1)]) < 0)
                 {
-                    destination[destinationFirst] = replacement;
+                    --index;
                 }
-                else
-                {
-                    destination[destinationFirst] = source[first];
-                }
-                ++first;
-                ++destinationFirst;
+                list[first + hole] = list[first + index];
+                hole = index;
+                index = 2 * index + 2;
             }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        internal static int AddReplaced<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, bool> predicate,
-            Func<TSource, TSource> generator)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            GrowAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = CopyReplaced<TSourceList, TDestinationList, TSource>(
-                source, first, past,
-                destination, destinationPast, destination.Count,
-                predicate,
-                generator);
-            return indexes.Item2;
-        }
-
-        internal static Tuple<int, int> CopyReplaced<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, bool> predicate,
-            Func<TSource, TSource> generator)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            while (first != past && destinationFirst != destinationPast)
+            if (index == bottom)
             {
-                if (predicate(source[first]))
-                {
-                    destination[destinationFirst] = generator(source[first]);
-                }
-                else
-                {
-                    destination[destinationFirst] = source[first];
-                }
-                ++first;
-                ++destinationFirst;
+                list[first + hole] = list[first + (bottom - 1)];
+                hole = bottom - 1;
             }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        internal static int AddReplaced<TSourceList, TSequenceList, TReplacementList, TDestinationList, TSource, TSequence>(
-            TSourceList source, int first, int past,
-            TSequenceList sequence, int sequenceFirst, int sequencePast,
-            TReplacementList replacement, int replacementFirst, int replacementPast,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSequence, bool> comparison)
-            where TSourceList : IList<TSource>
-            where TSequenceList : IList<TSequence>
-            where TReplacementList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int sequenceCount = sequencePast - sequenceFirst;
-            int index = IndexOfSequence<TSourceList, TSource, TSequenceList, TSequence>(source, first, past, sequence, sequenceFirst, sequencePast, comparison);
-            destinationPast = Add<TSourceList, TDestinationList, TSource>(source, first, index, destination, destinationPast);
-
-            while (index != past)
-            {
-                destinationPast = Add<TReplacementList, TDestinationList, TSource>(replacement, replacementFirst, replacementPast, destination, destinationPast);
-                index += sequenceCount;
-                int next = IndexOfSequence<TSourceList, TSource, TSequenceList, TSequence>(source, index, past, sequence, sequenceFirst, sequencePast, comparison);
-                destinationPast = Add<TSourceList, TDestinationList, TSource>(source, index, next, destination, destinationPast);
-                index = next;
-            }
-            return destinationPast;
-        }
-
-        internal static Tuple<int, int> CopyReplaced<TSourceList, TSequenceList, TReplacementList, TDestinationList, TSource, TSequence>(
-            TSourceList source, int first, int past,
-            TSequenceList sequence, int sequenceFirst, int sequencePast,
-            TReplacementList replacement, int replacementFirst, int replacementPast,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSequence, bool> comparison)
-            where TSourceList : IList<TSource>
-            where TSequenceList : IList<TSequence>
-            where TReplacementList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int sequenceCount = sequencePast - sequenceFirst;
-            int replacementCount = replacementPast - replacementFirst;
-
-            int index = IndexOfSequence<TSourceList, TSource, TSequenceList, TSequence>(source, first, past, sequence, sequenceFirst, sequencePast, comparison);
-            Tuple<int, int> indexes = Copy<TSourceList, TDestinationList, TSource>(source, first, index, destination, destinationFirst, destinationPast);
-            first = indexes.Item1;
-            destinationFirst = indexes.Item2;
-
-            while (index != past && destinationFirst + replacementCount <= destinationPast)
-            {
-                indexes = Copy<TReplacementList, TDestinationList, TSource>(replacement, replacementFirst, replacementPast, destination, destinationFirst, destinationPast);
-                destinationFirst = indexes.Item2;
-                index += sequenceCount;
-
-                int next = IndexOfSequence<TSourceList, TSource, TSequenceList, TSequence>(source, index, past, sequence, sequenceFirst, sequencePast, comparison);
-                indexes = Copy<TSourceList, TDestinationList, TSource>(source, index, next, destination, destinationFirst, destinationPast);
-                first = indexes.Item1;
-                destinationFirst = indexes.Item2;
-                index = next;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
-        }
-
-        internal static void Replace<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, bool> predicate, TSource replacement)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                if (predicate(list[first]))
-                {
-                    list[first] = replacement;
-                }
-                ++first;
-            }
-        }
-
-        internal static void Replace<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, bool> predicate, Func<TSource, TSource> generator)
-            where TSourceList : IList<TSource>
-        {
-            while (first != past)
-            {
-                if (predicate(list[first]))
-                {
-                    list[first] = generator(list[first]);
-                }
-                ++first;
-            }
-        }
-
-        internal static int Replace<TSourceList, TSequenceList, TReplacementList, TSource, TSequence>(
-            TSourceList list, int first, int past,
-            TSequenceList sequence, int sequenceFirst, int sequencePast,
-            TReplacementList replacement, int replacementFirst, int replacementPast,
-            Func<TSource, TSequence, bool> comparison)
-            where TSourceList : IList<TSource>
-            where TSequenceList : IList<TSequence>
-            where TReplacementList : IList<TSource>
-        {
-            int temp = past;
-            int sequenceCount = sequencePast - sequenceFirst;
-            int replacementCount = replacementPast - replacementFirst;
-            first = IndexOfSequence<TSourceList, TSource, TSequenceList, TSequence>(list, first, past, sequence, sequenceFirst, sequencePast, comparison);
-
-            while (first != past)
-            {
-                if (sequenceCount < replacementCount)
-                {
-                    int difference = replacementCount - sequenceCount;
-                    GrowAndShift<TSourceList, TSource>(list, first, difference);
-                    past += difference;
-                }
-                else if (sequenceCount > replacementCount)
-                {
-                    int index = first + sequenceCount;
-                    int difference = sequenceCount - replacementCount;
-                    Copy<TSourceList, TSourceList, TSource>(list, index, past, list, index - difference, past);
-                    past -= difference;
-                }
-                first = Copy<TReplacementList, TSourceList, TSource>(replacement, replacementFirst, replacementPast, list, first, past).Item2;
-                first = IndexOfSequence<TSourceList, TSource, TSequenceList, TSequence>(list, first, past, sequence, sequenceFirst, sequencePast, comparison);
-            }
-            if (past < temp)
-            {
-                RemoveRange<TSourceList, TSource>(list, past, temp);
-            }
-            return past;
+            heapAdd<TList, T>(list, first, hole, top, value, comparison);
         }
 
         #endregion
@@ -1408,8 +658,8 @@ namespace NDex
         }
 
         private static TAggregate aggregate<TList, T, TAggregate>(
-            TList list, int first, int past, 
-            TAggregate seed, 
+            TList list, int first, int past,
+            TAggregate seed,
             Func<TAggregate, T, TAggregate> aggregator)
             where TList : IList<T>
         {
@@ -1420,293 +670,6 @@ namespace NDex
                 ++first;
             }
             return result;
-        }
-
-        #endregion
-
-        #region IsDisjoint
-
-        /// <summary>
-        /// Determines if two lists share no items.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of items in both lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <returns>True if no items are shared between the lists.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that both lists are sorted according to the default order of the items.
-        /// Both lists must contain distinct values.
-        /// </remarks>
-        public static bool IsDisjoint<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            return areDisjoint<TList1, T, TList2, T>(list1, list2, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Determines if two sorted lists share no equivilent items.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparer">Compares an item from the first list to an item in the second list.</param>
-        /// <returns>True if no items are equivilents between the lists.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
-        /// comparer respects that order. Both lists must contain distinct values.
-        /// </remarks>
-        public static bool IsDisjoint<TList1, TList2, T>(
-            this IReadOnlySublist<TList1, T> list1,
-            IReadOnlySublist<TList2, T> list2,
-            IComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return areDisjoint<TList1, T, TList2, T>(list1, list2, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Determines if two sorted lists share no equivilent items.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparison">Compares an item from the first list to an item in the second list.</param>
-        /// <returns>True if no items are equivilents between the lists.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
-        /// comparison delegate respects that order. Both lists must contain distinct values.
-        /// </remarks>
-        public static bool IsDisjoint<TList1, T1, TList2, T2>(
-            this IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, int> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return areDisjoint<TList1, T1, TList2, T2>(list1, list2, comparison);
-        }
-
-        private static bool areDisjoint<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, int> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            return areDisjoint<TList1, T1, TList2, T2>(
-                list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, list2.Offset + list2.Count,
-                comparison);
-        }
-
-        private static bool areDisjoint<TList1, T1, TList2, T2>(
-            TList1 list1, int first1, int past1,
-            TList2 list2, int first2, int past2,
-            Func<T1, T2, int> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(list1[first1], list2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        #endregion
-
-        #region IsEqualTo
-
-        /// <summary>
-        /// Determines whether two lists have all the same items in the same order.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <returns>True if the lists contain the same items in the same order; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static bool IsEqualTo<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            return areEqual<TList1, T, TList2, T>(list1, list2, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether two lists have equivilent items in the same order.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparer">The comparer to use to determine if two items are equivilent.</param>
-        /// <returns>True if the lists have equivilent items in the same order; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool IsEqualTo<TList1, TList2, T>(
-            this IReadOnlySublist<TList1, T> list1,
-            IReadOnlySublist<TList2, T> list2,
-            IEqualityComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return areEqual<TList1, T, TList2, T>(list1, list2, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether two lists have equivilent items in the same order.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparison">The comparison delegate used to determine if two items are equivilent.</param>
-        /// <returns>True if the lists have equivilent items in the same order; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool IsEqualTo<TList1, T1, TList2, T2>(
-            this IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return areEqual<TList1, T1, TList2, T2>(list1, list2, comparison);
-        }
-
-        private static bool areEqual<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            return areEqual_optimized(
-                list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, list2.Offset + list2.Count,
-                comparison);
-        }
-
-        private static bool areEqual_optimized<TList1, T1, TList2, T2>(
-            TList1 list1, int first1, int past1,
-            TList2 list2, int first2, int past2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            int count1 = past1 - first1;
-            int count2 = past2 - first2;
-            if (count1 != count2)
-            {
-                return false;
-            }
-            if (ReferenceEquals(list1, list2) && first1 == first2)
-            {
-                return true;
-            }
-            Tuple<int, int> indexes = mismatch<TList1, T1, TList2, T2>(list1, first1, past1, list2, first2, past2, comparison);
-            return indexes.Item1 == past1 && indexes.Item2 == past2;
         }
 
         #endregion
@@ -1920,6 +883,64 @@ namespace NDex
 
         #endregion
 
+        #region Clear
+
+        /// <summary>
+        /// Removes all of the items in the range defined by a Sublist.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list containing the items to remove.</param>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        public static IExpandableSublist<TList, T> Clear<TList, T>(this IExpandableSublist<TList, T> list)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            removeRange_optimized<TList, T>(list.List, list.Offset, list.Offset + list.Count);
+            return list.Resize(0, true);
+        }
+
+        private static void removeRange_optimized<TList, T>(TList list, int first, int past)
+            where TList : IList<T>
+        {
+            if (typeof(ReversedList<,>) == list.GetType().GetGenericTypeDefinition())
+            {
+                removeReversedRange<TList, T>(list, first, past);
+            }
+            else
+            {
+                removeRange<TList, T>(list, first, past);
+            }
+        }
+
+        private static void removeReversedRange<TList, T>(TList list, int first, int past)
+            where TList : IList<T>
+        {
+            past = copyBackward<TList, TList, T>(list, 0, first, list, 0, past);
+            while (past != 0)
+            {
+                list.RemoveAt(0);
+                --past;
+            }
+        }
+
+        private static void removeRange<TList, T>(TList list, int first, int past)
+            where TList : IList<T>
+        {
+            first = copyTo<TList, TList, T>(list, past, list.Count, list, first, list.Count).Item2;
+            past = list.Count;
+            while (first != past)
+            {
+                --past;
+                list.RemoveAt(past);
+            }
+        }
+
+        #endregion
+
         #region CompareTo
 
         /// <summary>
@@ -1952,7 +973,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("list2");
             }
-            return compare<TList1, T, TList2, T>(list1, list2, Comparer<T>.Default.Compare);
+            return compareTo<TList1, T, TList2, T>(list1, list2, Comparer<T>.Default.Compare);
         }
 
         /// <summary>
@@ -1993,7 +1014,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            return compare<TList1, T, TList2, T>(list1, list2, comparer.Compare);
+            return compareTo<TList1, T, TList2, T>(list1, list2, comparer.Compare);
         }
 
         /// <summary>
@@ -2035,23 +1056,23 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            return compare<TList1, T1, TList2, T2>(list1, list2, comparison);
+            return compareTo<TList1, T1, TList2, T2>(list1, list2, comparison);
         }
 
-        private static int compare<TList1, T1, TList2, T2>(
+        private static int compareTo<TList1, T1, TList2, T2>(
             IReadOnlySublist<TList1, T1> list1,
             IReadOnlySublist<TList2, T2> list2,
             Func<T1, T2, int> comparison)
             where TList1 : IList<T1>
             where TList2 : IList<T2>
         {
-            return compare<TList1, T1, TList2, T2>(
+            return compareTo<TList1, T1, TList2, T2>(
                 list1.List, list1.Offset, list1.Offset + list1.Count,
                 list2.List, list2.Offset, list2.Offset + list2.Count,
                 comparison);
         }
 
-        private static int compare<TList1, T1, TList2, T2>(
+        private static int compareTo<TList1, T1, TList2, T2>(
             TList1 list1, int first1, int past1,
             TList2 list2, int first2, int past2,
             Func<T1, T2, int> comparison)
@@ -2073,6 +1094,25 @@ namespace NDex
                 ++first2;
             }
             return first1 == past1 ? first2 == past2 ? 0 : -1 : 1;
+        }
+
+        #endregion
+
+        #region CopyBackward
+
+        private static int copyBackward<TList, TDestinationList, T>(
+            TList list, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast)
+            where TList : IList<T>
+            where TDestinationList : IList<T>
+        {
+            while (first != past && destinationFirst != destinationPast)
+            {
+                --destinationPast;
+                --past;
+                destination[destinationPast] = list[past];
+            }
+            return destinationPast;
         }
 
         #endregion
@@ -2104,7 +1144,7 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            Tuple<int, int> indexes = Copy<TSourceList, TDestinationList, T>(
+            Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, T>(
                 source.List, source.Offset, source.Offset + source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count);
             CopyToResult result = new CopyToResult();
@@ -2113,7 +1153,7 @@ namespace NDex
             return result;
         }
 
-        internal static Tuple<int, int> Copy<TSourceList, TDestinationList, T>(
+        private static Tuple<int, int> copyTo<TSourceList, TDestinationList, T>(
             TSourceList source, int first, int past,
             TDestinationList destination, int destinationFirst, int destinationPast)
             where TSourceList : IList<T>
@@ -2151,12 +1191,12 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination");
             }
-            int index = copy<TDestinationList, T>(source, destination.List, destination.Offset, destination.Offset + destination.Count);
+            int index = copyTo<TDestinationList, T>(source, destination.List, destination.Offset, destination.Offset + destination.Count);
             index -= destination.Offset;
             return index;
         }
 
-        private static int copy<TDestinationList, T>(
+        private static int copyTo<TDestinationList, T>(
             IEnumerable<T> source,
             TDestinationList destination, int first, int past)
             where TDestinationList : IList<T>
@@ -2170,6 +1210,42 @@ namespace NDex
                 }
                 return first;
             }
+        }
+
+        #endregion
+
+        #region CopyWhile
+
+        private static Tuple<int, int> copyWhile<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, bool> predicate)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first != past && destinationFirst != destinationPast && predicate(source[first]))
+            {
+                destination[destinationFirst] = source[first];
+                ++first;
+                ++destinationFirst;
+            }
+            return new Tuple<int, int>(first, destinationFirst);
+        }
+
+        private static Tuple<int, int> copyWhileNot<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, bool> predicate)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first != past && destinationFirst != destinationPast && !predicate(source[first]))
+            {
+                destination[destinationFirst] = source[first];
+                ++first;
+                ++destinationFirst;
+            }
+            return new Tuple<int, int>(first, destinationFirst);
         }
 
         #endregion
@@ -2211,6 +1287,153 @@ namespace NDex
                 ++first;
             }
             return count;
+        }
+
+        #endregion
+
+        #region Distinct
+
+        internal static int AddDistinct<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, bool> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int pivot = destination.Count;
+            if (first != past)
+            {
+                destination.Add(source[first]);
+                for (int next = first + 1; next != past; first = next, ++next)
+                {
+                    if (!comparison(source[first], source[next]))
+                    {
+                        destination.Add(source[next]);
+                    }
+                }
+            }
+            rotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
+            return destinationPast + (destination.Count - pivot);
+        }
+
+        internal static Tuple<int, int> CopyDistinct<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, bool> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            if (first != past && destinationFirst != destinationPast)
+            {
+                destination[destinationFirst] = source[first];
+                ++destinationFirst;
+                for (int next = first + 1; next != past; first = next, ++next)
+                {
+                    if (!comparison(source[first], source[next]))
+                    {
+                        if (destinationFirst == destinationPast)
+                        {
+                            break;
+                        }
+                        destination[destinationFirst] = source[next];
+                        ++destinationFirst;
+                    }
+                }
+                ++first;
+            }
+            return new Tuple<int, int>(first, destinationFirst);
+        }
+
+        internal static int Distinct<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, TSource, bool> comparison)
+            where TSourceList : IList<TSource>
+        {
+            first = findDuplicates<TSourceList, TSource>(list, first, past, comparison);
+            if (first != past)
+            {
+                for (int next = first + 2; next != past; ++next)
+                {
+                    if (!comparison(list[first], list[next]))
+                    {
+                        ++first;
+                        list[first] = list[next];
+                    }
+                }
+                return first + 1;
+            }
+            return past;
+        }
+
+        #endregion
+
+        #region Except
+
+        internal static int AddExcept<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int pivot = destination.Count;
+            while (first1 != past1 && first2 != past2)
+            {
+                int result = comparison(source1[first1], source2[first2]);
+                if (result < 0)
+                {
+                    destination.Add(source1[first1]);
+                    ++first1;
+                }
+                else if (result > 0)
+                {
+                    ++first2;
+                }
+                else
+                {
+                    ++first1;
+                    ++first2;
+                }
+            }
+            add<TSourceList1, TDestinationList, TSource>(source1, first1, past1, destination, destination.Count);
+            rotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
+            return destinationPast + (destination.Count - pivot);
+        }
+
+        internal static Tuple<int, int, int> CopyExcept<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
+            {
+                int result = comparison(source1[first1], source2[first2]);
+                if (result < 0)
+                {
+                    destination[destinationFirst] = source1[first1];
+                    ++first1;
+                    ++destinationFirst;
+                }
+                else if (result > 0)
+                {
+                    ++first2;
+                }
+                else
+                {
+                    ++first1;
+                    ++first2;
+                }
+            }
+            Tuple<int, int> indexes = copyTo<TSourceList1, TDestinationList, TSource>(
+                source1, first1, past1,
+                destination, destinationFirst, destinationPast);
+            first1 = indexes.Item1;
+            destinationFirst = indexes.Item2;
+            return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
         #endregion
@@ -2291,14 +1514,14 @@ namespace NDex
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
-            int index = indexOf<TList, T, TSearch>(list.List, list.Offset, past, value, comparison);
+            int index = find<TList, T, TSearch>(list.List, list.Offset, past, value, comparison);
             SearchResult result = new SearchResult();
             result.Index = index - list.Offset;
             result.Exists = index != past;
             return result;
         }
 
-        private static int indexOf<TList, T, TSearch>(TList list, int first, int past, TSearch value, Func<T, TSearch, bool> comparison)
+        private static int find<TList, T, TSearch>(TList list, int first, int past, TSearch value, Func<T, TSearch, bool> comparison)
             where TList : IList<T>
         {
             while (first != past && !comparison(list[first], value))
@@ -2333,31 +1556,17 @@ namespace NDex
                 throw new ArgumentNullException("predicate");
             }
             int past = list.Offset + list.Count;
-            int index = indexOf<TList, T>(list.List, list.Offset, past, predicate);
+            int index = find<TList, T>(list.List, list.Offset, past, predicate);
             SearchResult result = new SearchResult();
             result.Index = index - list.Offset;
             result.Exists = index != past;
             return result;
         }
 
-        private static int indexOf<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
+        private static int find<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
             where TList : IList<T>
         {
             while (first != past && !predicate(list[first]))
-            {
-                ++first;
-            }
-            return first;
-        }
-
-        #endregion
-
-        #region IndexOfNot
-
-        private static int indexOfNot<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            while (first != past && predicate(list[first]))
             {
                 ++first;
             }
@@ -2482,7 +1691,7 @@ namespace NDex
             where TList2 : IList<T2>
         {
             int past = list1.Offset + list1.Count;
-            int index = indexOfAny<TList1, T1, TList2, T2>(
+            int index = findAny<TList1, T1, TList2, T2>(
                 list1.List, list1.Offset, past,
                 list2.List, list2.Offset, list2.Offset + list2.Count,
                 comparison);
@@ -2492,7 +1701,7 @@ namespace NDex
             return result;
         }
 
-        private static int indexOfAny<TList1, T1, TList2, T2>(
+        private static int findAny<TList1, T1, TList2, T2>(
             TList1 list1, int first1, int past1,
             TList2 list2, int first2, int past2,
             Func<T1, T2, bool> comparison)
@@ -2596,14 +1805,14 @@ namespace NDex
             where TList : IList<T>
         {
             int past = list.Offset + list.Count;
-            int index = IndexOfDuplicates<TList, T>(list.List, list.Offset, past, comparison);
+            int index = findDuplicates<TList, T>(list.List, list.Offset, past, comparison);
             SearchResult result = new SearchResult();
             result.Index = index - list.Offset;
             result.Exists = index != past;
             return result;
         }
 
-        internal static int IndexOfDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
+        private static int findDuplicates<TList, T>(TList list, int first, int past, Func<T, T, bool> comparison)
             where TList : IList<T>
         {
             if (first != past)
@@ -2617,6 +1826,20 @@ namespace NDex
                 }
             }
             return past;
+        }
+
+        #endregion
+
+        #region FindNot
+
+        private static int findNot<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
+            where TList : IList<T>
+        {
+            while (first != past && predicate(list[first]))
+            {
+                ++first;
+            }
+            return first;
         }
 
         #endregion
@@ -2737,7 +1960,7 @@ namespace NDex
             where TList2 : IList<T2>
         {
             int past = list.Offset + list.Count;
-            int index = IndexOfSequence<TList1, T1, TList2, T2>(
+            int index = findSequence<TList1, T1, TList2, T2>(
                 list.List, list.Offset, past,
                 sequence.List, sequence.Offset, sequence.Offset + sequence.Count,
                 comparison);
@@ -2747,7 +1970,7 @@ namespace NDex
             return result;
         }
 
-        internal static int IndexOfSequence<TList1, T1, TList2, T2>(
+        private static int findSequence<TList1, T1, TList2, T2>(
             TList1 list1, int first1, int past1,
             TList2 list2, int first2, int past2,
             Func<T1, T2, bool> comparison)
@@ -2809,6 +2032,94 @@ namespace NDex
             {
                 action(list[first]);
                 ++first;
+            }
+        }
+
+        #endregion
+
+        #region Generate
+
+        internal static void AddGenerate<TSourceList, TSource>(TSourceList list, int first, int past, TSource value)
+            where TSourceList : IList<TSource>
+        {
+            while (first != past)
+            {
+                list.Insert(first, value);
+                ++first;
+            }
+        }
+
+        internal static void CopyGenerate<TSourceList, TSource>(TSourceList list, int first, int past, TSource value)
+            where TSourceList : IList<TSource>
+        {
+            while (first != past)
+            {
+                list[first] = value;
+                ++first;
+            }
+        }
+
+        internal static void AddGenerate<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource> generator)
+            where TSourceList : IList<TSource>
+        {
+            while (first != past)
+            {
+                list.Insert(first, generator());
+                ++first;
+            }
+        }
+
+        internal static void CopyGenerate<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource> generator)
+            where TSourceList : IList<TSource>
+        {
+            while (first != past)
+            {
+                list[first] = generator();
+                ++first;
+            }
+        }
+
+        internal static void AddGenerate<TSourceList, TSource>(TSourceList list, int first, int past, Func<int, TSource> generator)
+            where TSourceList : IList<TSource>
+        {
+            int adjustment = first;
+            while (first != past)
+            {
+                list.Insert(first, generator(first - adjustment));
+                ++first;
+            }
+        }
+
+        internal static void CopyGenerate<TSourceList, TSource>(TSourceList list, int first, int past, Func<int, TSource> generator)
+            where TSourceList : IList<TSource>
+        {
+            int adjustment = first;
+            while (first != past)
+            {
+                list[first] = generator(first - adjustment);
+                ++first;
+            }
+        }
+
+        #endregion
+
+        #region Grow
+
+        private static int growAndShift<TList, T>(TList list, int middle, int growBy)
+            where TList : IList<T>
+        {
+            int oldCount = list.Count;
+            grow<TList, T>(list, oldCount + growBy, default(T));
+            int index = copyBackward<TList, TList, T>(list, middle, oldCount, list, 0, list.Count);
+            return index;
+        }
+
+        private static void grow<TList, T>(TList list, int size, T value)
+            where TList : IList<T>
+        {
+            while (list.Count < size)
+            {
+                list.Add(value);
             }
         }
 
@@ -3002,7 +2313,7 @@ namespace NDex
                 int last = past - 1;
                 T value = list[last];
                 list[last] = list[first];
-                AdjustHeap<TList, T>(list, first, 0, last - first, value, comparison);
+                adjustHeap<TList, T>(list, first, 0, last - first, value, comparison);
             }
         }
 
@@ -3079,10 +2390,10 @@ namespace NDex
         private static void heapSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
-            HeapSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
+            heapSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
         }
 
-        internal static void HeapSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+        private static void heapSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             while (past - first > 1)
@@ -3336,8 +2647,8 @@ namespace NDex
         private static int isPartitionedUntil<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
             where TList : IList<T>
         {
-            first = indexOfNot<TList, T>(list, first, past, predicate);
-            first = indexOf<TList, T>(list, first, past, predicate);
+            first = findNot<TList, T>(list, first, past, predicate);
+            first = find<TList, T>(list, first, past, predicate);
             return first;
         }
 
@@ -3437,6 +2748,103 @@ namespace NDex
                 {
                     int result = comparison(list[first], list[next]);
                     if (result >= 0)
+                    {
+                        return next;
+                    }
+                }
+            }
+            return past;
+        }
+
+        #endregion
+
+        #region IsSorted
+
+        /// <summary>
+        /// Finds the index in which the list stops being sorted.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            return isSorted<TList, T>(list, Comparer<T>.Default.Compare);
+        }
+
+        /// <summary>
+        /// Finds the index in which the list stops being sorted.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="comparer">The comparer to use to compare items in the list.</param>
+        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list, IComparer<T> comparer)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return isSorted<TList, T>(list, comparer.Compare);
+        }
+
+        /// <summary>
+        /// Finds the index in which the list stops being sorted.
+        /// </summary>
+        /// <typeparam name="TList">The type of the list.</typeparam>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="list">The list to search.</param>
+        /// <param name="comparison">The comparison delegate to use to comparer items in the list.</param>
+        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
+        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+            where TList : IList<T>
+        {
+            if (list == null)
+            {
+                throw new ArgumentNullException("list");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return isSorted<TList, T>(list, comparison);
+        }
+
+        private static CheckResult isSorted<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
+            where TList : IList<T>
+        {
+            int past = list.Offset + list.Count;
+            int index = isSortedUntil<TList, T>(list.List, list.Offset, past, comparison);
+            CheckResult result = new CheckResult();
+            result.Index = index - list.Offset;
+            result.Success = index == past;
+            return result;
+        }
+
+        private static int isSortedUntil<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+            where TList : IList<T>
+        {
+            if (first != past)
+            {
+                for (int next = first + 1; next != past; first = next, ++next)
+                {
+                    if (comparison(list[first], list[next]) > 0)
                     {
                         return next;
                     }
@@ -3602,99 +3010,356 @@ namespace NDex
 
         #endregion
 
-        #region IsSorted
+        #region Intersect
+
+        internal static int AddIntersect<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int pivot = destination.Count;
+            while (first1 != past1 && first2 != past2)
+            {
+                int result = comparison(source1[first1], source2[first2]);
+                if (result < 0)
+                {
+                    ++first1;
+                }
+                else if (result > 0)
+                {
+                    ++first2;
+                }
+                else
+                {
+                    destination.Add(source1[first1]);
+                    ++first1;
+                    ++first2;
+                }
+            }
+            rotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
+            return destinationPast + (destination.Count - pivot);
+        }
+
+        internal static Tuple<int, int, int> CopyIntersect<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
+            {
+                int result = comparison(source1[first1], source2[first2]);
+                if (result < 0)
+                {
+                    ++first1;
+                }
+                else if (result > 0)
+                {
+                    ++first2;
+                }
+                else
+                {
+                    destination[destinationFirst] = source1[first1];
+                    ++first1;
+                    ++first2;
+                    ++destinationFirst;
+                }
+            }
+            return new Tuple<int, int, int>(first1, first2, destinationFirst);
+        }
+
+        #endregion
+
+        #region IsDisjoint
 
         /// <summary>
-        /// Finds the index in which the list stops being sorted.
+        /// Determines if two lists share no items.
         /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list)
-            where TList : IList<T>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of items in both lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <returns>True if no items are shared between the lists.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <remarks>
+        /// This algorithm assumes that both lists are sorted according to the default order of the items.
+        /// Both lists must contain distinct values.
+        /// </remarks>
+        public static bool IsDisjoint<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
         {
-            if (list == null)
+            if (list1 == null)
             {
-                throw new ArgumentNullException("list");
+                throw new ArgumentNullException("list1");
             }
-            return isSorted<TList, T>(list, Comparer<T>.Default.Compare);
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            return isDisjoint<TList1, T, TList2, T>(list1, list2, Comparer<T>.Default.Compare);
         }
 
         /// <summary>
-        /// Finds the index in which the list stops being sorted.
+        /// Determines if two sorted lists share no equivilent items.
         /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparer">Compares an item from the first list to an item in the second list.</param>
+        /// <returns>True if no items are equivilents between the lists.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
+        /// <remarks>
+        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
+        /// comparer respects that order. Both lists must contain distinct values.
+        /// </remarks>
+        public static bool IsDisjoint<TList1, TList2, T>(
+            this IReadOnlySublist<TList1, T> list1,
+            IReadOnlySublist<TList2, T> list2,
+            IComparer<T> comparer)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
         {
-            if (list == null)
+            if (list1 == null)
             {
-                throw new ArgumentNullException("list");
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
             }
             if (comparer == null)
             {
                 throw new ArgumentNullException("comparer");
             }
-            return isSorted<TList, T>(list, comparer.Compare);
+            return isDisjoint<TList1, T, TList2, T>(list1, list2, comparer.Compare);
         }
 
         /// <summary>
-        /// Finds the index in which the list stops being sorted.
+        /// Determines if two sorted lists share no equivilent items.
         /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to search.</param>
-        /// <param name="comparison">The comparison delegate to use to comparer items in the list.</param>
-        /// <returns>The index in which the list stops being sorted -or- an index past the end of the list, if the list is sorted.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparison">Compares an item from the first list to an item in the second list.</param>
+        /// <returns>True if no items are equivilents between the lists.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static CheckResult IsSorted<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
+        /// <remarks>
+        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
+        /// comparison delegate respects that order. Both lists must contain distinct values.
+        /// </remarks>
+        public static bool IsDisjoint<TList1, T1, TList2, T2>(
+            this IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, int> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
         {
-            if (list == null)
+            if (list1 == null)
             {
-                throw new ArgumentNullException("list");
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
             }
             if (comparison == null)
             {
                 throw new ArgumentNullException("comparison");
             }
-            return isSorted<TList, T>(list, comparison);
+            return isDisjoint<TList1, T1, TList2, T2>(list1, list2, comparison);
         }
 
-        private static CheckResult isSorted<TList, T>(IReadOnlySublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
+        private static bool isDisjoint<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, int> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
         {
-            int past = list.Offset + list.Count;
-            int index = isSortedUntil<TList, T>(list.List, list.Offset, past, comparison);
-            CheckResult result = new CheckResult();
-            result.Index = index - list.Offset;
-            result.Success = index == past;
-            return result;
+            return isDisjoint<TList1, T1, TList2, T2>(
+                list1.List, list1.Offset, list1.Offset + list1.Count,
+                list2.List, list2.Offset, list2.Offset + list2.Count,
+                comparison);
         }
 
-        private static int isSortedUntil<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
-            where TList : IList<T>
+        private static bool isDisjoint<TList1, T1, TList2, T2>(
+            TList1 list1, int first1, int past1,
+            TList2 list2, int first2, int past2,
+            Func<T1, T2, int> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
         {
-            if (first != past)
+            while (first1 != past1 && first2 != past2)
             {
-                for (int next = first + 1; next != past; first = next, ++next)
+                int result = comparison(list1[first1], list2[first2]);
+                if (result < 0)
                 {
-                    if (comparison(list[first], list[next]) > 0)
-                    {
-                        return next;
-                    }
+                    ++first1;
+                }
+                else if (result > 0)
+                {
+                    ++first2;
+                }
+                else
+                {
+                    return false;
                 }
             }
-            return past;
+            return true;
+        }
+
+        #endregion
+
+        #region IsEqualTo
+
+        /// <summary>
+        /// Determines whether two lists have all the same items in the same order.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <returns>True if the lists contain the same items in the same order; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        public static bool IsEqualTo<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            return isEqualTo<TList1, T, TList2, T>(list1, list2, EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Determines whether two lists have equivilent items in the same order.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparer">The comparer to use to determine if two items are equivilent.</param>
+        /// <returns>True if the lists have equivilent items in the same order; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        public static bool IsEqualTo<TList1, TList2, T>(
+            this IReadOnlySublist<TList1, T> list1,
+            IReadOnlySublist<TList2, T> list2,
+            IEqualityComparer<T> comparer)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return isEqualTo<TList1, T, TList2, T>(list1, list2, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Determines whether two lists have equivilent items in the same order.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparison">The comparison delegate used to determine if two items are equivilent.</param>
+        /// <returns>True if the lists have equivilent items in the same order; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        public static bool IsEqualTo<TList1, T1, TList2, T2>(
+            this IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return isEqualTo<TList1, T1, TList2, T2>(list1, list2, comparison);
+        }
+
+        private static bool isEqualTo<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            return isEqualTo_optimized(
+                list1.List, list1.Offset, list1.Offset + list1.Count,
+                list2.List, list2.Offset, list2.Offset + list2.Count,
+                comparison);
+        }
+
+        private static bool isEqualTo_optimized<TList1, T1, TList2, T2>(
+            TList1 list1, int first1, int past1,
+            TList2 list2, int first2, int past2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            int count1 = past1 - first1;
+            int count2 = past2 - first2;
+            if (count1 != count2)
+            {
+                return false;
+            }
+            if (ReferenceEquals(list1, list2) && first1 == first2)
+            {
+                return true;
+            }
+            Tuple<int, int> indexes = mismatch<TList1, T1, TList2, T2>(list1, first1, past1, list2, first2, past2, comparison);
+            return indexes.Item1 == past1 && indexes.Item2 == past2;
         }
 
         #endregion
@@ -3905,11 +3570,9 @@ namespace NDex
                 list.List, list.Offset, list.Offset + list.Count,
                 value,
                 comparison);
-            LowerAndUpperBoundResult result = new LowerAndUpperBoundResult()
-            {
-                LowerBound = indexes.Item1 - list.Offset,
-                UpperBound = indexes.Item2 - list.Offset
-            };
+            LowerAndUpperBoundResult result = new LowerAndUpperBoundResult();
+            result.LowerBound = indexes.Item1 - list.Offset;
+            result.UpperBound = indexes.Item2 - list.Offset;
             return result;
         }
 
@@ -4130,51 +3793,18 @@ namespace NDex
         private static void makeHeap<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
-            MakeHeap<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
+            makeHeap<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
         }
 
-        internal static void MakeHeap<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+        private static void makeHeap<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             int bottom = past - first;
             for (int hole = bottom / 2; hole > 0; )
             {
                 --hole;
-                AdjustHeap<TList, T>(list, first, hole, bottom, list[first + hole], comparison);
+                adjustHeap<TList, T>(list, first, hole, bottom, list[first + hole], comparison);
             }
-        }
-
-        #endregion
-
-        #region AdjustHeap
-
-        internal static void AdjustHeap<TList, T>(
-            TList list,
-            int first,
-            int hole,
-            int bottom,
-            T value,
-            Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            int top = hole;
-            int index = 2 * hole + 2;
-            while (index < bottom)
-            {
-                if (comparison(list[first + index], list[first + (index - 1)]) < 0)
-                {
-                    --index;
-                }
-                list[first + hole] = list[first + index];
-                hole = index;
-                index = 2 * index + 2;
-            }
-            if (index == bottom)
-            {
-                list[first + hole] = list[first + (bottom - 1)];
-                hole = bottom - 1;
-            }
-            heapAdd<TList, T>(list, first, hole, top, value, comparison);
         }
 
         #endregion
@@ -4390,6 +4020,164 @@ namespace NDex
                 }
             }
             return maxIndex;
+        }
+
+        #endregion
+
+        #region Merge
+
+        internal static int AddMerge<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, (past1 - first1) + (past2 - first2));
+            Tuple<int, int, int> indexes = CopyMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
+                source1, first1, past1,
+                source2, first2, past2,
+                destination, destinationPast, destination.Count,
+                comparison);
+            return indexes.Item3;
+        }
+
+        internal static Tuple<int, int, int> CopyMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
+            {
+                int result = comparison(source2[first2], source1[first1]);
+                if (result < 0)
+                {
+                    destination[destinationFirst] = source2[first2];
+                    ++first2;
+                }
+                else
+                {
+                    destination[destinationFirst] = source1[first1];
+                    ++first1;
+                }
+                ++destinationFirst;
+            }
+            Tuple<int, int> indexes1 = copyTo<TSourceList1, TDestinationList, TSource>(
+                source1, first1, past1,
+                destination, destinationFirst, destinationPast);
+            first1 = indexes1.Item1;
+            destinationFirst = indexes1.Item2;
+            Tuple<int, int> indexes2 = copyTo<TSourceList2, TDestinationList, TSource>(
+                source2, first2, past2,
+                destination, destinationFirst, destinationPast);
+            first2 = indexes2.Item1;
+            destinationFirst = indexes2.Item2;
+            return new Tuple<int, int, int>(first1, first2, destinationFirst);
+        }
+
+        private static void mergeBuffered<TList, TBuffer, T>(
+            TList list, int first, int middle, int past,
+            TBuffer buffer, int bufferFirst, int bufferPast,
+            Func<T, T, int> comparison)
+            where TList : IList<T>
+            where TBuffer : IList<T>
+        {
+            if (past - first == 2)
+            {
+                if (comparison(list[first], list[middle]) > 0)
+                {
+                    T temp = list[first];
+                    list[first] = list[middle];
+                    list[middle] = temp;
+                }
+            }
+            else
+            {
+                int bufferCount = bufferPast - bufferFirst;
+                int count1 = middle - first;
+                int count2 = past - middle;
+                if (count1 <= count2 && count1 <= bufferCount)
+                {
+                    int bufferMiddle = copyTo<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
+                    CopyMerged<TBuffer, TList, TList, T>(
+                        buffer, bufferFirst, bufferMiddle,
+                        list, middle, past,
+                        list, first, past,
+                        comparison);
+                }
+                else if (count2 <= bufferCount)
+                {
+                    int bufferMiddle = copyTo<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast).Item2;
+                    copyMergedBackward<TList, TBuffer, TList, T>(
+                        list, first, middle,
+                        buffer, bufferFirst, bufferMiddle,
+                        list, first, past,
+                        comparison);
+                }
+                else
+                {
+                    int middle1;
+                    int middle2;
+                    if (count2 < count1)
+                    {
+                        middle1 = first + (middle - first) / 2;
+                        T value = list[middle1];
+                        middle2 = lowerBound<TList, T, T>(list, middle, past, value, comparison);
+                    }
+                    else
+                    {
+                        middle2 = middle + (past - middle) / 2;
+                        T value = list[middle2];
+                        middle1 = upperBound<TList, T, T>(list, first, middle, value, comparison);
+                    }
+                    int middleN = rotateBuffered<TList, TBuffer, T>(
+                        list, middle1, middle, middle2,
+                        buffer, bufferFirst, bufferPast);
+                    mergeBuffered<TList, TBuffer, T>(
+                        list, first, middle1, middleN,
+                        buffer, bufferFirst, bufferPast,
+                        comparison);
+                    mergeBuffered<TList, TBuffer, T>(
+                        list, middleN, middle2, past,
+                        buffer, bufferFirst, bufferPast,
+                        comparison);
+                }
+            }
+        }
+
+        private static int copyMergedBackward<TList1, TList2, TDestinationList, T>(
+            TList1 list1, int first1, int past1,
+            TList2 list2, int first2, int past2,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<T, T, int> comparison)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+            where TDestinationList : IList<T>
+        {
+            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
+            {
+                --destinationPast;
+                int result = comparison(list1[past1 - 1], list2[past2 - 1]);
+                if (result > 0)
+                {
+                    --past1;
+                    destination[destinationPast] = list1[past1];
+                }
+                else
+                {
+                    --past2;
+                    destination[destinationPast] = list2[past2];
+                }
+            }
+            destinationPast = copyBackward<TList1, TDestinationList, T>(list1, first1, past1, destination, destinationFirst, destinationPast);
+            destinationPast = copyBackward<TList2, TDestinationList, T>(list2, first2, past2, destination, destinationFirst, destinationPast);
+            return destinationPast;
         }
 
         #endregion
@@ -4659,171 +4447,12 @@ namespace NDex
                 int bufferMiddle;
                 for (int past1 = middle + chunkSize; past1 < past; first1 = middle, middle = past1, past1 += chunkSize)
                 {
-                    bufferMiddle = Copy<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
+                    bufferMiddle = copyTo<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
                     CopyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past1, list, first1, past1, comparison);
                 }
-                bufferMiddle = Copy<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
+                bufferMiddle = copyTo<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
                 CopyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past, list, first1, past, comparison);
             }
-        }
-
-        #endregion
-
-        #region CopyBackward
-
-        private static int copyBackward<TList, TDestinationList, T>(
-            TList list, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast)
-            where TList : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first != past && destinationFirst != destinationPast)
-            {
-                --destinationPast;
-                --past;
-                destination[destinationPast] = list[past];
-            }
-            return destinationPast;
-        }
-
-        #endregion
-
-        #region Merge
-
-        private static void mergeBuffered<TList, TBuffer, T>(
-            TList list, int first, int middle, int past,
-            TBuffer buffer, int bufferFirst, int bufferPast,
-            Func<T, T, int> comparison)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            if (past - first == 2)
-            {
-                if (comparison(list[first], list[middle]) > 0)
-                {
-                    T temp = list[first];
-                    list[first] = list[middle];
-                    list[middle] = temp;
-                }
-            }
-            else
-            {
-                int bufferCount = bufferPast - bufferFirst;
-                int count1 = middle - first;
-                int count2 = past - middle;
-                if (count1 <= count2 && count1 <= bufferCount)
-                {
-                    int bufferMiddle = Copy<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
-                    CopyMerged<TBuffer, TList, TList, T>(
-                        buffer, bufferFirst, bufferMiddle,
-                        list, middle, past,
-                        list, first, past,
-                        comparison);
-                }
-                else if (count2 <= bufferCount)
-                {
-                    int bufferMiddle = Copy<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast).Item2;
-                    copyMergedBackward<TList, TBuffer, TList, T>(
-                        list, first, middle,
-                        buffer, bufferFirst, bufferMiddle,
-                        list, first, past,
-                        comparison);
-                }
-                else
-                {
-                    int middle1;
-                    int middle2;
-                    if (count2 < count1)
-                    {
-                        middle1 = first + (middle - first) / 2;
-                        T value = list[middle1];
-                        middle2 = lowerBound<TList, T, T>(list, middle, past, value, comparison);
-                    }
-                    else
-                    {
-                        middle2 = middle + (past - middle) / 2;
-                        T value = list[middle2];
-                        middle1 = upperBound<TList, T, T>(list, first, middle, value, comparison);
-                    }
-                    int middleN = rotateBuffered<TList, TBuffer, T>(
-                        list, middle1, middle, middle2,
-                        buffer, bufferFirst, bufferPast);
-                    mergeBuffered<TList, TBuffer, T>(
-                        list, first, middle1, middleN,
-                        buffer, bufferFirst, bufferPast,
-                        comparison);
-                    mergeBuffered<TList, TBuffer, T>(
-                        list, middleN, middle2, past,
-                        buffer, bufferFirst, bufferPast,
-                        comparison);
-                }
-            }
-        }
-
-        private static int copyMergedBackward<TList1, TList2, TDestinationList, T>(
-            TList1 list1, int first1, int past1,
-            TList2 list2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<T, T, int> comparison)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-            where TDestinationList : IList<T>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                --destinationPast;
-                int result = comparison(list1[past1 - 1], list2[past2 - 1]);
-                if (result > 0)
-                {
-                    --past1;
-                    destination[destinationPast] = list1[past1];
-                }
-                else
-                {
-                    --past2;
-                    destination[destinationPast] = list2[past2];
-                }
-            }
-            destinationPast = copyBackward<TList1, TDestinationList, T>(list1, first1, past1, destination, destinationFirst, destinationPast);
-            destinationPast = copyBackward<TList2, TDestinationList, T>(list2, first2, past2, destination, destinationFirst, destinationPast);
-            return destinationPast;
-        }
-
-        internal static Tuple<int, int, int> CopyMerged<TSourceList1, TSourceList2, TDestinationList, TSource>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList1 : IList<TSource>
-            where TSourceList2 : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source2[first2], source1[first1]);
-                if (result < 0)
-                {
-                    destination[destinationFirst] = source2[first2];
-                    ++first2;
-                }
-                else
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                }
-                ++destinationFirst;
-            }
-            Tuple<int, int> indexes1 = Sublist.Copy<TSourceList1, TDestinationList, TSource>(
-                source1, first1, past1,
-                destination, destinationFirst, destinationPast);
-            first1 = indexes1.Item1;
-            destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Sublist.Copy<TSourceList2, TDestinationList, TSource>(
-                source2, first2, past2,
-                destination, destinationFirst, destinationPast);
-            first2 = indexes2.Item1;
-            destinationFirst = indexes2.Item2;
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
         #endregion
@@ -4924,7 +4553,7 @@ namespace NDex
 
         #endregion
 
-        #region MimimumMaximum
+        #region MinimumMaximum
 
         /// <summary>
         /// Finds the indexes of the smallest and largest items in a list.
@@ -5314,242 +4943,168 @@ namespace NDex
 
         #endregion
 
-        #region Reverse
+        #region PartialSort
 
-        internal static int AddReversed<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast)
+        internal static int AddPartialSort<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int middle, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
             where TSourceList : IList<TSource>
             where TDestinationList : IList<TSource>
         {
-            Sublist.GrowAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = Sublist.CopyReversed<TSourceList, TDestinationList, TSource>(
+            int count = middle - first;
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, count);
+            return CopyPartialSort<TSourceList, TDestinationList, TSource>(
                 source, first, past,
-                destination, destinationPast, destination.Count);
-            return indexes.Item2;
+                destination, destinationPast, destinationPast + count,
+                comparison);
         }
 
-        internal static Tuple<int, int> CopyReversed<TSourceList, TDestinationList, TSource>(
+        internal static int CopyPartialSort<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast)
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
             where TSourceList : IList<TSource>
             where TDestinationList : IList<TSource>
         {
-            int count1 = past - first;
-            int count2 = destinationPast - destinationFirst;
-            if (count2 < count1)
+            int numberOfItems = destinationPast - destinationFirst;
+            Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast);
+            first = indexes.Item1;
+            int destinationMiddle = indexes.Item2;
+            makeHeap<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
+
+            while (first != past)
             {
-                past -= count1 - count2;
+                if (comparison(source[first], destination[destinationFirst]) < 0)
+                {
+                    adjustHeap<TDestinationList, TSource>(destination, destinationFirst, 0, numberOfItems, source[first], comparison);
+                }
+                ++first;
             }
-            int position = past;
-            while (first != position)
-            {
-                --position;
-                destination[destinationFirst] = source[position];
-                ++destinationFirst;
-            }
-            return new Tuple<int, int>(past, destinationFirst);
+            heapSort<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
+            return destinationMiddle;
         }
 
-        internal static void Reverse<TList, T>(TList list, int first, int past)
-            where TList : IList<T>
+        internal static void PartialSort<TSourceList, TSource>(TSourceList list, int first, int middle, int past, Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
         {
-            int half = first + (past - first) / 2;
-            while (first != half)
+            if (past - first > 1)
             {
+                makeHeap<TSourceList, TSource>(list, first, middle, comparison);
+                int numberOfItems = middle - first;
+                for (int next = middle; next != past; ++next)
+                {
+                    if (comparison(list[next], list[first]) < 0)
+                    {
+                        TSource value = list[next];
+                        list[next] = list[first];
+                        adjustHeap<TSourceList, TSource>(list, first, 0, numberOfItems, value, comparison);
+                    }
+                }
+                heapSort<TSourceList, TSource>(list, first, middle, comparison);
+            }
+        }
+
+        #endregion
+
+        #region Partition
+
+        internal static Tuple<int, int> AddPartition<TSourceList, TDestinationList1, TDestinationList2, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList1 destination1, int destinationPast1,
+            TDestinationList2 destination2, int destinationPast2,
+            Func<TSource, bool> predicate)
+            where TSourceList : IList<TSource>
+            where TDestinationList1 : IList<TSource>
+            where TDestinationList2 : IList<TSource>
+        {
+            int pivot1 = destination1.Count;
+            int pivot2 = destination2.Count;
+            while (first != past)
+            {
+                if (predicate(source[first]))
+                {
+                    destination1.Add(source[first]);
+                }
+                else
+                {
+                    destination2.Add(source[first]);
+                }
+                ++first;
+            }
+            rotateLeft<TDestinationList1, TSource>(destination1, destinationPast1, pivot1, destination1.Count);
+            rotateLeft<TDestinationList2, TSource>(destination2, destinationPast2, pivot2, destination2.Count);
+            destinationPast1 += destination1.Count - pivot1;
+            destinationPast2 += destination2.Count - pivot2;
+            return new Tuple<int, int>(destinationPast1, destinationPast2);
+        }
+
+        internal static Tuple<int, int, int> CopyPartition<TSourceList, TDestinationList1, TDestinationList2, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList1 destination1, int destinationFirst1, int destinationPast1,
+            TDestinationList2 destination2, int destinationFirst2, int destinationPast2,
+            Func<TSource, bool> predicate)
+            where TSourceList : IList<TSource>
+            where TDestinationList1 : IList<TSource>
+            where TDestinationList2 : IList<TSource>
+        {
+            while (first != past && destinationFirst1 != destinationPast1 && destinationFirst2 != destinationPast2)
+            {
+                if (predicate(source[first]))
+                {
+                    destination1[destinationFirst1] = source[first];
+                    ++destinationFirst1;
+                }
+                else
+                {
+                    destination2[destinationFirst2] = source[first];
+                    ++destinationFirst2;
+                }
+                ++first;
+            }
+            Tuple<int, int> indexes = copyWhile<TSourceList, TDestinationList1, TSource>(
+                source, first, past, 
+                destination1, destinationFirst1, destinationPast1, 
+                predicate);
+            first = indexes.Item1;
+            destinationFirst1 = indexes.Item2;
+            indexes = copyWhileNot<TSourceList, TDestinationList2, TSource>(
+                source, first, past,
+                destination2, destinationFirst2, destinationPast2,
+                predicate);
+            first = indexes.Item1;
+            destinationFirst2 = indexes.Item2;
+            return new Tuple<int, int, int>(first, destinationFirst1, destinationFirst2);
+        }
+
+        internal static int Partition<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, bool> predicate)
+            where TSourceList : IList<TSource>
+        {
+            while (true)
+            {
+                while (first != past && predicate(list[first]))
+                {
+                    ++first;
+                }
+                if (first == past)
+                {
+                    break;
+                }
                 --past;
-                T temp = list[first];
+                while (first != past && !predicate(list[past]))
+                {
+                    --past;
+                }
+                if (first == past)
+                {
+                    break;
+                }
+                TSource temp = list[first];
                 list[first] = list[past];
                 list[past] = temp;
                 ++first;
             }
-        }
-
-        #endregion
-
-        #region RotateLeft
-
-        internal static int AddRotatedLeftUnreduced<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            int shift)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int middle = getReducedOffset<TSourceList, TSource>(source, first, past, shift);
-            middle += first;
-            return addRotatedLeft<TSourceList, TDestinationList, TSource>(source, first, middle, past, destination, destinationPast);
-        }
-
-        private static int addRotatedLeft<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int middle, int past,
-            TDestinationList destination, int destinationPast)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            GrowAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
-            destinationPast = Copy<TSourceList, TDestinationList, TSource>(source, middle, past, destination, destinationPast, destination.Count).Item2;
-            destinationPast = Copy<TSourceList, TDestinationList, TSource>(source, first, middle, destination, destinationPast, destination.Count).Item2;
-            return destinationPast;
-        }
-
-        internal static Tuple<int, int> CopyRotatedLeftUnreduced<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            int shift)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int middle = getReducedOffset<TSourceList, TSource>(source, first, past, shift);
-            middle += first;
-            return copyRotatedLeft<TSourceList, TDestinationList, TSource>(
-                source, first, middle, past,
-                destination, destinationFirst, destinationPast);
-        }
-
-        private static Tuple<int, int> copyRotatedLeft<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int middle, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            Tuple<int, int> indexes1 = Copy<TSourceList, TDestinationList, TSource>(
-                source, middle, past,
-                destination, destinationFirst, destinationPast);
-            int position = indexes1.Item1;
-            destinationFirst = indexes1.Item2;
-            if (position == past)
-            {
-                Tuple<int, int> indexes2 = Copy<TSourceList, TDestinationList, TSource>(
-                    source, first, middle,
-                    destination, destinationFirst, destinationPast);
-                position = indexes2.Item1;
-                destinationFirst = indexes2.Item2;
-            }
-            return new Tuple<int, int>(position, destinationFirst);
-        }
-
-        internal static void RotateLeftUnreduced<TSourceList, TSource>(TSourceList list, int first, int past, int shift)
-            where TSourceList : IList<TSource>
-        {
-            int middle = getReducedOffset<TSourceList, TSource>(list, first, past, shift);
-            middle += first;
-            RotateLeft<TSourceList, TSource>(list, first, middle, past);
-        }
-
-        private static int getReducedOffset<TList, T>(TList list, int first, int past, int shift)
-            where TList : IList<T>
-        {
-            int count = past - first;
-            shift %= count;
-            if (shift < 0)
-            {
-                shift += count;
-            }
-            return shift;
-        }
-
-        internal static void RotateLeft<TList, T>(TList list, int first, int middle, int past)
-            where TList : IList<T>
-        {
-            int shift = middle - first;
-            int count = past - first;
-            for (int factor = shift; factor != 0; )
-            {
-                int temp = count % factor;
-                count = factor;
-                factor = temp;
-            }
-            if (count < past - first)
-            {
-                while (count > 0)
-                {
-                    int hole = first + count;
-                    T value = list[hole];
-                    int temp = hole + shift;
-                    int next = temp == past ? first : temp;
-                    int current = hole;
-                    while (next != hole)
-                    {
-                        list[current] = list[next];
-                        current = next;
-                        int difference = past - next;
-                        if (shift < difference)
-                        {
-                            next += shift;
-                        }
-                        else
-                        {
-                            next = first + (shift - difference);
-                        }
-                    }
-                    list[current] = value;
-                    --count;
-                }
-            }
-        }
-
-        private static int rotateBuffered<TList, TBuffer, T>(
-            TList list, int first, int middle, int past,
-            TBuffer buffer, int bufferFirst, int bufferPast)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            int count1 = middle - first;
-            int count2 = past - middle;
-            int bufferCount = bufferPast - bufferFirst;
-            if (count1 <= count2 && count1 <= bufferCount)
-            {
-                int bufferMiddle = Copy<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
-                Copy<TList, TList, T>(list, middle, past, list, first, past);
-                return copyBackward<TBuffer, TList, T>(buffer, bufferFirst, bufferMiddle, list, first, past);
-            }
-            else if (count2 <= bufferCount)
-            {
-                int bufferMiddle = Copy<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast).Item2;
-                copyBackward<TList, TList, T>(list, first, middle, list, first, past);
-                return Copy<TBuffer, TList, T>(buffer, bufferFirst, bufferMiddle, list, first, past).Item2;
-            }
-            else
-            {
-                RotateLeft<TList, T>(list, first, middle, past);
-                return first + count2;
-            }
-        }
-
-        #endregion
-
-        #region Select
-
-        internal static int AddConverted<TSourceList, TSource, TDestinationList, TDestination>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TDestination> selector)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TDestination>
-        {
-            GrowAndShift<TDestinationList, TDestination>(destination, destinationPast, past - first);
-            Tuple<int, int> indexes = CopyConverted<TSourceList, TSource, TDestinationList, TDestination>(
-                source, first, past,
-                destination, destinationPast, destination.Count,
-                selector);
-            return indexes.Item2;
-        }
-
-        internal static Tuple<int, int> CopyConverted<TSourceList, TSource, TDestinationList, TDestination>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TDestination> selector)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TDestination>
-        {
-            while (first != past && destinationFirst != destinationPast)
-            {
-                destination[destinationFirst] = selector(source[first]);
-                ++first;
-                ++destinationFirst;
-            }
-            return new Tuple<int, int>(first, destinationFirst);
+            return first;
         }
 
         #endregion
@@ -5764,7 +5319,6 @@ namespace NDex
                 int middle = partition<TList, T>(list, first, past, comparison);
                 ideal /= 2;
                 ideal += ideal / 2;
-                // recursively sort the smaller branch
                 if (middle - first < past - middle)
                 {
                     quickSort<TList, T>(list, first, middle, ideal, comparison);
@@ -5778,8 +5332,8 @@ namespace NDex
             }
             if (past - first > _sortMax)
             {
-                MakeHeap<TList, T>(list, first, past, comparison);
-                HeapSort<TList, T>(list, first, past, comparison);
+                makeHeap<TList, T>(list, first, past, comparison);
+                heapSort<TList, T>(list, first, past, comparison);
             }
             else if (past - first > 1)
             {
@@ -5876,61 +5430,55 @@ namespace NDex
 
         #endregion
 
+        #region RandomSamples
+
+        internal static int AddRandomSamples<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            int numberOfSamples,
+            Func<int> generator)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, numberOfSamples);
+            return CopyRandomSamples<TSourceList, TDestinationList, TSource>(
+                source, first, past,
+                destination, destinationPast, destinationPast + numberOfSamples,
+                generator);
+        }
+
+        internal static int CopyRandomSamples<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<int> generator)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            first = copyTo<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast).Item1;
+            int numberOfSamples = destinationPast - destinationFirst;
+            int total = numberOfSamples;
+            while (first != past)
+            {
+                ++total;
+                int likelihood = generator() % total;
+                if (likelihood < 0)
+                {
+                    likelihood += total;
+                }
+                if (likelihood < numberOfSamples)
+                {
+                    destination[destinationFirst + likelihood] = source[first];
+                }
+                ++first;
+            }
+            return destinationPast;
+        }
+
+        #endregion
+
         #region RandomShuffle
 
-        /// <summary>
-        /// Rearranges the items in a list randomly.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to shuffle.</param>
-        /// <param name="random">The random generator to use to shuffle the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The random generator is null.</exception>
-        public static void RandomShuffle<TList, T>(this IMutableSublist<TList, T> list, Random random)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (random == null)
-            {
-                throw new ArgumentNullException("random");
-            }
-            randomShuffle<TList, T>(list, random.Next);
-        }
-
-        /// <summary>
-        /// Rearranges the items in a list randomly.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to shuffle.</param>
-        /// <param name="generator">The generator to use to shuffle the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The generator is null.</exception>
-        public static void RandomShuffle<TList, T>(this IMutableSublist<TList, T> list, Func<int> generator)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (generator == null)
-            {
-                throw new ArgumentNullException("generator");
-            }
-            randomShuffle<TList, T>(list, generator);
-        }
-
-        private static void randomShuffle<TList, T>(IMutableSublist<TList, T> list, Func<int> generator)
-            where TList : IList<T>
-        {
-            randomShuffle<TList, T>(list.List, list.Offset, list.Offset + list.Count, generator);
-        }
-
-        private static void randomShuffle<TList, T>(TList list, int first, int past, Func<int> generator)
+        internal static void RandomShuffle<TList, T>(TList list, int first, int past, Func<int> generator)
             where TList : IList<T>
         {
             int count = past - first;
@@ -5948,62 +5496,539 @@ namespace NDex
             }
         }
 
-        #endregion
-
-        #region Clear
-
-        /// <summary>
-        /// Removes all of the items in the range defined by a Sublist.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list containing the items to remove.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static IExpandableSublist<TList, T> Clear<TList, T>(this IExpandableSublist<TList, T> list)
-            where TList : IList<T>
+        internal static int AddRandomShuffle<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            Func<int> generator)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
         {
-            if (list == null)
+            if (first != past)
             {
-                throw new ArgumentNullException("list");
+                int pivot = destinationPast;
+
+                destination.Insert(destinationPast, source[first]);
+                ++first;
+                ++destinationPast;
+
+                int total = 0;
+                while (first != past)
+                {
+                    ++total;
+                    int index = generator() % total;
+                    if (index < 0)
+                    {
+                        index += total;
+                    }
+                    index += pivot;
+                    destination.Insert(destinationPast, destination[index]);
+                    destination[index] = source[first];
+                    ++first;
+                    ++destinationPast;
+                }
             }
-            removeRange_optimized<TList, T>(list.List, list.Offset, list.Offset + list.Count);
-            return list.Resize(0, true);
+            return destinationPast;
         }
 
-        private static void removeRange_optimized<TList, T>(TList list, int first, int past)
-            where TList : IList<T>
+        internal static Tuple<int, int> CopyRandomShuffle_checked<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<int> generator)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
         {
-            if (typeof(ReversedList<,>) == list.GetType().GetGenericTypeDefinition())
+            int sourceCount = past - first;
+            int destinationCount = destinationPast - destinationFirst;
+            if (destinationCount < sourceCount)
             {
-                removeReversedRange<TList, T>(list, first, past);
+                destinationFirst = CopyRandomSamples<TSourceList, TDestinationList, TSource>(
+                    source, first, past,
+                    destination, destinationFirst, destinationPast,
+                    generator);
             }
             else
             {
-                RemoveRange<TList, T>(list, first, past);
+                destinationFirst = copyRandomShuffle<TSourceList, TDestinationList, TSource>(
+                    source, first, past,
+                    destination, destinationFirst, destinationPast,
+                    generator);
             }
+            return new Tuple<int, int>(past, destinationFirst);
         }
 
-        private static void removeReversedRange<TList, T>(TList list, int first, int past)
-            where TList : IList<T>
+        private static int copyRandomShuffle<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<int> generator)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
         {
-            past = copyBackward<TList, TList, T>(list, 0, first, list, 0, past);
-            while (past != 0)
-            {
-                list.RemoveAt(0);
-                --past;
-            }
-        }
-
-        internal static void RemoveRange<TList, T>(TList list, int first, int past)
-            where TList : IList<T>
-        {
-            first = Copy<TList, TList, T>(list, past, list.Count, list, first, list.Count).Item2;
-            past = list.Count;
+            int total = 0;
             while (first != past)
             {
-                --past;
-                list.RemoveAt(past);
+                ++total;
+                int index = generator() % total;
+                if (index < 0)
+                {
+                    index += total;
+                }
+                index += destinationFirst;
+                destination[destinationFirst + total - 1] = destination[index];
+                destination[index] = source[first];
+                ++first;
             }
+            return destinationFirst + total;
+        }
+
+        #endregion
+
+        #region Replace
+
+        internal static int AddReplace<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, bool> predicate,
+            TSource replacement)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
+            Tuple<int, int> indexes = CopyReplace<TSourceList, TDestinationList, TSource>(
+                source, first, past,
+                destination, destinationPast, destination.Count,
+                predicate,
+                replacement);
+            return indexes.Item2;
+        }
+
+        internal static Tuple<int, int> CopyReplace<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, bool> predicate,
+            TSource replacement)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first != past && destinationFirst != destinationPast)
+            {
+                if (predicate(source[first]))
+                {
+                    destination[destinationFirst] = replacement;
+                }
+                else
+                {
+                    destination[destinationFirst] = source[first];
+                }
+                ++first;
+                ++destinationFirst;
+            }
+            return new Tuple<int, int>(first, destinationFirst);
+        }
+
+        internal static int AddReplace<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, bool> predicate,
+            Func<TSource, TSource> generator)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
+            Tuple<int, int> indexes = CopyReplace<TSourceList, TDestinationList, TSource>(
+                source, first, past,
+                destination, destinationPast, destination.Count,
+                predicate,
+                generator);
+            return indexes.Item2;
+        }
+
+        internal static Tuple<int, int> CopyReplace<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, bool> predicate,
+            Func<TSource, TSource> generator)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first != past && destinationFirst != destinationPast)
+            {
+                if (predicate(source[first]))
+                {
+                    destination[destinationFirst] = generator(source[first]);
+                }
+                else
+                {
+                    destination[destinationFirst] = source[first];
+                }
+                ++first;
+                ++destinationFirst;
+            }
+            return new Tuple<int, int>(first, destinationFirst);
+        }
+
+        internal static int AddReplace<TSourceList, TSequenceList, TReplacementList, TDestinationList, TSource, TSequence>(
+            TSourceList source, int first, int past,
+            TSequenceList sequence, int sequenceFirst, int sequencePast,
+            TReplacementList replacement, int replacementFirst, int replacementPast,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSequence, bool> comparison)
+            where TSourceList : IList<TSource>
+            where TSequenceList : IList<TSequence>
+            where TReplacementList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int sequenceCount = sequencePast - sequenceFirst;
+            int index = findSequence<TSourceList, TSource, TSequenceList, TSequence>(source, first, past, sequence, sequenceFirst, sequencePast, comparison);
+            destinationPast = add<TSourceList, TDestinationList, TSource>(source, first, index, destination, destinationPast);
+
+            while (index != past)
+            {
+                destinationPast = add<TReplacementList, TDestinationList, TSource>(replacement, replacementFirst, replacementPast, destination, destinationPast);
+                index += sequenceCount;
+                int next = findSequence<TSourceList, TSource, TSequenceList, TSequence>(source, index, past, sequence, sequenceFirst, sequencePast, comparison);
+                destinationPast = add<TSourceList, TDestinationList, TSource>(source, index, next, destination, destinationPast);
+                index = next;
+            }
+            return destinationPast;
+        }
+
+        internal static Tuple<int, int> CopyReplace<TSourceList, TSequenceList, TReplacementList, TDestinationList, TSource, TSequence>(
+            TSourceList source, int first, int past,
+            TSequenceList sequence, int sequenceFirst, int sequencePast,
+            TReplacementList replacement, int replacementFirst, int replacementPast,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSequence, bool> comparison)
+            where TSourceList : IList<TSource>
+            where TSequenceList : IList<TSequence>
+            where TReplacementList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int sequenceCount = sequencePast - sequenceFirst;
+            int replacementCount = replacementPast - replacementFirst;
+
+            int index = findSequence<TSourceList, TSource, TSequenceList, TSequence>(source, first, past, sequence, sequenceFirst, sequencePast, comparison);
+            Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, TSource>(source, first, index, destination, destinationFirst, destinationPast);
+            first = indexes.Item1;
+            destinationFirst = indexes.Item2;
+
+            while (index != past && destinationFirst + replacementCount <= destinationPast)
+            {
+                indexes = copyTo<TReplacementList, TDestinationList, TSource>(replacement, replacementFirst, replacementPast, destination, destinationFirst, destinationPast);
+                destinationFirst = indexes.Item2;
+                index += sequenceCount;
+
+                int next = findSequence<TSourceList, TSource, TSequenceList, TSequence>(source, index, past, sequence, sequenceFirst, sequencePast, comparison);
+                indexes = copyTo<TSourceList, TDestinationList, TSource>(source, index, next, destination, destinationFirst, destinationPast);
+                first = indexes.Item1;
+                destinationFirst = indexes.Item2;
+                index = next;
+            }
+            return new Tuple<int, int>(first, destinationFirst);
+        }
+
+        internal static void Replace<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, bool> predicate, TSource replacement)
+            where TSourceList : IList<TSource>
+        {
+            while (first != past)
+            {
+                if (predicate(list[first]))
+                {
+                    list[first] = replacement;
+                }
+                ++first;
+            }
+        }
+
+        internal static void Replace<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, bool> predicate, Func<TSource, TSource> generator)
+            where TSourceList : IList<TSource>
+        {
+            while (first != past)
+            {
+                if (predicate(list[first]))
+                {
+                    list[first] = generator(list[first]);
+                }
+                ++first;
+            }
+        }
+
+        internal static int Replace<TSourceList, TSequenceList, TReplacementList, TSource, TSequence>(
+            TSourceList list, int first, int past,
+            TSequenceList sequence, int sequenceFirst, int sequencePast,
+            TReplacementList replacement, int replacementFirst, int replacementPast,
+            Func<TSource, TSequence, bool> comparison)
+            where TSourceList : IList<TSource>
+            where TSequenceList : IList<TSequence>
+            where TReplacementList : IList<TSource>
+        {
+            int temp = past;
+            int sequenceCount = sequencePast - sequenceFirst;
+            int replacementCount = replacementPast - replacementFirst;
+            first = findSequence<TSourceList, TSource, TSequenceList, TSequence>(list, first, past, sequence, sequenceFirst, sequencePast, comparison);
+
+            while (first != past)
+            {
+                if (sequenceCount < replacementCount)
+                {
+                    int difference = replacementCount - sequenceCount;
+                    growAndShift<TSourceList, TSource>(list, first, difference);
+                    past += difference;
+                }
+                else if (sequenceCount > replacementCount)
+                {
+                    int index = first + sequenceCount;
+                    int difference = sequenceCount - replacementCount;
+                    copyTo<TSourceList, TSourceList, TSource>(list, index, past, list, index - difference, past);
+                    past -= difference;
+                }
+                first = copyTo<TReplacementList, TSourceList, TSource>(replacement, replacementFirst, replacementPast, list, first, past).Item2;
+                first = findSequence<TSourceList, TSource, TSequenceList, TSequence>(list, first, past, sequence, sequenceFirst, sequencePast, comparison);
+            }
+            if (past < temp)
+            {
+                removeRange<TSourceList, TSource>(list, past, temp);
+            }
+            return past;
+        }
+
+        #endregion
+
+        #region Reverse
+
+        internal static int AddReversed<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
+            Tuple<int, int> indexes = CopyReversed<TSourceList, TDestinationList, TSource>(
+                source, first, past,
+                destination, destinationPast, destination.Count);
+            return indexes.Item2;
+        }
+
+        internal static Tuple<int, int> CopyReversed<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int count1 = past - first;
+            int count2 = destinationPast - destinationFirst;
+            if (count2 < count1)
+            {
+                past -= count1 - count2;
+            }
+            int position = past;
+            while (first != position)
+            {
+                --position;
+                destination[destinationFirst] = source[position];
+                ++destinationFirst;
+            }
+            return new Tuple<int, int>(past, destinationFirst);
+        }
+
+        internal static void Reverse<TList, T>(TList list, int first, int past)
+            where TList : IList<T>
+        {
+            int half = first + (past - first) / 2;
+            while (first != half)
+            {
+                --past;
+                T temp = list[first];
+                list[first] = list[past];
+                list[past] = temp;
+                ++first;
+            }
+        }
+
+        #endregion
+
+        #region RotateLeft
+
+        internal static int AddRotatedLeftUnreduced<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            int shift)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int middle = getReducedOffset<TSourceList, TSource>(source, first, past, shift);
+            middle += first;
+            return addRotatedLeft<TSourceList, TDestinationList, TSource>(source, first, middle, past, destination, destinationPast);
+        }
+
+        private static int addRotatedLeft<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int middle, int past,
+            TDestinationList destination, int destinationPast)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, past - first);
+            destinationPast = copyTo<TSourceList, TDestinationList, TSource>(source, middle, past, destination, destinationPast, destination.Count).Item2;
+            destinationPast = copyTo<TSourceList, TDestinationList, TSource>(source, first, middle, destination, destinationPast, destination.Count).Item2;
+            return destinationPast;
+        }
+
+        internal static Tuple<int, int> CopyRotatedLeftUnreduced<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            int shift)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int middle = getReducedOffset<TSourceList, TSource>(source, first, past, shift);
+            middle += first;
+            return copyRotatedLeft<TSourceList, TDestinationList, TSource>(
+                source, first, middle, past,
+                destination, destinationFirst, destinationPast);
+        }
+
+        private static Tuple<int, int> copyRotatedLeft<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int middle, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            Tuple<int, int> indexes1 = copyTo<TSourceList, TDestinationList, TSource>(
+                source, middle, past,
+                destination, destinationFirst, destinationPast);
+            int position = indexes1.Item1;
+            destinationFirst = indexes1.Item2;
+            if (position == past)
+            {
+                Tuple<int, int> indexes2 = copyTo<TSourceList, TDestinationList, TSource>(
+                    source, first, middle,
+                    destination, destinationFirst, destinationPast);
+                position = indexes2.Item1;
+                destinationFirst = indexes2.Item2;
+            }
+            return new Tuple<int, int>(position, destinationFirst);
+        }
+
+        internal static void RotateLeftUnreduced<TSourceList, TSource>(TSourceList list, int first, int past, int shift)
+            where TSourceList : IList<TSource>
+        {
+            int middle = getReducedOffset<TSourceList, TSource>(list, first, past, shift);
+            middle += first;
+            rotateLeft<TSourceList, TSource>(list, first, middle, past);
+        }
+
+        private static int getReducedOffset<TList, T>(TList list, int first, int past, int shift)
+            where TList : IList<T>
+        {
+            int count = past - first;
+            shift %= count;
+            if (shift < 0)
+            {
+                shift += count;
+            }
+            return shift;
+        }
+
+        private static void rotateLeft<TList, T>(TList list, int first, int middle, int past)
+            where TList : IList<T>
+        {
+            int shift = middle - first;
+            int count = past - first;
+            for (int factor = shift; factor != 0; )
+            {
+                int temp = count % factor;
+                count = factor;
+                factor = temp;
+            }
+            if (count < past - first)
+            {
+                while (count > 0)
+                {
+                    int hole = first + count;
+                    T value = list[hole];
+                    int temp = hole + shift;
+                    int next = temp == past ? first : temp;
+                    int current = hole;
+                    while (next != hole)
+                    {
+                        list[current] = list[next];
+                        current = next;
+                        int difference = past - next;
+                        if (shift < difference)
+                        {
+                            next += shift;
+                        }
+                        else
+                        {
+                            next = first + (shift - difference);
+                        }
+                    }
+                    list[current] = value;
+                    --count;
+                }
+            }
+        }
+
+        private static int rotateBuffered<TList, TBuffer, T>(
+            TList list, int first, int middle, int past,
+            TBuffer buffer, int bufferFirst, int bufferPast)
+            where TList : IList<T>
+            where TBuffer : IList<T>
+        {
+            int count1 = middle - first;
+            int count2 = past - middle;
+            int bufferCount = bufferPast - bufferFirst;
+            if (count1 <= count2 && count1 <= bufferCount)
+            {
+                int bufferMiddle = copyTo<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast).Item2;
+                copyTo<TList, TList, T>(list, middle, past, list, first, past);
+                return copyBackward<TBuffer, TList, T>(buffer, bufferFirst, bufferMiddle, list, first, past);
+            }
+            else if (count2 <= bufferCount)
+            {
+                int bufferMiddle = copyTo<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast).Item2;
+                copyBackward<TList, TList, T>(list, first, middle, list, first, past);
+                return copyTo<TBuffer, TList, T>(buffer, bufferFirst, bufferMiddle, list, first, past).Item2;
+            }
+            else
+            {
+                rotateLeft<TList, T>(list, first, middle, past);
+                return first + count2;
+            }
+        }
+
+        #endregion
+
+        #region Select
+
+        internal static int AddSelect<TSourceList, TSource, TDestinationList, TDestination>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TDestination> selector)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TDestination>
+        {
+            growAndShift<TDestinationList, TDestination>(destination, destinationPast, past - first);
+            Tuple<int, int> indexes = CopySelect<TSourceList, TSource, TDestinationList, TDestination>(
+                source, first, past,
+                destination, destinationPast, destination.Count,
+                selector);
+            return indexes.Item2;
+        }
+
+        internal static Tuple<int, int> CopySelect<TSourceList, TSource, TDestinationList, TDestination>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TDestination> selector)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TDestination>
+        {
+            while (first != past && destinationFirst != destinationPast)
+            {
+                destination[destinationFirst] = selector(source[first]);
+                ++first;
+                ++destinationFirst;
+            }
+            return new Tuple<int, int>(first, destinationFirst);
         }
 
         #endregion
@@ -6240,7 +6265,7 @@ namespace NDex
                 }
                 ++first;
             }
-            Copy<List<T>, TList, T>(buffer, 0, buffer.Count, list, next, past);
+            copyTo<List<T>, TList, T>(buffer, 0, buffer.Count, list, next, past);
             return next;
         }
 
@@ -6300,7 +6325,7 @@ namespace NDex
 
         #region SymmetricExcept
 
-        internal static int AddSymmetricDifference<TSourceList1, TSourceList2, TDestinationList, TSource>(
+        internal static int AddSymmetricExcept<TSourceList1, TSourceList2, TDestinationList, TSource>(
             TSourceList1 source1, int first1, int past1,
             TSourceList2 source2, int first2, int past2,
             TDestinationList destination, int destinationPast,
@@ -6329,13 +6354,13 @@ namespace NDex
                     ++first2;
                 }
             }
-            Add<TSourceList1, TDestinationList, TSource>(source1, first1, past1, destination, destination.Count);
-            Add<TSourceList2, TDestinationList, TSource>(source2, first2, past2, destination, destination.Count);
-            RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
+            add<TSourceList1, TDestinationList, TSource>(source1, first1, past1, destination, destination.Count);
+            add<TSourceList2, TDestinationList, TSource>(source2, first2, past2, destination, destination.Count);
+            rotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
             return destinationPast + (destination.Count - pivot);
         }
 
-        internal static Tuple<int, int, int> CopySymmetricDifference<TSourceList1, TSourceList2, TDestinationList, TSource>(
+        internal static Tuple<int, int, int> CopySymmetricExcept<TSourceList1, TSourceList2, TDestinationList, TSource>(
             TSourceList1 source1, int first1, int past1,
             TSourceList2 source2, int first2, int past2,
             TDestinationList destination, int destinationFirst, int destinationPast,
@@ -6365,12 +6390,12 @@ namespace NDex
                     ++first2;
                 }
             }
-            Tuple<int, int> indexes1 = Copy<TSourceList1, TDestinationList, TSource>(
+            Tuple<int, int> indexes1 = copyTo<TSourceList1, TDestinationList, TSource>(
                 source1, first1, past1,
                 destination, destinationFirst, destinationPast);
             first1 = indexes1.Item1;
             destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Copy<TSourceList2, TDestinationList, TSource>(
+            Tuple<int, int> indexes2 = copyTo<TSourceList2, TDestinationList, TSource>(
                 source2, first2, past2,
                 destination, destinationFirst, destinationPast);
             first2 = indexes2.Item1;
@@ -6454,9 +6479,9 @@ namespace NDex
                     ++first2;
                 }
             }
-            Add<TSourceList1, TDestinationList, TSource>(source1, first1, past1, destination, destination.Count);
-            Add<TSourceList2, TDestinationList, TSource>(source2, first2, past2, destination, destination.Count);
-            RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
+            add<TSourceList1, TDestinationList, TSource>(source1, first1, past1, destination, destination.Count);
+            add<TSourceList2, TDestinationList, TSource>(source2, first2, past2, destination, destination.Count);
+            rotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
             return destinationPast + (destination.Count - pivot);
         }
 
@@ -6492,12 +6517,12 @@ namespace NDex
                     ++destinationFirst;
                 }
             }
-            Tuple<int, int> indexes1 = Copy<TSourceList1, TDestinationList, TSource>(
+            Tuple<int, int> indexes1 = copyTo<TSourceList1, TDestinationList, TSource>(
                 source1, first1, past1,
                 destination, destinationFirst, destinationPast);
             first1 = indexes1.Item1;
             destinationFirst = indexes1.Item2;
-            Tuple<int, int> indexes2 = Copy<TSourceList2, TDestinationList, TSource>(
+            Tuple<int, int> indexes2 = copyTo<TSourceList2, TDestinationList, TSource>(
                 source2, first2, past2,
                 destination, destinationFirst, destinationPast);
             first2 = indexes2.Item1;
@@ -6619,7 +6644,7 @@ namespace NDex
 
         #region Where
 
-        internal static int AddIf<TSourceList, TDestinationList, TSource>(
+        internal static int AddWhere<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
             TDestinationList destination, int destinationPast,
             Func<TSource, bool> predicate)
@@ -6635,11 +6660,11 @@ namespace NDex
                 }
                 ++first;
             }
-            RotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
+            rotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
             return destinationPast + (destination.Count - pivot);
         }
 
-        internal static Tuple<int, int> CopyIf<TSourceList, TDestinationList, TSource>(
+        internal static Tuple<int, int> CopyWhere<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
             TDestinationList destination, int destinationFirst, int destinationPast,
             Func<TSource, bool> predicate)
@@ -6662,7 +6687,7 @@ namespace NDex
             return new Tuple<int, int>(first, destinationFirst);
         }
 
-        internal static int RemoveIf<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
+        internal static int Where<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
             where TList : IList<T>
         {
             for (int position = first; position != past; ++position)
@@ -6680,7 +6705,7 @@ namespace NDex
 
         #region Zip
 
-        internal static int addCombined<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
+        internal static int AddZip<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
             TSourceList1 source1, int first1, int past1,
             TSourceList2 source2, int first2, int past2,
             TDestinationList destination, int destinationPast,
@@ -6690,8 +6715,8 @@ namespace NDex
             where TDestinationList : IList<TDestination>
         {
             int count = Math.Min(past1 - first1, past2 - first2);
-            Sublist.GrowAndShift<TDestinationList, TDestination>(destination, destinationPast, count);
-            Tuple<int, int, int> indexes = copyCombined<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
+            growAndShift<TDestinationList, TDestination>(destination, destinationPast, count);
+            Tuple<int, int, int> indexes = CopyZip<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
                 source1, first1, past1,
                 source2, first2, past2,
                 destination, destinationPast, destination.Count,
@@ -6699,7 +6724,7 @@ namespace NDex
             return indexes.Item3;
         }
 
-        internal static Tuple<int, int, int> copyCombined<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
+        internal static Tuple<int, int, int> CopyZip<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
             TSourceList1 source1, int first1, int past1,
             TSourceList2 source2, int first2, int past2,
             TDestinationList destination, int destinationFirst, int destinationPast,
