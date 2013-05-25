@@ -27,14 +27,15 @@ namespace NDex.Tests
             // build a list
             var list = new List<int>(5);
             Sublist.Generate(5, i => random.Next(5)).AddTo(list.ToSublist());
-            var set = new HashSet<int>(list);
+            var sorted = list.ToSublist().Sort().AddTo(new List<int>().ToSublist());
 
             // try rearranging the items random until it is sorted (may never happen -- bad unit test)
             for (int tries = 0; tries != 100 && !list.ToSublist().IsSorted(); ++tries)
             {
-                list.ToSublist().RandomShuffle(random);
+                list.ToSublist().RandomShuffle(random).InPlace();
             }
-            Assert.IsTrue(set.SetEquals(list), "Some items were lost during the shuffling.");
+            list.ToSublist().Sort().InPlace();  // in case the list wasn't sorted
+            Assert.IsTrue(sorted.IsEqualTo(list.ToSublist()), "Some items were lost during the shuffling.");
         }
 
         #endregion
@@ -99,7 +100,7 @@ namespace NDex.Tests
         public void TestRandomShuffle_ArbitraryGenerator()
         {            
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
-            var set = new HashSet<int>(list);
+            var sorted = list.Sort().AddTo(new List<int>().ToSublist());
             using (RandomNumberGenerator random = RandomNumberGenerator.Create()) // slow
             {
                 Func<int> generator = () =>
@@ -108,9 +109,10 @@ namespace NDex.Tests
                         random.GetBytes(data);
                         return BitConverter.ToInt32(data, 0);
                     };
-                list.RandomShuffle(generator);
+                list.RandomShuffle(generator).InPlace();
             }
-            Assert.IsTrue(set.SetEquals(list), "Some of the items were lost during the shuffling.");
+            list.Sort().InPlace();
+            Assert.IsTrue(sorted.IsEqualTo(list), "Some of the items were lost during the shuffling.");
         }
     }
 }
