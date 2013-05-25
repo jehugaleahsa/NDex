@@ -25,7 +25,7 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next()).AddTo(list.ToSublist());
 
             // now we'll sort them with the expectation that they'll stay sorted
-            list.ToSublist().QuickSort();
+            list.ToSublist().Sort().InPlace();
 
             // we'll partition the list and make sure evens and odds are separated
             int index = list.ToSublist().StablePartition(i => i % 2 == 0);

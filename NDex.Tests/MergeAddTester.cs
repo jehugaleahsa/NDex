@@ -29,8 +29,8 @@ namespace NDex.Tests
             Sublist.Generate(50, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // merging requires sorted lists
-            list1.ToSublist().QuickSort();
-            list2.ToSublist().QuickSort();
+            list1.ToSublist().Sort().InPlace();
+            list2.ToSublist().Sort().InPlace();
 
             // merge the lists
             var destination = new List<int>(100);

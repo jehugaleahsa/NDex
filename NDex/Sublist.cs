@@ -790,99 +790,6 @@ namespace NDex
 
         #endregion
 
-        #region BubbleSort
-
-        /// <summary>
-        /// Sorts a list using the bubble sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list to sort.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void BubbleSort<TList, T>(this IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            bubbleSort<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list using the bubble sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list to sort.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparer">The comparer to use to compare items.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void BubbleSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            bubbleSort<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list using the bubble sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list to sort.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void BubbleSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            bubbleSort<TList, T>(list, comparison);
-        }
-
-        private static void bubbleSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            bubbleSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-        }
-
-        private static void bubbleSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            bool swapped = true;
-            for (int back = past; first + 1 < back && swapped; --back)
-            {
-                swapped = false;
-                for (int current = first, next = first + 1; next != back; current = next, ++next)
-                {
-                    if (comparison(list[current], list[next]) > 0)
-                    {
-                        T temp = list[current];
-                        list[current] = list[next];
-                        list[next] = temp;
-                        swapped = true;
-                    }
-                }
-            }
-        }
-
-        #endregion
-
         #region Clear
 
         /// <summary>
@@ -2407,75 +2314,6 @@ namespace NDex
 
         #region InsertionSort
 
-        /// <summary>
-        /// Sorts the list using the insertion sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void InsertionSort<TList, T>(this IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            insertionSort<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Sorts the list using the insertion sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void InsertionSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            insertionSort<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Sorts the list using the insertion sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void InsertionSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            insertionSort<TList, T>(list, comparison);
-        }
-
-        private static void insertionSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            insertionSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-        }
-
         private static void insertionSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
@@ -2501,6 +2339,73 @@ namespace NDex
                     list[hole] = value;
                 }
             }
+        }
+
+        #endregion
+
+        #region Intersect
+
+        internal static int AddIntersect<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int pivot = destination.Count;
+            while (first1 != past1 && first2 != past2)
+            {
+                int result = comparison(source1[first1], source2[first2]);
+                if (result < 0)
+                {
+                    ++first1;
+                }
+                else if (result > 0)
+                {
+                    ++first2;
+                }
+                else
+                {
+                    destination.Add(source1[first1]);
+                    ++first1;
+                    ++first2;
+                }
+            }
+            rotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
+            return destinationPast + (destination.Count - pivot);
+        }
+
+        internal static Tuple<int, int, int> CopyIntersect<TSourceList1, TSourceList2, TDestinationList, TSource>(
+            TSourceList1 source1, int first1, int past1,
+            TSourceList2 source2, int first2, int past2,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList1 : IList<TSource>
+            where TSourceList2 : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
+            {
+                int result = comparison(source1[first1], source2[first2]);
+                if (result < 0)
+                {
+                    ++first1;
+                }
+                else if (result > 0)
+                {
+                    ++first2;
+                }
+                else
+                {
+                    destination[destinationFirst] = source1[first1];
+                    ++first1;
+                    ++first2;
+                    ++destinationFirst;
+                }
+            }
+            return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
         #endregion
@@ -3006,73 +2911,6 @@ namespace NDex
                 }
             }
             return first1;
-        }
-
-        #endregion
-
-        #region Intersect
-
-        internal static int AddIntersect<TSourceList1, TSourceList2, TDestinationList, TSource>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList1 : IList<TSource>
-            where TSourceList2 : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int pivot = destination.Count;
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    destination.Add(source1[first1]);
-                    ++first1;
-                    ++first2;
-                }
-            }
-            rotateLeft<TDestinationList, TSource>(destination, destinationPast, pivot, destination.Count);
-            return destinationPast + (destination.Count - pivot);
-        }
-
-        internal static Tuple<int, int, int> CopyIntersect<TSourceList1, TSourceList2, TDestinationList, TSource>(
-            TSourceList1 source1, int first1, int past1,
-            TSourceList2 source2, int first2, int past2,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<TSource, TSource, int> comparison)
-            where TSourceList1 : IList<TSource>
-            where TSourceList2 : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            while (first1 != past1 && first2 != past2 && destinationFirst != destinationPast)
-            {
-                int result = comparison(source1[first1], source2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    destination[destinationFirst] = source1[first1];
-                    ++first1;
-                    ++first2;
-                    ++destinationFirst;
-                }
-            }
-            return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
         #endregion
@@ -3903,7 +3741,7 @@ namespace NDex
         {
             if (past - first > 1)
             {
-                quickSort<TList, T>(list, first, past, past - first, comparison);
+                Sort<TList, T>(list, first, past, past - first, comparison);
                 int next = first + 1;
                 while (next != past && comparison(list[first], list[next]) != 0)
                 {
@@ -4182,10 +4020,10 @@ namespace NDex
 
         #endregion
 
-        #region MergeSort
+        #region StableSort
 
         /// <summary>
-        /// Sorts a list using the merge sort algorithm.
+        /// Sorts the items in the list without changing the order of equal items.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
@@ -4195,7 +4033,7 @@ namespace NDex
         /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, T>(this IMutableSublist<TList, T> list)
+        public static void StableSort<TList, T>(this IMutableSublist<TList, T> list)
             where TList : IList<T>
         {
             if (list == null)
@@ -4206,7 +4044,7 @@ namespace NDex
         }
 
         /// <summary>
-        /// Sorts a list using the merge sort algorithm.
+        /// Sorts the items in the list without changing the order of equal items.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="TBuffer">The type of the buffer.</typeparam>
@@ -4221,7 +4059,7 @@ namespace NDex
         /// Making it too small will impact performance negatively.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer)
+        public static void StableSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer)
             where TList : IList<T>
             where TBuffer : IList<T>
         {
@@ -4237,7 +4075,7 @@ namespace NDex
         }
 
         /// <summary>
-        /// Sorts a list using the merge sort algorithm.
+        /// Sorts the items in the list without changing the order of equal items.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
@@ -4249,7 +4087,7 @@ namespace NDex
         /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
+        public static void StableSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
             where TList : IList<T>
         {
             if (list == null)
@@ -4264,7 +4102,7 @@ namespace NDex
         }
 
         /// <summary>
-        /// Sorts a list using the merge sort algorithm.
+        /// Sorts the items in the list without changing the order of equal items.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="TBuffer">The type of the buffer.</typeparam>
@@ -4281,7 +4119,7 @@ namespace NDex
         /// Making it too small will impact performance negatively.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, IComparer<T> comparer)
+        public static void StableSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, IComparer<T> comparer)
             where TList : IList<T>
             where TBuffer : IList<T>
         {
@@ -4301,7 +4139,7 @@ namespace NDex
         }
 
         /// <summary>
-        /// Sorts a list using the merge sort algorithm.
+        /// Sorts the items in the list without changing the order of equal items.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="T">The type of the items in the list.</typeparam>
@@ -4313,7 +4151,7 @@ namespace NDex
         /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
+        public static void StableSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (list == null)
@@ -4328,7 +4166,7 @@ namespace NDex
         }
 
         /// <summary>
-        /// Sorts a list using the merge sort algorithm.
+        /// Sorts the items in the list without changing the order of equal items.
         /// </summary>
         /// <typeparam name="TList">The type of the list.</typeparam>
         /// <typeparam name="TBuffer">The type of the buffer.</typeparam>
@@ -4345,7 +4183,7 @@ namespace NDex
         /// Making it too small will impact performance negatively.
         /// MergeSort will preserve the order that equivalent items appear in the list.
         /// </remarks>
-        public static void MergeSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, Func<T, T, int> comparison)
+        public static void StableSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, Func<T, T, int> comparison)
             where TList : IList<T>
             where TBuffer : IList<T>
         {
@@ -5240,78 +5078,9 @@ namespace NDex
 
         #endregion
 
-        #region QuickSort
+        #region Sort
 
-        /// <summary>
-        /// Sorts a list using the quick sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void QuickSort<TList, T>(this IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            quickSort<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list using the quick sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void QuickSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            quickSort<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list using the quick sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void QuickSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            quickSort<TList, T>(list, comparison);
-        }
-
-        private static void quickSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            quickSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, list.Count, comparison);
-        }
-
-        private static void quickSort<TList, T>(TList list, int first, int past, int ideal, Func<T, T, int> comparison)
+        internal static void Sort<TList, T>(TList list, int first, int past, int ideal, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             while (past - first > _sortMax && ideal > 0)
@@ -5321,12 +5090,12 @@ namespace NDex
                 ideal += ideal / 2;
                 if (middle - first < past - middle)
                 {
-                    quickSort<TList, T>(list, first, middle, ideal, comparison);
+                    Sort<TList, T>(list, first, middle, ideal, comparison);
                     first = middle;
                 }
                 else
                 {
-                    quickSort<TList, T>(list, middle, past, ideal, comparison);
+                    Sort<TList, T>(list, middle, past, ideal, comparison);
                     past = middle;
                 }
             }
@@ -5426,6 +5195,25 @@ namespace NDex
                     list[second] = temp;
                 }
             }
+        }
+
+        internal static int AddSort<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int pivot = destinationPast;
+            while (first != past)
+            {
+                destination.Insert(destinationPast, source[first]);
+                ++destinationPast;
+                heapAdd<TDestinationList, TSource>(destination, pivot, destinationPast, comparison);
+                ++first;
+            }
+            heapSort<TDestinationList, TSource>(destination, pivot, destinationPast, comparison);
+            return destinationPast;
         }
 
         #endregion
@@ -6033,187 +5821,6 @@ namespace NDex
 
         #endregion
 
-        #region SelectionSort
-
-        /// <summary>
-        /// Sorts a list using the selection sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void SelectionSort<TList, T>(this IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            selectionSort<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list using the selection sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void SelectionSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            selectionSort<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list using the selection sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void SelectionSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            selectionSort<TList, T>(list, comparison);
-        }
-
-        private static void selectionSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            selectionSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-        }
-
-        private static void selectionSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            while (first < past - 1)
-            {
-                int smallest = minimum<TList, T>(list, first, past, comparison);
-                if (first != smallest)
-                {
-                    T temp = list[first];
-                    list[first] = list[smallest];
-                    list[smallest] = temp;
-                }
-                ++first;
-            }
-        }
-
-        #endregion
-
-        #region ShellSort
-
-        /// <summary>
-        /// Sorts a list using the selection sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void ShellSort<TList, T>(this IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            shellSort<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list using the selection sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void ShellSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            shellSort<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Sorts a list using the selection sort algorithm.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void ShellSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            shellSort<TList, T>(list, comparison);
-        }
-
-        private static void shellSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            shellSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-        }
-
-        private static void shellSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            int half = (past - first) / 2;
-            while (half > 0)
-            {
-                for (int i = first + half; i < past; ++i)
-                {
-                    for (int j = i; j >= first + half && comparison(list[j], list[j - half]) < 0; j -= half)
-                    {
-                        T temp = list[j];
-                        list[j] = list[j - half];
-                        list[j - half] = temp;
-                    }
-                }
-                half /= 2;
-            }
-        }
-
-        #endregion
-
         #region StablePartition
 
         /// <summary>
@@ -6242,16 +5849,24 @@ namespace NDex
             {
                 throw new ArgumentNullException("predicate");
             }
-            int result = stablePartition<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
+            List<T> buffer = new List<T>();
+            int result = stablePartition<TList, List<T>, T>(
+                list.List, list.Offset, list.Offset + list.Count, 
+                buffer, 0,
+                predicate);
             result -= list.Offset;
             return result;
         }
 
-        private static int stablePartition<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
+        private static int stablePartition<TList, TBuffer, T>(
+            TList list, int first, int past, 
+            TBuffer buffer, int bufferPast,
+            Func<T, bool> predicate)
             where TList : IList<T>
+            where TBuffer : IList<T>
         {
-            List<T> buffer = new List<T>();
             int next = first;
+            int pivot = bufferPast;
             while (first != past)
             {
                 if (predicate(list[first]))
@@ -6261,11 +5876,12 @@ namespace NDex
                 }
                 else
                 {
-                    buffer.Add(list[first]);
+                    buffer.Insert(bufferPast, list[first]);
+                    ++bufferPast;
                 }
                 ++first;
             }
-            copyTo<List<T>, TList, T>(buffer, 0, buffer.Count, list, next, past);
+            copyTo<TBuffer, TList, T>(buffer, pivot, bufferPast, list, next, past);
             return next;
         }
 

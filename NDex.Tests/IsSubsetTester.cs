@@ -27,7 +27,7 @@ namespace NDex.Tests
             // build multiples of four
             var fours = new List<int>();
             Sublist.Generate(100, i => random.Next(100) * 4).AddTo(fours.ToSublist());
-            fours.ToSublist().QuickSort(); // items must be sorted
+            fours.ToSublist().Sort().InPlace(); // items must be sorted
             int garbageIndex = fours.ToSublist().Distinct().InPlace();
             var garbage = fours.ToSublist(garbageIndex);
             garbage.Clear(); // items must be distinct.

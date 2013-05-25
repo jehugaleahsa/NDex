@@ -26,7 +26,7 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // duplicates must appear next to each other
-            list.ToSublist().QuickSort();
+            list.ToSublist().Sort().InPlace();
 
             var result = list.ToSublist().FindDuplicates();
             if (!result.Exists)

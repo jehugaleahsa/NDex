@@ -32,7 +32,7 @@ namespace NDex.Tests
             Assert.AreEqual(samples.Count, index, "The wrong index was returned.");
 
             // make sure the same value doesn't occur multiple times
-            samples.ToSublist().QuickSort();
+            samples.ToSublist().Sort().InPlace();
             Assert.IsFalse(samples.ToSublist().FindDuplicates(), "The same value was picked multiple times.");
 
             // make sure the samples are a subset of the original values.
@@ -138,7 +138,7 @@ namespace NDex.Tests
             var result = list.RandomSamples(destination.Count, generator).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
-            destination.QuickSort(); // guarantees order -> actually unnecessary
+            destination.Sort().InPlace(); // guarantees order -> actually unnecessary
             int[] expected = { 1, 2, 3, 4, 5 };
             Assert.IsTrue(expected.ToSublist().IsEqualTo(destination), "The wrong samples were chosen.");
             TestHelper.CheckHeaderAndFooter(list);
@@ -158,7 +158,7 @@ namespace NDex.Tests
             var result = list.RandomSamples(destination.Count, generator).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");
             Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
-            destination.BubbleSort();
+            destination.Sort().InPlace();
             Assert.IsTrue(destination.IsSubset(list), "Not all of the items in the destination exist in the original list.");
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);

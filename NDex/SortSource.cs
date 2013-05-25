@@ -11,39 +11,32 @@ namespace NDex
     public static partial class Sublist
     {
         /// <summary>
-        /// Gets the unique items from the source list.
+        /// Sorts the items in the list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="source">The list to get the unique items from.</param>
-        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
+        /// <param name="source">The list to sort.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>The list must be sorted.</remarks>
-        public static DistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
-            this IReadOnlySublist<TSourceList, TSource> source)
+        public static SortSource<TSourceList, TSource> Sort<TSourceList, TSource>(this IReadOnlySublist<TSourceList, TSource> source)
             where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            return new DistinctSource<TSourceList, TSource>(source, EqualityComparer<TSource>.Default.Equals);
+            return new SortSource<TSourceList, TSource>(source, Comparer<TSource>.Default.Compare);
         }
 
         /// <summary>
-        /// Gets the unique items from the source list.
+        /// Sorts the items in the list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="source">The list to get the unique items from.</param>
+        /// <param name="source">The list to sort.</param>
         /// <param name="comparer">The comparer to use to compare items.</param>
-        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>The list must be sorted.</remarks>
-        public static DistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
-            this IReadOnlySublist<TSourceList, TSource> source,
-            IEqualityComparer<TSource> comparer)
+        public static SortSource<TSourceList, TSource> Sort<TSourceList, TSource>(this IReadOnlySublist<TSourceList, TSource> source, IComparer<TSource> comparer)
             where TSourceList : IList<TSource>
         {
             if (source == null)
@@ -54,23 +47,19 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            return new DistinctSource<TSourceList, TSource>(source, comparer.Equals);
+            return new SortSource<TSourceList, TSource>(source, comparer.Compare);
         }
 
         /// <summary>
-        /// Gets the unique items from the source list.
+        /// Sorts the items in the list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="source">The list to get the unique items from.</param>
-        /// <param name="comparison">The comparison to use to compare items.</param>
-        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
+        /// <param name="source">The list to sort.</param>
+        /// <param name="comparison">The function to use to compare the items.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
-        /// <remarks>The list must be sorted.</remarks>
-        public static DistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
-            this IReadOnlySublist<TSourceList, TSource> source,
-            Func<TSource, TSource, bool> comparison)
+        public static SortSource<TSourceList, TSource> Sort<TSourceList, TSource>(this IReadOnlySublist<TSourceList, TSource> source, Func<TSource, TSource, int> comparison)
             where TSourceList : IList<TSource>
         {
             if (source == null)
@@ -81,43 +70,36 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            return new DistinctSource<TSourceList, TSource>(source, comparison);
+            return new SortSource<TSourceList, TSource>(source, comparison);
         }
 
         /// <summary>
-        /// Gets the unique items from the source list.
+        /// Sorts the items in the list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="source">The list to get the unique items from.</param>
-        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
+        /// <param name="source">The list to sort.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>The list must be sorted.</remarks>
-        public static InPlaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
-            this IMutableSublist<TSourceList, TSource> source)
+        public static InPlaceSortSource<TSourceList, TSource> Sort<TSourceList, TSource>(this IMutableSublist<TSourceList, TSource> source)
             where TSourceList : IList<TSource>
         {
             if (source == null)
             {
                 throw new ArgumentNullException("source");
             }
-            return new InPlaceDistinctSource<TSourceList, TSource>(source, EqualityComparer<TSource>.Default.Equals);
+            return new InPlaceSortSource<TSourceList, TSource>(source, Comparer<TSource>.Default.Compare);
         }
 
         /// <summary>
-        /// Gets the unique items from the source list.
+        /// Sorts the items in the list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="source">The list to get the unique items from.</param>
+        /// <param name="source">The list to sort.</param>
         /// <param name="comparer">The comparer to use to compare items.</param>
-        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>The list must be sorted.</remarks>
-        public static InPlaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
-            this IMutableSublist<TSourceList, TSource> source,
-            IEqualityComparer<TSource> comparer)
+        public static InPlaceSortSource<TSourceList, TSource> Sort<TSourceList, TSource>(this IMutableSublist<TSourceList, TSource> source, IComparer<TSource> comparer)
             where TSourceList : IList<TSource>
         {
             if (source == null)
@@ -128,23 +110,19 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparer");
             }
-            return new InPlaceDistinctSource<TSourceList, TSource>(source, comparer.Equals);
+            return new InPlaceSortSource<TSourceList, TSource>(source, comparer.Compare);
         }
 
         /// <summary>
-        /// Gets the unique items from the source list.
+        /// Sorts the items in the list.
         /// </summary>
         /// <typeparam name="TSourceList">The type of the list.</typeparam>
         /// <typeparam name="TSource">The type of the items in the list.</typeparam>
-        /// <param name="source">The list to get the unique items from.</param>
-        /// <param name="comparison">The comparison to use to compare items.</param>
-        /// <returns>An intermediate result that can be copied or added to a destination.</returns>
+        /// <param name="source">The list to sort.</param>
+        /// <param name="comparison">The function to use to compare the items.</param>
         /// <exception cref="System.ArgumentNullException">The list is null.</exception>
         /// <exception cref="System.ArgumentNullException">The comparison is null.</exception>
-        /// <remarks>The list must be sorted.</remarks>
-        public static InPlaceDistinctSource<TSourceList, TSource> Distinct<TSourceList, TSource>(
-            this IMutableSublist<TSourceList, TSource> source,
-            Func<TSource, TSource, bool> comparison)
+        public static InPlaceSortSource<TSourceList, TSource> Sort<TSourceList, TSource>(this IMutableSublist<TSourceList, TSource> source, Func<TSource, TSource, int> comparison)
             where TSourceList : IList<TSource>
         {
             if (source == null)
@@ -155,23 +133,23 @@ namespace NDex
             {
                 throw new ArgumentNullException("comparison");
             }
-            return new InPlaceDistinctSource<TSourceList, TSource>(source, comparison);
+            return new InPlaceSortSource<TSourceList, TSource>(source, comparison);
         }
     }
 
     #endregion
 
-    #region DistinctResult
+    #region SortResult
 
     /// <summary>
-    /// Holds the results of copying a Distinct operation.
+    /// Holds the results of copying a Sort operation.
     /// </summary>
-    public sealed class DistinctResult
+    public sealed class SortResult
     {
         /// <summary>
-        /// Initializes a new instance of a DistinctResult.
+        /// Initializes a new instance of a SortResult.
         /// </summary>
-        internal DistinctResult()
+        internal SortResult()
         {
         }
 
@@ -198,7 +176,7 @@ namespace NDex
         /// </summary>
         /// <param name="result">The result to convert.</param>
         /// <returns>The offset into the destination where the algorithm stopped.</returns>
-        public static implicit operator int(DistinctResult result)
+        public static implicit operator int(SortResult result)
         {
             return result.DestinationOffset;
         }
@@ -206,31 +184,31 @@ namespace NDex
 
     #endregion
 
-    #region DistinctSource
+    #region SortSource
 
     /// <summary>
     /// Provides the information needed to copy or add items to a destination sublist.
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public class DistinctSource<TSourceList, TSource> : Source<TSource, DistinctResult>
+    public class SortSource<TSourceList, TSource> : Source<TSource, SortResult>
         where TSourceList : IList<TSource>
     {
-        internal DistinctSource(IReadOnlySublist<TSourceList, TSource> source, Func<TSource, TSource, bool> comparison)
+        internal SortSource(IReadOnlySublist<TSourceList, TSource> source, Func<TSource, TSource, int> comparison)
         {
             Source = source;
             Comparison = comparison;
         }
 
         /// <summary>
-        /// Gets the list to get the unique items from.
+        /// Gets the list to sort.
         /// </summary>
         protected IReadOnlySublist<TSourceList, TSource> Source { get; private set; }
 
         /// <summary>
-        /// Gets the comparison function used to detect duplicate items.
+        /// Gets the function to use to compare the items.
         /// </summary>
-        protected Func<TSource, TSource, bool> Comparison { get; private set; }
+        protected Func<TSource, TSource, int> Comparison { get; private set; }
 
         /// <summary>
         /// Adds the result of the intermediate calculation to the given destination list.
@@ -238,13 +216,13 @@ namespace NDex
         /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
         /// <param name="destination">The sublist to copy the intermediate results to.</param>
         /// <returns>A new sublist wrapping the expanded list, including the added items.</returns>
-        protected sealed override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
+        protected override IExpandableSublist<TDestinationList, TSource> SafeAddTo<TDestinationList>(IExpandableSublist<TDestinationList, TSource> destination)
         {
-            int result = Sublist.AddDistinct<TSourceList, TDestinationList, TSource>(
+            int past = Sublist.AddSort<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset + destination.Count,
                 Comparison);
-            return destination.Resize(result - destination.Offset, true);
+            return destination.Resize(past - destination.Offset, true);
         }
 
         /// <summary>
@@ -253,15 +231,15 @@ namespace NDex
         /// <typeparam name="TDestinationList">The type of the underlying list to copy to.</typeparam>
         /// <param name="destination">The sublist to copy the intermediate results to.</param>
         /// <returns>Information about the results of the operation.</returns>
-        protected sealed override DistinctResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
+        protected override SortResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int> indexes = Sublist.CopyDistinct<TSourceList, TDestinationList, TSource>(
+            int index = Sublist.CopyPartialSort<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
                 Comparison);
-            DistinctResult result = new DistinctResult();
-            result.SourceOffset = indexes.Item1 - Source.Offset;
-            result.DestinationOffset = indexes.Item2 - destination.Offset;
+            SortResult result = new SortResult();
+            result.SourceOffset = Source.Count;
+            result.DestinationOffset = index - destination.Offset;
             return result;
         }
     }
@@ -271,10 +249,10 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the source's underlying list.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public sealed class InPlaceDistinctSource<TSourceList, TSource> : DistinctSource<TSourceList, TSource>
+    public sealed class InPlaceSortSource<TSourceList, TSource> : SortSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
-        internal InPlaceDistinctSource(IMutableSublist<TSourceList, TSource> source, Func<TSource, TSource, bool> comparison)
+        internal InPlaceSortSource(IMutableSublist<TSourceList, TSource> source, Func<TSource, TSource, int> comparison)
             : base(source, comparison)
         {
         }
@@ -282,12 +260,9 @@ namespace NDex
         /// <summary>
         /// Performs the operation in-place.
         /// </summary>
-        /// <returns>The integer past the last unique item.</returns>
-        public int InPlace()
+        public void InPlace()
         {
-            int result = Sublist.Distinct<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count, Comparison);
-            result -= Source.Offset;
-            return result;
+            Sublist.Sort<TSourceList, TSource>(Source.List, Source.Offset, Source.Offset + Source.Count, Source.Count, Comparison);
         }
     }
 

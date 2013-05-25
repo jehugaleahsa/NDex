@@ -47,6 +47,7 @@
     <Compile Include="ReverseSource.cs" />
     <Compile Include="RotateLeftSource.cs" />
     <Compile Include="SelectSource.cs" />
+    <Compile Include="SortSource.cs" />
     <Compile Include="SymmetricExceptSource.cs" />
     <Compile Include="UnionSource.cs" />
     <Compile Include="WhereSource.cs" />

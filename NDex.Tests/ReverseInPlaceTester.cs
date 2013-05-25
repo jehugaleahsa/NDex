@@ -26,7 +26,7 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // sort the list in ascending order
-            list.ToSublist().QuickSort();
+            list.ToSublist().Sort().InPlace();
 
             // now reverse the order
             list.ToSublist().Reverse().InPlace();

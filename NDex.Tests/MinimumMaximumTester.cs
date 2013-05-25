@@ -30,7 +30,7 @@ namespace NDex.Tests
 
             int minValue = list[result.MinimumIndex];
             int maxValue = list[result.MaximumIndex];
-            list.ToSublist().QuickSort(Comparer<int>.Default); // puts the largest item in the first slot
+            list.ToSublist().Sort(Comparer<int>.Default).InPlace(); // puts the largest item in the first slot
             Assert.AreEqual(list[0], minValue, "The wrong index was returned.");
             Assert.AreEqual(list[list.Count - 1], maxValue, "The wrong index was returned.");
         }

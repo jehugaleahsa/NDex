@@ -24,7 +24,7 @@ namespace NDex.Tests
             // build a list of random values, then sort it
             var list = new List<int>(100);
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
-            list.ToSublist().QuickSort();
+            list.ToSublist().Sort().InPlace();
 
             // now detect each duplicate and remove all but the first
             for (int index = 0; index != list.Count; ++index)

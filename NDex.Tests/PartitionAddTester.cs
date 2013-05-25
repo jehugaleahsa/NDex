@@ -30,9 +30,9 @@ namespace NDex.Tests
             list.ToSublist().Partition(i => i % 2 == 0).AddTo(evens.ToSublist(), odds.ToSublist());
 
             // sort all three lists -- we need to check if all values were added
-            list.ToSublist().QuickSort();
-            evens.ToSublist().QuickSort();
-            odds.ToSublist().QuickSort();
+            list.ToSublist().Sort().InPlace();
+            evens.ToSublist().Sort().InPlace();
+            odds.ToSublist().Sort().InPlace();
 
             bool allEven = evens.ToSublist().TrueForAll(i => i % 2 == 0);
             Assert.IsTrue(allEven, "Some odds were added to the wrong list.");
@@ -43,7 +43,7 @@ namespace NDex.Tests
             var combined = new List<int>(100);
             evens.ToSublist().AddTo(combined.ToSublist());
             odds.ToSublist().AddTo(combined.ToSublist());
-            combined.ToSublist().QuickSort();
+            combined.ToSublist().Sort().InPlace();
             bool hasAllItems = list.ToSublist().IsEqualTo(combined.ToSublist());
             Assert.IsTrue(hasAllItems, "Not all items were partitioned.");
         }

@@ -37,7 +37,7 @@ namespace NDex.Tests
             }
 
             // check that all items are present, sorted and unique
-            list.ToSublist().QuickSort();
+            list.ToSublist().Sort().InPlace();
             Assert.IsTrue(set.ToSublist().IsSorted(), "The set is not sorted.");
             bool hasValues = set.ToSublist().IsSubset(list.ToSublist());
             Assert.IsTrue(hasValues, "Not all of the values were copied.");

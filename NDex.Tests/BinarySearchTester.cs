@@ -36,7 +36,7 @@ namespace NDex.Tests
             }
 
             // check that we have every value only once
-            values.ToSublist().QuickSort();
+            values.ToSublist().Sort().InPlace();
             Assert.IsTrue(set.ToSublist().IsSorted(), "The set is not sorted.");
             bool hasValues = set.ToSublist().IsSubset(values.ToSublist());
             Assert.IsTrue(hasValues, "Not all of the values were copied.");

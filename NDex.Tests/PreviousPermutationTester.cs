@@ -28,7 +28,7 @@ namespace NDex.Tests
             Sublist.Generate(5, i => random.Next(0, 10)).AddTo(list.ToSublist());
 
             // first, we must sort the items to make sure all permutations are enumerated
-            list.ToSublist().BubbleSort((x, y) => Comparer<int>.Default.Compare(y, x)); // prev. perm. requires reverse order initially
+            list.ToSublist().Sort((x, y) => Comparer<int>.Default.Compare(y, x)).InPlace(); // prev. perm. requires reverse order initially
 
             int permutations = 1;
             while (list.ToSublist().PreviousPermutation())

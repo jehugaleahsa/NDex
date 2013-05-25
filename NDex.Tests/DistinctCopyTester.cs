@@ -26,7 +26,7 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // unique requires that elements be sorted
-            list.ToSublist().QuickSort();
+            list.ToSublist().Sort().InPlace();
 
             // now we create a set from the list
             var destination = new List<int>(100);

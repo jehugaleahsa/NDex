@@ -25,7 +25,7 @@ namespace NDex.Tests
             Sublist.Generate(100, () => random.Next(100)).CopyTo(array.ToSublist());
 
             // sort the list to put equivalent items next to each other
-            array.ToSublist().QuickSort();
+            array.ToSublist().Sort().InPlace();
 
             // overwrite the duplicates
             int index = array.ToSublist().Distinct().InPlace();

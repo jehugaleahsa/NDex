@@ -28,7 +28,7 @@ namespace NDex.Tests
             Assert.AreNotEqual(list.Count, index, "The index cannot be past the end of the list.");
 
             int maxValue = list[index];
-            list.ToSublist().QuickSort((x, y) => Comparer<int>.Default.Compare(y, x)); // puts the largest item in the first slot
+            list.ToSublist().Sort((x, y) => Comparer<int>.Default.Compare(y, x)).InPlace(); // puts the largest item in the first slot
             int expected = list[0];
             Assert.AreEqual(expected, maxValue, "The wrong index was returned.");
         }
