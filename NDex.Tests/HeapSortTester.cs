@@ -93,7 +93,7 @@ namespace NDex.Tests
         public void TestHeapSort_Reversed()
         {
             var list = TestHelper.Wrap(new List<int>() { 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 });
-            list.MakeHeap(Comparer<int>.Default); // can only sort a heap
+            list.MakeHeap(Comparer<int>.Default).InPlace(); // can only sort a heap
             list.HeapSort(Comparer<int>.Default);
             bool result = list.IsSorted(Comparer<int>.Default);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -107,7 +107,7 @@ namespace NDex.Tests
         public void TestHeapSort_PipeOrganed()
         {
             var list = TestHelper.Wrap(new List<int>() { 0, 2, 4, 6, 8, 9, 7, 5, 3, 1 });
-            list.MakeHeap(Comparer<int>.Default.Compare); // can only sort a heap
+            list.MakeHeap(Comparer<int>.Default.Compare).InPlace(); // can only sort a heap
             list.HeapSort(Comparer<int>.Default.Compare);
             bool result = list.IsSorted(Comparer<int>.Default.Compare);
             Assert.IsTrue(result, "The list was not sorted.");
@@ -121,7 +121,7 @@ namespace NDex.Tests
         public void TestHeapSort_Interweaved()
         {
             var list = TestHelper.Wrap(new List<int>() { 0, 9, 1, 8, 2, 7, 3, 6, 4, 5 });
-            list.MakeHeap(); // can only sort a heap
+            list.MakeHeap().InPlace(); // can only sort a heap
             list.HeapSort();
             bool result = list.IsSorted();
             Assert.IsTrue(result, "The list was not sorted.");
@@ -135,7 +135,7 @@ namespace NDex.Tests
         public void TestHeapSort_LastMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 });
-            list.MakeHeap(); // can only sort a heap
+            list.MakeHeap().InPlace(); // can only sort a heap
             list.HeapSort();
             bool result = list.IsSorted();
             Assert.IsTrue(result, "The list was not sorted.");
@@ -149,7 +149,7 @@ namespace NDex.Tests
         public void TestHeapSort_FirstMisplaced()
         {
             var list = TestHelper.Wrap(new List<int>() { 10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
-            list.MakeHeap(); // can only sort a heap
+            list.MakeHeap().InPlace(); // can only sort a heap
             list.HeapSort();
             bool result = list.IsSorted();
             Assert.IsTrue(result, "The list was not sorted.");

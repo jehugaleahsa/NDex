@@ -26,7 +26,7 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // make a heap
-            list.ToSublist().MakeHeap();
+            list.ToSublist().MakeHeap().InPlace();
             Assert.IsTrue(list.ToSublist().IsHeap(), "The list is not a heap."); // confirm we have a heap
 
             // let's push a value onto the heap and make it the highest priority

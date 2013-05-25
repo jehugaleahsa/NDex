@@ -110,7 +110,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(10, i => i).AddTo(list); // 0..9
-            list.MakeHeap();
+            list.MakeHeap().InPlace();
 
             list = new int[] { 10 }.AddTo(list);
             list.HeapAdd();
@@ -128,7 +128,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(10, i => i + 1).AddTo(list); // 1..10
-            list.MakeHeap();
+            list.MakeHeap().InPlace();
 
             list = new int[] { 0 }.AddTo(list);
             list.HeapAdd();
@@ -145,7 +145,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(10, i => i + (i > 4 ? 1 : 0)).AddTo(list); // 0..4, 6..10
-            list.MakeHeap();
+            list.MakeHeap().InPlace();
 
             list = new int[] { 5 }.AddTo(list);
             list.HeapAdd();

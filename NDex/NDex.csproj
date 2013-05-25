@@ -38,6 +38,7 @@
     <Compile Include="ExceptSource.cs" />
     <Compile Include="GenerateSource.cs" />
     <Compile Include="IntersectSource.cs" />
+    <Compile Include="MakeHeapSource.cs" />
     <Compile Include="MergeSource.cs" />
     <Compile Include="PartialSortSource.cs" />
     <Compile Include="PartitionSource.cs" />

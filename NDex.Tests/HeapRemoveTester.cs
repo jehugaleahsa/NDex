@@ -122,7 +122,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => i + 1).AddTo(list); // 1..100
 
-            list.MakeHeap();
+            list.MakeHeap().InPlace();
             list.HeapRemove();
 
             Assert.AreEqual(100, list[list.Count - 1], "The top item was not moved to the end.");
@@ -138,7 +138,7 @@ namespace NDex.Tests
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(99, i => i + 1).AddTo(list); // 1..99
 
-            list.MakeHeap();
+            list.MakeHeap().InPlace();
             list.HeapRemove();
 
             Assert.AreEqual(99, list[list.Count - 1], "The top item was not moved to the end.");
@@ -155,7 +155,7 @@ namespace NDex.Tests
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
             list = Sublist.Generate(64, i => i + 1).AddTo(list); // 1..64
 
-            list.MakeHeap(comparison);
+            list.MakeHeap(comparison).InPlace();
             list.HeapRemove(comparison);
 
             Assert.AreEqual(1, list[list.Count - 1], "The top item was not moved to the end.");

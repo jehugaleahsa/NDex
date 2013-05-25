@@ -3565,84 +3565,40 @@ namespace NDex
 
         #region MakeHeap
 
-        /// <summary>
-        /// Rearranges the items in a list such that they represent a max heap.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to rearrange into a heap.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        public static void MakeHeap<TList, T>(this IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            makeHeap<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Rearranges the items in a list such that they represent a max heap.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to rearrange into a heap.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void MakeHeap<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            makeHeap<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Rearranges the items in a list such that they represent a max heap.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to rearrange into a heap.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void MakeHeap<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            makeHeap<TList, T>(list, comparison);
-        }
-
-        private static void makeHeap<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            makeHeap<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-        }
-
-        private static void makeHeap<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
-            where TList : IList<T>
+        internal static void MakeHeap<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
         {
             int bottom = past - first;
             for (int hole = bottom / 2; hole > 0; )
             {
                 --hole;
-                adjustHeap<TList, T>(list, first, hole, bottom, list[first + hole], comparison);
+                adjustHeap<TSourceList, TSource>(list, first, hole, bottom, list[first + hole], comparison);
             }
+        }
+
+        internal static int AddMakeHeap<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int count = past - first;
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, count);
+            return CopyMakeHeap<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationPast, destinationPast + count, comparison).Item2;
+        }
+
+        internal static Tuple<int, int> CopyMakeHeap<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int numberOfItems = destinationPast - destinationFirst;
+            Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast);
+            MakeHeap<TDestinationList, TSource>(destination, destinationFirst, indexes.Item2, comparison);
+            return indexes;
         }
 
         #endregion
@@ -4805,11 +4761,23 @@ namespace NDex
             where TSourceList : IList<TSource>
             where TDestinationList : IList<TSource>
         {
+            int destinationMiddle = copyMakeHeapForSort<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast, comparison);
+            heapSort<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
+            return destinationMiddle;
+        }
+
+        private static int copyMakeHeapForSort<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
             int numberOfItems = destinationPast - destinationFirst;
             Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast);
             first = indexes.Item1;
             int destinationMiddle = indexes.Item2;
-            makeHeap<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
+            MakeHeap<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
 
             while (first != past)
             {
@@ -4819,7 +4787,6 @@ namespace NDex
                 }
                 ++first;
             }
-            heapSort<TDestinationList, TSource>(destination, destinationFirst, destinationMiddle, comparison);
             return destinationMiddle;
         }
 
@@ -4828,7 +4795,7 @@ namespace NDex
         {
             if (past - first > 1)
             {
-                makeHeap<TSourceList, TSource>(list, first, middle, comparison);
+                MakeHeap<TSourceList, TSource>(list, first, middle, comparison);
                 int numberOfItems = middle - first;
                 for (int next = middle; next != past; ++next)
                 {
@@ -5101,7 +5068,7 @@ namespace NDex
             }
             if (past - first > _sortMax)
             {
-                makeHeap<TList, T>(list, first, past, comparison);
+                MakeHeap<TList, T>(list, first, past, comparison);
                 heapSort<TList, T>(list, first, past, comparison);
             }
             else if (past - first > 1)
