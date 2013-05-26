@@ -5171,16 +5171,26 @@ namespace NDex
             where TSourceList : IList<TSource>
             where TDestinationList : IList<TSource>
         {
-            int pivot = destinationPast;
-            while (first != past)
-            {
-                destination.Insert(destinationPast, source[first]);
-                ++destinationPast;
-                heapAdd<TDestinationList, TSource>(destination, pivot, destinationPast, comparison);
-                ++first;
-            }
-            heapSort<TDestinationList, TSource>(destination, pivot, destinationPast, comparison);
-            return destinationPast;
+            int count = past - first;
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, count);
+            return CopySort<TSourceList, TDestinationList, TSource>(
+                source, first, past, 
+                destination, destinationPast, destinationPast + count, 
+                comparison).Item2;
+        }
+
+        internal static Tuple<int, int> CopySort<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, TSource>(
+                source, first, past,
+                destination, destinationFirst, destinationPast);
+            Sort<TDestinationList, TSource>(destination, destinationFirst, indexes.Item2, indexes.Item2 - destinationFirst, comparison);
+            return indexes;
         }
 
         #endregion

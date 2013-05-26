@@ -239,5 +239,31 @@ namespace NDex.Tests
             TestHelper.CheckHeaderAndFooter(list);
             TestHelper.CheckHeaderAndFooter(destination);
         }
+
+        /// <summary>
+        /// If the destination is smaller than source, only the first N items should
+        /// appear in the destination, sorted.
+        /// </summary>
+        [TestMethod]
+        public void TestSortCopy_DestinationTooSmall_SortsEncounteredItems()
+        {
+            var list = TestHelper.Wrap(new List<int>());
+            var destination = TestHelper.Wrap(new List<int>());
+
+            list = Sublist.Generate(100, i => i).AddTo(list);
+            destination = Sublist.Generate(50, 0).AddTo(destination);
+
+            var result = list.Sort().CopyTo(destination);
+
+            Assert.AreEqual(destination.Count, result.SourceOffset, "The source offset was wrong.");
+            Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
+            Assert.IsTrue(destination.IsSorted(), "The list was not sorted.");
+            Assert.IsTrue(
+                list.Nest(0, destination.Count).Sort().AddTo(new List<int>().ToSublist()).IsEqualTo(destination), 
+                "The wrong items appear in the destination.");
+
+            TestHelper.CheckHeaderAndFooter(list);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
     }
 }

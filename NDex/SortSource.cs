@@ -233,13 +233,13 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected override SortResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            int index = Sublist.CopyPartialSort<TSourceList, TDestinationList, TSource>(
+            Tuple<int, int> indexes = Sublist.CopySort<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
                 Comparison);
             SortResult result = new SortResult();
-            result.SourceOffset = Source.Count;
-            result.DestinationOffset = index - destination.Offset;
+            result.SourceOffset = indexes.Item1 - Source.Offset;
+            result.DestinationOffset = indexes.Item2 - destination.Offset;
             return result;
         }
     }
