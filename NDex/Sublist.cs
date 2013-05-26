@@ -3605,94 +3605,46 @@ namespace NDex
 
         #region MakeSet
 
-        /// <summary>
-        /// Makes a list an ordered set.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to make a set.</param>
-        /// <returns>The index past the last item in the set.</returns>
-        /// <remarks>
-        /// This set will be ordered according to the default ordering of the item type. 
-        /// Items are not removed from the list. 
-        /// Only items with an index less than the return value are part of the set.
-        /// The remaining items are garbage.
-        /// </remarks>
-        public static int MakeSet<TList, T>(this IMutableSublist<TList, T> list)
-            where TList : IList<T>
+        internal static int AddMakeSet<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past, 
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
         {
-            if (list == null)
+            IComparer<TSource> comparer = ComparisonWrapper<TSource>.GetComparer(comparison);
+            SortedSet<TSource> set = new SortedSet<TSource>(comparer);
+            while (first != past)
             {
-                throw new ArgumentNullException("list");
+                set.Add(source[first]);
+                ++first;
             }
-            return makeSet<TList, T>(list, Comparer<T>.Default.Compare);
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, set.Count);
+            int newPast = destinationPast + set.Count;
+            copyTo<TDestinationList, TSource>(set, destination, destinationPast, newPast);
+            return newPast;
         }
 
-        /// <summary>
-        /// Makes a list an ordered set.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to make a set.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <returns>The index past the last item in the set.</returns>
-        /// <remarks>
-        /// This set will be ordered according to the comparer. 
-        /// Items are not removed from the list.
-        /// Only items with an index less than the return value are part of the set.
-        /// The remaining items are garbage.
-        /// </remarks>
-        public static int MakeSet<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
+        internal static Tuple<int, int> CopyMakeSet<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
         {
-            if (list == null)
+            IComparer<TSource> comparer = ComparisonWrapper<TSource>.GetComparer(comparison);
+            SortedSet<TSource> set = new SortedSet<TSource>(comparer);
+            int count = destinationPast - destinationFirst;
+            while (set.Count != count && first != past)
             {
-                throw new ArgumentNullException("list");
+                set.Add(source[first]);
+                ++first;
             }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return makeSet<TList, T>(list, comparer.Compare);
+            int index = copyTo<TDestinationList, TSource>(set, destination, destinationFirst, destinationPast);
+            return new Tuple<int, int>(first, index);
         }
 
-        /// <summary>
-        /// Makes a list an ordered set.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to make a set.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <returns>The index past the last item in the set.</returns>
-        /// <remarks>
-        /// This set will be ordered according to the comparer. 
-        /// Items are not removed from the list.
-        /// Only items with an index less than the return value are part of the set.
-        /// The remaining items are garbage.
-        /// </remarks>
-        public static int MakeSet<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return makeSet<TList, T>(list, comparison);
-        }
-
-        private static int makeSet<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            int result = makeSet<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int makeSet<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
+        internal static int MakeSet<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             if (past - first > 1)

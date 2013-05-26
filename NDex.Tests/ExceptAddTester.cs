@@ -29,7 +29,7 @@ namespace NDex.Tests
             Sublist.Generate(34, i => i * 3).AddTo(threes.ToSublist());  // max of 99
 
             // sort and eliminate duplicates from odd list, to make it an ordered set
-            odds.ToSublist(odds.ToSublist().MakeSet()).Clear();
+            odds.ToSublist(odds.ToSublist().MakeSet().InPlace()).Clear();
 
             // now remove the threes and make sure none remain
             var destination = new List<int>(100);

@@ -27,8 +27,8 @@ namespace NDex.Tests
             Sublist.Generate(50, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // we must make both lists sets
-            list1.ToSublist(list1.ToSublist().MakeSet()).Clear();
-            list2.ToSublist(list2.ToSublist().MakeSet()).Clear();
+            list1.ToSublist(list1.ToSublist().MakeSet().InPlace()).Clear();
+            list2.ToSublist(list2.ToSublist().MakeSet().InPlace()).Clear();
 
             // now we'll build a new set containing all the items
             var destination = new List<int>(100);

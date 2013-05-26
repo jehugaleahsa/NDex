@@ -27,8 +27,8 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list2.ToSublist());
 
             // make the lists sets
-            list1.ToSublist(list1.ToSublist().MakeSet()).Clear();
-            list2.ToSublist(list2.ToSublist().MakeSet()).Clear();
+            list1.ToSublist(list1.ToSublist().MakeSet().InPlace()).Clear();
+            list2.ToSublist(list2.ToSublist().MakeSet().InPlace()).Clear();
 
             // find the unique values
             var difference = new List<int>(100);

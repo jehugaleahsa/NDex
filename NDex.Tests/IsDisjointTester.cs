@@ -29,8 +29,8 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(49) * 2 + 1).AddTo(odds.ToSublist()); // can't exceed 99
 
             // make sure sets are sorted using the same comparison
-            evens.ToSublist(odds.ToSublist().MakeSet()).Clear();
-            odds.ToSublist(odds.ToSublist().MakeSet()).Clear();
+            evens.ToSublist(odds.ToSublist().MakeSet().InPlace()).Clear();
+            odds.ToSublist(odds.ToSublist().MakeSet().InPlace()).Clear();
 
             // check that they are disjoint
             bool result = evens.ToSublist().IsDisjoint(odds.ToSublist());

@@ -43,6 +43,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MakeSetCopyTester.cs" />
+    <Compile Include="MakeSetAddTester.cs" />
     <Compile Include="MakeHeapCopyTester.cs" />
     <Compile Include="MakeHeapAddTester.cs" />
     <Compile Include="SortCopyTester.cs" />
@@ -111,7 +113,7 @@
     <Compile Include="LowerAndUpperBoundTester.cs" />
     <Compile Include="LowerBoundTester.cs" />
     <Compile Include="MakeHeapInPlaceTester.cs" />
-    <Compile Include="MakeSetTester.cs" />
+    <Compile Include="MakeSetInPlaceTester.cs" />
     <Compile Include="MaximumTester.cs" />
     <Compile Include="MergeSortTester.cs" />
     <Compile Include="MinimumMaximumResultTester.cs" />

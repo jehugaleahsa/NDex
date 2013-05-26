@@ -29,8 +29,8 @@ namespace NDex.Tests
             Sublist.Generate(33, i => random.Next(33) * 3).AddTo(list2.ToSublist());
 
             // make sets
-            list1.ToSublist(list1.ToSublist().MakeSet()).Clear();
-            list2.ToSublist(list2.ToSublist().MakeSet()).Clear();
+            list1.ToSublist(list1.ToSublist().MakeSet().InPlace()).Clear();
+            list2.ToSublist(list2.ToSublist().MakeSet().InPlace()).Clear();
 
             // find the intersection
             var destination = new List<int>(83);
