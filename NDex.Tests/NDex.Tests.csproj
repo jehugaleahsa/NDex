@@ -43,6 +43,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StableSortAddTester.cs" />
+    <Compile Include="StableSortCopyTester.cs" />
     <Compile Include="MakeSetCopyTester.cs" />
     <Compile Include="MakeSetAddTester.cs" />
     <Compile Include="MakeHeapCopyTester.cs" />
@@ -69,7 +71,7 @@
     <Compile Include="UnionAddTester.cs" />
     <Compile Include="DistinctAddTester.cs" />
     <Compile Include="AggregateTester.cs" />
-    <Compile Include="IsDisjointTester.cs" />
+    <Compile Include="IsOverlappingTester.cs" />
     <Compile Include="IsEqualToTester.cs" />
     <Compile Include="BinarySearchTester.cs" />
     <Compile Include="CompareToTester.cs" />
@@ -115,7 +117,7 @@
     <Compile Include="MakeHeapInPlaceTester.cs" />
     <Compile Include="MakeSetInPlaceTester.cs" />
     <Compile Include="MaximumTester.cs" />
-    <Compile Include="MergeSortTester.cs" />
+    <Compile Include="StableSortInPlaceTester.cs" />
     <Compile Include="MinimumMaximumResultTester.cs" />
     <Compile Include="MinimumMaximumTester.cs" />
     <Compile Include="MinimumTester.cs" />
@@ -135,13 +137,11 @@
     <Compile Include="ReversedListTester.cs" />
     <Compile Include="ReverseInPlaceTester.cs" />
     <Compile Include="RotateLeftInPlaceTester.cs" />
-    <Compile Include="StablePartitionTester.cs" />
     <Compile Include="StringAdapterTester.cs" />
     <Compile Include="SublistTester.cs" />
     <Compile Include="SubstringTester.cs" />
     <Compile Include="SwapWithTester.cs" />
     <Compile Include="TestHelper.cs" />
-    <Compile Include="TrueForAllTester.cs" />
     <Compile Include="TypedListTester.cs" />
     <Compile Include="UpperBoundTester.cs" />
   </ItemGroup>

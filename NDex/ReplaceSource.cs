@@ -376,7 +376,7 @@ namespace NDex
             }
             if (comparer == null)
             {
-                throw new ArgumentNullException("comparison");
+                throw new ArgumentNullException("comparer");
             }
             return new InPlaceReplaceWithSequenceSource<TSourceList, TSequenceList, TReplacementList, TSource, TSource>(
                 source,

@@ -39,8 +39,8 @@ namespace NDex.Tests
             destination.ToSublist(index).Clear();
 
             // make sure all values are divisible by two and three
-            bool result = destination.ToSublist().TrueForAll(i => i % 2 == 0 && i % 3 == 0);
-            Assert.IsTrue(result, "Some of the items didn't meet the criteria.");
+            bool result = destination.ToSublist().Find(i => i % 2 != 0 || i % 3 != 0);
+            Assert.IsFalse(result, "Some of the items didn't meet the criteria.");
 
             // the result should be all multiple of six
             var expected = new List<int>(17); // space for zero

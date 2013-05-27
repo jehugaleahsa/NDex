@@ -38,7 +38,7 @@ namespace NDex.Tests
 
             int result = odds.ToSublist().Except(threes.ToSublist()).CopyTo(destination.ToSublist());
             destination.ToSublist(result).Clear(); // throw away the back end
-            Assert.IsTrue(destination.ToSublist().TrueForAll(i => i % 3 != 0), "Some numbers were still divisible by three.");
+            Assert.IsFalse(destination.ToSublist().Find(i => i % 3 == 0), "Some numbers were still divisible by three.");
         }
 
         #endregion

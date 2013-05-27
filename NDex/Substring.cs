@@ -111,7 +111,7 @@ namespace NDex
         {
             if (value == null)
             {
-                throw new ArgumentNullException("list");
+                throw new ArgumentNullException("value");
             }
             _list = new Sublist<StringAdapter,char>(new StringAdapter(value), offset, count);
         }

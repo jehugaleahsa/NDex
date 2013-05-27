@@ -29,7 +29,7 @@ namespace NDex.Tests
 
             list.ToSublist().Replace(i => i < 0, i => -i).AddTo(destination.ToSublist());
 
-            Assert.IsTrue(destination.ToSublist().TrueForAll(i => i >= 0), "Not all values were positive.");
+            Assert.IsFalse(destination.ToSublist().Find(i => i < 0), "Not all values were positive.");
         }
 
         /// <summary>

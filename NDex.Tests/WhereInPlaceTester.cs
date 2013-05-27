@@ -31,7 +31,7 @@ namespace NDex.Tests
 
             // now check that every number is odd
             var odds = array.ToSublist(0, index);
-            Assert.IsTrue(odds.TrueForAll(i => i % 2 != 0), "Even numbers were found.");
+            Assert.IsFalse(odds.Find(i => i % 2 == 0), "Even numbers were found.");
         }
 
         #endregion

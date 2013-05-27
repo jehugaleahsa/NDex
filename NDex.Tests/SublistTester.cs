@@ -586,8 +586,8 @@ namespace NDex.Tests
             int partition = list.Partition(i => i % 2 == 0).InPlace(); // put evens in the front
             var evens = list.Nest(0, partition);
             var odds = list.Nest(partition);
-            Assert.IsTrue(evens.TrueForAll(i => i % 2 == 0), "Not all evens in the first nested list.");
-            Assert.IsTrue(odds.TrueForAll(i => i % 2 != 0), "Not all odds in the second nested list.");
+            Assert.IsFalse(evens.Find(i => i % 2 != 0), "Not all evens in the first nested list.");
+            Assert.IsFalse(odds.Find(i => i % 2 == 0), "Not all odds in the second nested list.");
         }
 
         #endregion

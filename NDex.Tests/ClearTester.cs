@@ -35,7 +35,7 @@ namespace NDex.Tests
             Assert.AreEqual(0, remaining.Count, "The Sublist ");
 
             Assert.AreEqual(index, list.Count, "All of the items were removed.");
-            Assert.IsTrue(list.ToSublist().TrueForAll(i => i % 2 == 0), "Not all odd numbers were removed.");
+            Assert.IsFalse(list.ToSublist().Find(i => i % 2 != 0), "Not all odd numbers were removed.");
         }
 
         #endregion

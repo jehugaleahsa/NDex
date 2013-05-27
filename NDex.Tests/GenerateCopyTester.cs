@@ -49,7 +49,7 @@ namespace NDex.Tests
             Random random = new Random();
             int[] values = new int[10];
             Sublist.Generate(10, i => random.Next(1, 10)).CopyTo(values.ToSublist());  // fixed length version of Grow!
-            Assert.IsTrue(values.ToSublist().TrueForAll(i => i != 0), "Not all of the values were filled in.");
+            Assert.IsFalse(values.ToSublist().Find(i => i == 0), "Not all of the values were filled in.");
         }
 
         #endregion

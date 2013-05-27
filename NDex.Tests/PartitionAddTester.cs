@@ -34,11 +34,11 @@ namespace NDex.Tests
             evens.ToSublist().Sort().InPlace();
             odds.ToSublist().Sort().InPlace();
 
-            bool allEven = evens.ToSublist().TrueForAll(i => i % 2 == 0);
-            Assert.IsTrue(allEven, "Some odds were added to the wrong list.");
+            bool hasOdd = evens.ToSublist().Find(i => i % 2 != 0);
+            Assert.IsFalse(hasOdd, "Some odds were added to the wrong list.");
 
-            bool allOdd = odds.ToSublist().TrueForAll(i => i % 2 != 0);
-            Assert.IsTrue(allOdd, "Some evens were added to the wrong list.");
+            bool hasEven = odds.ToSublist().Find(i => i % 2 == 0);
+            Assert.IsFalse(hasEven, "Some evens were added to the wrong list.");
 
             var combined = new List<int>(100);
             evens.ToSublist().AddTo(combined.ToSublist());

@@ -49,8 +49,8 @@ namespace NDex.Tests
             }
 
             // now make sure both lists are only evens and odds
-            Assert.IsTrue(list1.ToSublist().TrueForAll(i => i % 2 == 0), "There were odds remaining in the first list.");
-            Assert.IsTrue(list2.ToSublist().TrueForAll(i => i % 2 != 0), "There were evens remaining in the second list.");
+            Assert.IsFalse(list1.ToSublist().Find(i => i % 2 != 0), "There were odds remaining in the first list.");
+            Assert.IsFalse(list2.ToSublist().Find(i => i % 2 == 0), "There were evens remaining in the second list.");
         }
 
         #endregion

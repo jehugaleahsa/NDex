@@ -35,7 +35,7 @@ namespace NDex.Tests
             var destination = new List<int>(100);
 
             odds.ToSublist().Except(threes.ToSublist()).AddTo(destination.ToSublist());
-            Assert.IsTrue(destination.ToSublist().TrueForAll(i => i % 3 != 0), "Some numbers were still divisible by three.");
+            Assert.IsFalse(destination.ToSublist().Find(i => i % 3 == 0), "Some numbers were still divisible by three.");
         }
 
         #endregion
