@@ -2410,6 +2410,141 @@ namespace NDex
 
         #endregion
 
+        #region IsEqualTo
+
+        /// <summary>
+        /// Determines whether two lists have all the same items in the same order.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <returns>True if the lists contain the same items in the same order; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        public static bool IsEqualTo<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            return isEqualTo<TList1, T, TList2, T>(list1, list2, EqualityComparer<T>.Default.Equals);
+        }
+
+        /// <summary>
+        /// Determines whether two lists have equivilent items in the same order.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparer">The comparer to use to determine if two items are equivilent.</param>
+        /// <returns>True if the lists have equivilent items in the same order; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        public static bool IsEqualTo<TList1, TList2, T>(
+            this IReadOnlySublist<TList1, T> list1,
+            IReadOnlySublist<TList2, T> list2,
+            IEqualityComparer<T> comparer)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return isEqualTo<TList1, T, TList2, T>(list1, list2, comparer.Equals);
+        }
+
+        /// <summary>
+        /// Determines whether two lists have equivilent items in the same order.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparison">The comparison delegate used to determine if two items are equivilent.</param>
+        /// <returns>True if the lists have equivilent items in the same order; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        public static bool IsEqualTo<TList1, T1, TList2, T2>(
+            this IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return isEqualTo<TList1, T1, TList2, T2>(list1, list2, comparison);
+        }
+
+        private static bool isEqualTo<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            return isEqualTo_optimized(
+                list1.List, list1.Offset, list1.Offset + list1.Count,
+                list2.List, list2.Offset, list2.Offset + list2.Count,
+                comparison);
+        }
+
+        private static bool isEqualTo_optimized<TList1, T1, TList2, T2>(
+            TList1 list1, int first1, int past1,
+            TList2 list2, int first2, int past2,
+            Func<T1, T2, bool> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            int count1 = past1 - first1;
+            int count2 = past2 - first2;
+            if (count1 != count2)
+            {
+                return false;
+            }
+            if (ReferenceEquals(list1, list2) && first1 == first2)
+            {
+                return true;
+            }
+            Tuple<int, int> indexes = mismatch<TList1, T1, TList2, T2>(list1, first1, past1, list2, first2, past2, comparison);
+            return indexes.Item1 == past1 && indexes.Item2 == past2;
+        }
+
+        #endregion
+
         #region IsHeap
 
         /// <summary>
@@ -2512,6 +2647,149 @@ namespace NDex
                 }
             }
             return past;
+        }
+
+        #endregion
+
+        #region IsOverlapping
+
+        /// <summary>
+        /// Gets whether the two lists share any items.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <returns>True if any of the items exist in both lists; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <remarks>The lists must be sorted sets.</remarks>
+        public static bool IsOverlapping<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            return isOverlapping<TList1, T, TList2, T>(list1, list2, Comparer<T>.Default.Compare);
+        }
+
+        /// <summary>
+        /// Gets whether the two lists share any items.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T">The type of the items in the lists.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparer">Compares an item from the first list to an item in the second list.</param>
+        /// <returns>True if any of the items exist in both lists; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
+        /// <remarks>The lists must be sorted sets.</remarks>
+        public static bool IsOverlapping<TList1, TList2, T>(
+            this IReadOnlySublist<TList1, T> list1,
+            IReadOnlySublist<TList2, T> list2,
+            IComparer<T> comparer)
+            where TList1 : IList<T>
+            where TList2 : IList<T>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparer == null)
+            {
+                throw new ArgumentNullException("comparer");
+            }
+            return isOverlapping<TList1, T, TList2, T>(list1, list2, comparer.Compare);
+        }
+
+        /// <summary>
+        /// Gets whether the two lists share any items.
+        /// </summary>
+        /// <typeparam name="TList1">The type of the first list.</typeparam>
+        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
+        /// <typeparam name="TList2">The type of the second list.</typeparam>
+        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
+        /// <param name="list1">The first list.</param>
+        /// <param name="list2">The second list.</param>
+        /// <param name="comparison">Compares an item from the first list to an item in the second list.</param>
+        /// <returns>True if any of the items exist in both lists; otherwise, false.</returns>
+        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
+        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
+        /// <remarks>The lists must be sorted sets.</remarks>
+        public static bool IsOverlapping<TList1, T1, TList2, T2>(
+            this IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, int> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            if (list1 == null)
+            {
+                throw new ArgumentNullException("list1");
+            }
+            if (list2 == null)
+            {
+                throw new ArgumentNullException("list2");
+            }
+            if (comparison == null)
+            {
+                throw new ArgumentNullException("comparison");
+            }
+            return isOverlapping<TList1, T1, TList2, T2>(list1, list2, comparison);
+        }
+
+        private static bool isOverlapping<TList1, T1, TList2, T2>(
+            IReadOnlySublist<TList1, T1> list1,
+            IReadOnlySublist<TList2, T2> list2,
+            Func<T1, T2, int> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            return isOverlapping<TList1, T1, TList2, T2>(
+                list1.List, list1.Offset, list1.Offset + list1.Count,
+                list2.List, list2.Offset, list2.Offset + list2.Count,
+                comparison);
+        }
+
+        private static bool isOverlapping<TList1, T1, TList2, T2>(
+            TList1 list1, int first1, int past1,
+            TList2 list2, int first2, int past2,
+            Func<T1, T2, int> comparison)
+            where TList1 : IList<T1>
+            where TList2 : IList<T2>
+        {
+            while (first1 != past1 && first2 != past2)
+            {
+                int result = comparison(list1[first1], list2[first2]);
+                if (result < 0)
+                {
+                    ++first1;
+                }
+                else if (result > 0)
+                {
+                    ++first2;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         #endregion
@@ -2911,293 +3189,6 @@ namespace NDex
                 }
             }
             return first1;
-        }
-
-        #endregion
-
-        #region IsDisjoint
-
-        /// <summary>
-        /// Determines if two lists share no items.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of items in both lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <returns>True if no items are shared between the lists.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that both lists are sorted according to the default order of the items.
-        /// Both lists must contain distinct values.
-        /// </remarks>
-        public static bool IsDisjoint<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            return isDisjoint<TList1, T, TList2, T>(list1, list2, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Determines if two sorted lists share no equivilent items.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparer">Compares an item from the first list to an item in the second list.</param>
-        /// <returns>True if no items are equivilents between the lists.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
-        /// comparer respects that order. Both lists must contain distinct values.
-        /// </remarks>
-        public static bool IsDisjoint<TList1, TList2, T>(
-            this IReadOnlySublist<TList1, T> list1,
-            IReadOnlySublist<TList2, T> list2,
-            IComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return isDisjoint<TList1, T, TList2, T>(list1, list2, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Determines if two sorted lists share no equivilent items.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparison">Compares an item from the first list to an item in the second list.</param>
-        /// <returns>True if no items are equivilents between the lists.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// This algorithm assumes that the lists are sorted using a meaningful ordering that applies to both lists and that the
-        /// comparison delegate respects that order. Both lists must contain distinct values.
-        /// </remarks>
-        public static bool IsDisjoint<TList1, T1, TList2, T2>(
-            this IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, int> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return isDisjoint<TList1, T1, TList2, T2>(list1, list2, comparison);
-        }
-
-        private static bool isDisjoint<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, int> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            return isDisjoint<TList1, T1, TList2, T2>(
-                list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, list2.Offset + list2.Count,
-                comparison);
-        }
-
-        private static bool isDisjoint<TList1, T1, TList2, T2>(
-            TList1 list1, int first1, int past1,
-            TList2 list2, int first2, int past2,
-            Func<T1, T2, int> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            while (first1 != past1 && first2 != past2)
-            {
-                int result = comparison(list1[first1], list2[first2]);
-                if (result < 0)
-                {
-                    ++first1;
-                }
-                else if (result > 0)
-                {
-                    ++first2;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        #endregion
-
-        #region IsEqualTo
-
-        /// <summary>
-        /// Determines whether two lists have all the same items in the same order.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <returns>True if the lists contain the same items in the same order; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        public static bool IsEqualTo<TList1, TList2, T>(this IReadOnlySublist<TList1, T> list1, IReadOnlySublist<TList2, T> list2)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            return isEqualTo<TList1, T, TList2, T>(list1, list2, EqualityComparer<T>.Default.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether two lists have equivilent items in the same order.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparer">The comparer to use to determine if two items are equivilent.</param>
-        /// <returns>True if the lists have equivilent items in the same order; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static bool IsEqualTo<TList1, TList2, T>(
-            this IReadOnlySublist<TList1, T> list1,
-            IReadOnlySublist<TList2, T> list2,
-            IEqualityComparer<T> comparer)
-            where TList1 : IList<T>
-            where TList2 : IList<T>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            return isEqualTo<TList1, T, TList2, T>(list1, list2, comparer.Equals);
-        }
-
-        /// <summary>
-        /// Determines whether two lists have equivilent items in the same order.
-        /// </summary>
-        /// <typeparam name="TList1">The type of the first list.</typeparam>
-        /// <typeparam name="T1">The type of the items in the first list.</typeparam>
-        /// <typeparam name="TList2">The type of the second list.</typeparam>
-        /// <typeparam name="T2">The type of the items in the second list.</typeparam>
-        /// <param name="list1">The first list.</param>
-        /// <param name="list2">The second list.</param>
-        /// <param name="comparison">The comparison delegate used to determine if two items are equivilent.</param>
-        /// <returns>True if the lists have equivilent items in the same order; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The first list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The second list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static bool IsEqualTo<TList1, T1, TList2, T2>(
-            this IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            if (list1 == null)
-            {
-                throw new ArgumentNullException("list1");
-            }
-            if (list2 == null)
-            {
-                throw new ArgumentNullException("list2");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            return isEqualTo<TList1, T1, TList2, T2>(list1, list2, comparison);
-        }
-
-        private static bool isEqualTo<TList1, T1, TList2, T2>(
-            IReadOnlySublist<TList1, T1> list1,
-            IReadOnlySublist<TList2, T2> list2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            return isEqualTo_optimized(
-                list1.List, list1.Offset, list1.Offset + list1.Count,
-                list2.List, list2.Offset, list2.Offset + list2.Count,
-                comparison);
-        }
-
-        private static bool isEqualTo_optimized<TList1, T1, TList2, T2>(
-            TList1 list1, int first1, int past1,
-            TList2 list2, int first2, int past2,
-            Func<T1, T2, bool> comparison)
-            where TList1 : IList<T1>
-            where TList2 : IList<T2>
-        {
-            int count1 = past1 - first1;
-            int count2 = past2 - first2;
-            if (count1 != count2)
-            {
-                return false;
-            }
-            if (ReferenceEquals(list1, list2) && first1 == first2)
-            {
-                return true;
-            }
-            Tuple<int, int> indexes = mismatch<TList1, T1, TList2, T2>(list1, first1, past1, list2, first2, past2, comparison);
-            return indexes.Item1 == past1 && indexes.Item2 == past2;
         }
 
         #endregion
@@ -3924,281 +3915,6 @@ namespace NDex
             destinationPast = copyBackward<TList1, TDestinationList, T>(list1, first1, past1, destination, destinationFirst, destinationPast);
             destinationPast = copyBackward<TList2, TDestinationList, T>(list2, first2, past2, destination, destinationFirst, destinationPast);
             return destinationPast;
-        }
-
-        #endregion
-
-        #region StableSort
-
-        /// <summary>
-        /// Sorts the items in the list without changing the order of equal items.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <remarks>
-        /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
-        /// MergeSort will preserve the order that equivalent items appear in the list.
-        /// </remarks>
-        public static void StableSort<TList, T>(this IMutableSublist<TList, T> list)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            mergeSort<TList, T>(list, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Sorts the items in the list without changing the order of equal items.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="TBuffer">The type of the buffer.</typeparam>
-        /// <typeparam name="T">The type of the items in the lists.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="buffer">The list to use to act as a temporary buffer.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The buffer is null.</exception>
-        /// <remarks>
-        /// MergeSort uses the given buffer to merge. 
-        /// It never needs to be larger than half the size of the list.
-        /// Making it too small will impact performance negatively.
-        /// MergeSort will preserve the order that equivalent items appear in the list.
-        /// </remarks>
-        public static void StableSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
-            mergeSort<TList, TBuffer, T>(list, buffer, Comparer<T>.Default.Compare);
-        }
-
-        /// <summary>
-        /// Sorts the items in the list without changing the order of equal items.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
-        /// MergeSort will preserve the order that equivalent items appear in the list.
-        /// </remarks>
-        public static void StableSort<TList, T>(this IMutableSublist<TList, T> list, IComparer<T> comparer)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            mergeSort<TList, T>(list, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Sorts the items in the list without changing the order of equal items.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="TBuffer">The type of the buffer.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="buffer">The list to use to act as a temporary buffer.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The buffer is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        /// <remarks>
-        /// MergeSort uses the given buffer to merge. 
-        /// It never needs to be larger than half the size of the list.
-        /// Making it too small will impact performance negatively.
-        /// MergeSort will preserve the order that equivalent items appear in the list.
-        /// </remarks>
-        public static void StableSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, IComparer<T> comparer)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            mergeSort<TList, TBuffer, T>(list, buffer, comparer.Compare);
-        }
-
-        /// <summary>
-        /// Sorts the items in the list without changing the order of equal items.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// MergeSort uses an underlying buffer that is roughly half the size of the given list.
-        /// MergeSort will preserve the order that equivalent items appear in the list.
-        /// </remarks>
-        public static void StableSort<TList, T>(this IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            mergeSort<TList, T>(list, comparison);
-        }
-
-        /// <summary>
-        /// Sorts the items in the list without changing the order of equal items.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="TBuffer">The type of the buffer.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to sort.</param>
-        /// <param name="buffer">The list to use to act as a temporary buffer.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The buffer is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        /// <remarks>
-        /// MergeSort uses the given buffer to merge. 
-        /// It never needs to be larger than half the size of the list.
-        /// Making it too small will impact performance negatively.
-        /// MergeSort will preserve the order that equivalent items appear in the list.
-        /// </remarks>
-        public static void StableSort<TList, TBuffer, T>(this IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, Func<T, T, int> comparison)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (buffer == null)
-            {
-                throw new ArgumentNullException("buffer");
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            mergeSort<TList, TBuffer, T>(list, buffer, comparison);
-        }
-
-        private static void mergeSort<TList, T>(IMutableSublist<TList, T> list, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            int first = list.Offset;
-            int past = first + list.Count;
-            int bufferLength = (past - first) / 2;
-            T[] buffer = new T[bufferLength];
-            mergeSort<TList, T[], T>(list.List, first, past, buffer, 0, bufferLength, comparison);
-        }
-
-        private static void mergeSort<TList, TBuffer, T>(IMutableSublist<TList, T> list, IMutableSublist<TBuffer, T> buffer, Func<T, T, int> comparison)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            if (buffer.Count < 3)
-            {
-                insertionSort<TList, T>(list.List, list.Offset, list.Offset + list.Count, comparison);
-            }
-            else
-            {
-                mergeSort<TList, TBuffer, T>(
-                    list.List, list.Offset, list.Offset + list.Count,
-                    buffer.List, buffer.Offset, buffer.Offset + buffer.Count,
-                    comparison);
-            }
-        }
-
-        private static void mergeSort<TList, TBuffer, T>(
-            TList list, int first, int past,
-            TBuffer buffer, int bufferFirst, int bufferPast,
-            Func<T, T, int> comparison)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            int count = past - first;
-            if (count <= _sortMax)
-            {
-                insertionSort<TList, T>(list, first, past, comparison);
-            }
-            else
-            {
-                int half = count / 2;
-                int middle = first + half;
-                if (half <= bufferPast - bufferFirst)
-                {
-                    mergeSortBuffered<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast, comparison);
-                    mergeSortBuffered<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast, comparison);
-                }
-                else
-                {
-                    mergeSort<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast, comparison);
-                    mergeSort<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast, comparison);
-                }
-                mergeBuffered<TList, TBuffer, T>(list, first, middle, past, buffer, bufferFirst, bufferPast, comparison);
-            }
-        }
-
-        private static void mergeSortBuffered<TList, TBuffer, T>(
-            TList list, int first, int past,
-            TBuffer buffer, int bufferFirst, int bufferPast,
-            Func<T, T, int> comparison)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            // first sort each chunk
-            int first1 = first;
-            for (int past1 = first1 + _sortMax; past1 < past; past1 += _sortMax)
-            {
-                insertionSort<TList, T>(list, first1, past1, comparison);
-                first1 = past1;
-                past1 += _sortMax;
-            }
-            insertionSort<TList, T>(list, first1, past, comparison); // sort any trailing items
-
-            int count = past - first;
-            // now we need to merge the chunks
-            for (int chunkSize = _sortMax; chunkSize < count; chunkSize *= 2)
-            {
-                first1 = first;
-                int middle = first + chunkSize;
-                int bufferMiddle;
-                for (int past1 = middle + chunkSize; past1 < past; first1 = middle, middle = past1, past1 += chunkSize)
-                {
-                    bufferMiddle = copyTo<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
-                    CopyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past1, list, first1, past1, comparison);
-                }
-                bufferMiddle = copyTo<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
-                CopyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past, list, first1, past, comparison);
-            }
         }
 
         #endregion
@@ -5147,6 +4863,130 @@ namespace NDex
 
         #endregion
 
+        #region StableSort
+
+        internal static void StableSort<TSourceList, TBufferList, TSource>(
+            TSourceList source, int first, int past,
+            TBufferList buffer, int bufferFirst, int bufferPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TBufferList : IList<TSource>
+        {
+            if (buffer.Count < 3)
+            {
+                insertionSort<TSourceList, TSource>(source, first, past, comparison);
+            }
+            else
+            {
+                mergeSort<TSourceList, TBufferList, TSource>(
+                    source, first, past,
+                    buffer, bufferFirst, bufferPast,
+                    comparison);
+            }
+        }
+
+        private static void mergeSort<TList, TBuffer, T>(
+            TList list, int first, int past,
+            TBuffer buffer, int bufferFirst, int bufferPast,
+            Func<T, T, int> comparison)
+            where TList : IList<T>
+            where TBuffer : IList<T>
+        {
+            int count = past - first;
+            if (count <= _sortMax)
+            {
+                insertionSort<TList, T>(list, first, past, comparison);
+            }
+            else
+            {
+                int half = count / 2;
+                int middle = first + half;
+                if (half <= bufferPast - bufferFirst)
+                {
+                    mergeSortBuffered<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast, comparison);
+                    mergeSortBuffered<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast, comparison);
+                }
+                else
+                {
+                    mergeSort<TList, TBuffer, T>(list, first, middle, buffer, bufferFirst, bufferPast, comparison);
+                    mergeSort<TList, TBuffer, T>(list, middle, past, buffer, bufferFirst, bufferPast, comparison);
+                }
+                mergeBuffered<TList, TBuffer, T>(list, first, middle, past, buffer, bufferFirst, bufferPast, comparison);
+            }
+        }
+
+        private static void mergeSortBuffered<TList, TBuffer, T>(
+            TList list, int first, int past,
+            TBuffer buffer, int bufferFirst, int bufferPast,
+            Func<T, T, int> comparison)
+            where TList : IList<T>
+            where TBuffer : IList<T>
+        {
+            // first sort each chunk
+            int first1 = first;
+            for (int past1 = first1 + _sortMax; past1 < past; past1 += _sortMax)
+            {
+                insertionSort<TList, T>(list, first1, past1, comparison);
+                first1 = past1;
+                past1 += _sortMax;
+            }
+            insertionSort<TList, T>(list, first1, past, comparison); // sort any trailing items
+
+            int count = past - first;
+            // now we need to merge the chunks
+            for (int chunkSize = _sortMax; chunkSize < count; chunkSize *= 2)
+            {
+                first1 = first;
+                int middle = first + chunkSize;
+                int bufferMiddle;
+                for (int past1 = middle + chunkSize; past1 < past; first1 = middle, middle = past1, past1 += chunkSize)
+                {
+                    bufferMiddle = copyTo<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
+                    CopyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past1, list, first1, past1, comparison);
+                }
+                bufferMiddle = copyTo<TList, TBuffer, T>(list, first1, middle, buffer, bufferFirst, bufferPast).Item2;
+                CopyMerged<TBuffer, TList, TList, T>(buffer, bufferFirst, bufferMiddle, list, middle, past, list, first1, past, comparison);
+            }
+        }
+
+        internal static int AddStableSort<TSourceList, TBufferList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TBufferList buffer, int bufferFirst, int bufferPast,
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TBufferList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            int count = past - first;
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, count);
+            CopyStableSort<TSourceList, TBufferList, TDestinationList, TSource>(
+                source, first, past,
+                buffer, bufferFirst, bufferPast,
+                destination, destinationPast, destinationPast + count,
+                comparison);
+            return destinationPast + count;
+        }
+
+        internal static Tuple<int, int> CopyStableSort<TSourceList, TBufferList, TDestinationList, TSource>(
+            TSourceList source, int first, int past,
+            TBufferList buffer, int bufferFirst, int bufferPast,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TBufferList : IList<TSource>
+            where TDestinationList : IList<TSource>
+        {
+            Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast);
+            StableSort<TDestinationList, TBufferList, TSource>(
+                destination, destinationFirst, indexes.Item2,
+                buffer, bufferFirst, bufferPast,
+                comparison);
+            return indexes;
+        }
+
+        #endregion
+
         #region RandomSamples
 
         internal static int AddRandomSamples<TSourceList, TDestinationList, TSource>(
@@ -5706,72 +5546,6 @@ namespace NDex
 
         #endregion
 
-        #region StablePartition
-
-        /// <summary>
-        /// Partitions a list such that the items satisfying the predicate appear in the front of the list, 
-        /// retaining their relative order, and those that don't appear at the end, retaining their relative order.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to partition.</param>
-        /// <param name="predicate">The condition an item must satisfy to appear at the front of the list.</param>
-        /// <returns>
-        /// The index of the first item that does not satisfy the predicate 
-        /// -or- the index past the end of the list, if every item satisfies the condition.
-        /// </returns>
-        /// <remarks>
-        /// This algorithm requires temporarily storing the items that do not satisfy the predicate in another container.
-        /// </remarks>
-        public static int StablePartition<TList, T>(this IMutableSublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            List<T> buffer = new List<T>();
-            int result = stablePartition<TList, List<T>, T>(
-                list.List, list.Offset, list.Offset + list.Count, 
-                buffer, 0,
-                predicate);
-            result -= list.Offset;
-            return result;
-        }
-
-        private static int stablePartition<TList, TBuffer, T>(
-            TList list, int first, int past, 
-            TBuffer buffer, int bufferPast,
-            Func<T, bool> predicate)
-            where TList : IList<T>
-            where TBuffer : IList<T>
-        {
-            int next = first;
-            int pivot = bufferPast;
-            while (first != past)
-            {
-                if (predicate(list[first]))
-                {
-                    list[next] = list[first];
-                    ++next;
-                }
-                else
-                {
-                    buffer.Insert(bufferPast, list[first]);
-                    ++bufferPast;
-                }
-                ++first;
-            }
-            copyTo<TBuffer, TList, T>(buffer, pivot, bufferPast, list, next, past);
-            return next;
-        }
-
-        #endregion
-
         #region SwapWith
 
         /// <summary>
@@ -5792,7 +5566,7 @@ namespace NDex
         {
             if (list1 == null)
             {
-                throw new ArgumentNullException("source1");
+                throw new ArgumentNullException("list1");
             }
             if (list2 == null)
             {
@@ -5902,48 +5676,6 @@ namespace NDex
             first2 = indexes2.Item1;
             destinationFirst = indexes2.Item2;
             return new Tuple<int, int, int>(first1, first2, destinationFirst);
-        }
-
-        #endregion
-
-        #region TrueForAll
-
-        /// <summary>
-        /// Determines whether every item in a list satisfies the predicate.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to check.</param>
-        /// <param name="predicate">The condition every item must satisfy.</param>
-        /// <returns>True if every item in the list satisfies the predicate; otherwise, false.</returns>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentNullException">The predicate is null.</exception>
-        public static bool TrueForAll<TList, T>(this IReadOnlySublist<TList, T> list, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (predicate == null)
-            {
-                throw new ArgumentNullException("predicate");
-            }
-            return trueForAll<TList, T>(list.List, list.Offset, list.Offset + list.Count, predicate);
-        }
-
-        private static bool trueForAll<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
-            where TList : IList<T>
-        {
-            while (first != past)
-            {
-                if (!predicate(list[first]))
-                {
-                    return false;
-                }
-                ++first;
-            }
-            return true;
         }
 
         #endregion
