@@ -5220,60 +5220,16 @@ namespace NDex
             where TSourceList : IList<TSource>
             where TDestinationList : IList<TSource>
         {
-            if (first != past)
-            {
-                int pivot = destinationPast;
-
-                destination.Insert(destinationPast, source[first]);
-                ++first;
-                ++destinationPast;
-
-                int total = 0;
-                while (first != past)
-                {
-                    ++total;
-                    int index = generator() % total;
-                    if (index < 0)
-                    {
-                        index += total;
-                    }
-                    index += pivot;
-                    destination.Insert(destinationPast, destination[index]);
-                    destination[index] = source[first];
-                    ++first;
-                    ++destinationPast;
-                }
-            }
-            return destinationPast;
+            int count = past - first;
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, count);
+            CopyRandomShuffle<TSourceList, TDestinationList, TSource>(
+                source, first, past,
+                destination, destinationPast, destinationPast + count,
+                generator);
+            return destinationPast + count;
         }
 
-        internal static Tuple<int, int> CopyRandomShuffle_checked<TSourceList, TDestinationList, TSource>(
-            TSourceList source, int first, int past,
-            TDestinationList destination, int destinationFirst, int destinationPast,
-            Func<int> generator)
-            where TSourceList : IList<TSource>
-            where TDestinationList : IList<TSource>
-        {
-            int sourceCount = past - first;
-            int destinationCount = destinationPast - destinationFirst;
-            if (destinationCount < sourceCount)
-            {
-                destinationFirst = CopyRandomSamples<TSourceList, TDestinationList, TSource>(
-                    source, first, past,
-                    destination, destinationFirst, destinationPast,
-                    generator);
-            }
-            else
-            {
-                destinationFirst = copyRandomShuffle<TSourceList, TDestinationList, TSource>(
-                    source, first, past,
-                    destination, destinationFirst, destinationPast,
-                    generator);
-            }
-            return new Tuple<int, int>(past, destinationFirst);
-        }
-
-        private static int copyRandomShuffle<TSourceList, TDestinationList, TSource>(
+        internal static Tuple<int, int> CopyRandomShuffle<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
             TDestinationList destination, int destinationFirst, int destinationPast,
             Func<int> generator)
@@ -5281,7 +5237,7 @@ namespace NDex
             where TDestinationList : IList<TSource>
         {
             int total = 0;
-            while (first != past)
+            while (first != past && destinationFirst + total != destinationPast)
             {
                 ++total;
                 int index = generator() % total;
@@ -5294,7 +5250,7 @@ namespace NDex
                 destination[index] = source[first];
                 ++first;
             }
-            return destinationFirst + total;
+            return new Tuple<int, int>(first, destinationFirst + total);
         }
 
         #endregion

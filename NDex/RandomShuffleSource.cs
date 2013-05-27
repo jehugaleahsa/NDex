@@ -199,7 +199,7 @@ namespace NDex
         /// <returns>Information about the results of the operation.</returns>
         protected override RandomShuffleResult SafeCopyTo<TDestinationList>(IMutableSublist<TDestinationList, TSource> destination)
         {
-            Tuple<int, int> indexes = Sublist.CopyRandomShuffle_checked<TSourceList, TDestinationList, TSource>(
+            Tuple<int, int> indexes = Sublist.CopyRandomShuffle<TSourceList, TDestinationList, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination.List, destination.Offset, destination.Offset + destination.Count,
                 Generator);

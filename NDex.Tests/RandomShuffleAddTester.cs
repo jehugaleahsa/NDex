@@ -27,17 +27,17 @@ namespace NDex.Tests
             // build a list
             var list = new List<int>(5);
             Sublist.Generate(5, i => random.Next(5)).AddTo(list.ToSublist());
-            var sorted = list.ToSublist().Sort().AddTo(new List<int>().ToSublist());
 
-            var destination = new List<int>() { 5, 4, 3, 2, 1 };
+            var destination = new List<int>();
 
-            // try rearranging the items randomly until it is sorted (may never happen -- bad unit test)
-            for (int tries = 0; tries != 100 && !destination.ToSublist().IsSorted(); ++tries)
+            // try rearranging the items randomly until it is sorted (bogo sort -- may never happen)
+            for (int tries = 0; tries != 100 && (destination.Count == 0 || !destination.ToSublist().IsSorted()); ++tries)
             {
                 destination.Clear();
                 list.ToSublist().RandomShuffle(random).AddTo(destination.ToSublist());
             }
             destination.ToSublist().Sort().InPlace();  // in case the list wasn't sorted
+            var sorted = list.ToSublist().Sort().AddTo(new List<int>().ToSublist());
             Assert.IsTrue(sorted.IsEqualTo(destination.ToSublist()), "Some items were lost during the shuffling.");
         }
 

@@ -31,7 +31,7 @@ namespace NDex.Tests
 
             var destination = new int[5] { 5, 4, 3, 2, 1 };
 
-            // try rearranging the items randomly until it is sorted (may never happen -- bad unit test)
+            // try rearranging the items randomly until it is sorted (bogo sort -- may never happen)
             for (int tries = 0; tries != 100 && !destination.ToSublist().IsSorted(); ++tries)
             {
                 list.ToSublist().RandomShuffle(random).CopyTo(destination.ToSublist());
@@ -115,8 +115,7 @@ namespace NDex.Tests
         public void TestRandomShuffleCopy_ArbitraryGenerator()
         {            
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
-            var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
-            var sorted = list.Sort().AddTo(new List<int>().ToSublist());
+            var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             using (RandomNumberGenerator random = RandomNumberGenerator.Create()) // slow
             {
                 Func<int> generator = () =>
@@ -125,8 +124,11 @@ namespace NDex.Tests
                         random.GetBytes(data);
                         return BitConverter.ToInt32(data, 0);
                     };
-                list.RandomShuffle(generator).CopyTo(destination);
+                var result = list.RandomShuffle(generator).CopyTo(destination);
+                Assert.AreEqual(destination.Count, result.SourceOffset, "The source offset was wrong.");
+                Assert.AreEqual(destination.Count, result.DestinationOffset, "The destination offset was wrong.");
             }
+            var sorted = list.Nest(0, destination.Count).Sort().AddTo(new List<int>().ToSublist());
             destination.Sort().InPlace();
             Assert.IsTrue(sorted.IsEqualTo(destination), "Some of the items were lost during the shuffling.");
             TestHelper.CheckHeaderAndFooter(list);
