@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
 
 namespace NDex
 {
@@ -145,7 +147,7 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the underlying list of the source.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public class PartitionSource<TSourceList, TSource>
+    public class PartitionSource<TSourceList, TSource> : IEnumerable<TSource>
         where TSourceList : IList<TSource>
     {
         internal PartitionSource(
@@ -191,6 +193,13 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination2");
             }
+            return safeAddTo<TDestinationList1, TDestinationList2>(destination1, destination2);
+        }
+
+        private AddPartitionedResult<TDestinationList1, TDestinationList2, TSource> safeAddTo<TDestinationList1, TDestinationList2>(IExpandableSublist<TDestinationList1, TSource> destination1, IExpandableSublist<TDestinationList2, TSource> destination2)
+            where TDestinationList1 : IList<TSource>
+            where TDestinationList2 : IList<TSource>
+        {
             Tuple<int, int> indexes = Sublist.AddPartition<TSourceList, TDestinationList1, TDestinationList2, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination1.List, destination1.Offset + destination1.Count,
@@ -226,6 +235,13 @@ namespace NDex
             {
                 throw new ArgumentNullException("destination2");
             }
+            return safeCopyTo<TDestinationList1, TDestinationList2>(destination1, destination2);
+        }
+
+        private CopyPartitionedResult safeCopyTo<TDestinationList1, TDestinationList2>(IMutableSublist<TDestinationList1, TSource> destination1, IMutableSublist<TDestinationList2, TSource> destination2)
+            where TDestinationList1 : IList<TSource>
+            where TDestinationList2 : IList<TSource>
+        {
             Tuple<int, int, int> indexes = Sublist.CopyPartition<TSourceList, TDestinationList1, TDestinationList2, TSource>(
                 Source.List, Source.Offset, Source.Offset + Source.Count,
                 destination1.List, destination1.Offset, destination1.Offset + destination1.Count,
@@ -236,6 +252,24 @@ namespace NDex
             result.DestinationOffset1 = indexes.Item2 - destination1.Offset;
             result.DestinationOffset2 = indexes.Item3 - destination2.Offset;
             return result;
+        }
+
+        /// <summary>
+        /// Gets an enumerator over the source list's items such
+        /// that the items satisfying the predicate appear first.
+        /// </summary>
+        /// <returns>The enumerator.</returns>
+        public IEnumerator<TSource> GetEnumerator()
+        {
+            List<TSource> destination1 = new List<TSource>();
+            List<TSource> destination2 = new List<TSource>();
+            safeAddTo<List<TSource>, List<TSource>>(destination1.ToSublist(), destination2.ToSublist());
+            return destination1.Concat(destination2).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 

@@ -24,7 +24,7 @@ Fortunately, you can avoid typing out this long signature simply by using the `T
 
     int[] values = new int[] { 5, 4, 2, 1, 3, 8, 9, 7, 6 };
     var sublist = values.ToSublist();
-    Sublist.QuickSort(sublist);  // 1, 2, 3, 4, 5, 6, 7, 8, 9
+    sublist.Sort().InPlace();  // 1, 2, 3, 4, 5, 6, 7, 8, 9
     
 The compiler is smart enough to infer the generic arguments when you call `ToSublist`. Furthermore, you can use `var` to avoid even more typing. In the example above, it is important to point out that the original `values` array will be modified even though the `sublist` variable was passed to the algorithm. Again, the `Sublist` is just a thin wrapper around the underlying list.
 
@@ -35,20 +35,20 @@ The real power of `Sublist` is in its ability to represent a range over a list. 
 
     int[] values = new int[] { 5, 4, 2, 1, 3, 8, 9, 7, 6 };
     var sublist = values.ToSublist();
-    int index = Sublist.Partition(sublist, x => x % 2 == 0);  // move evens to the front
+    int index = sublist.Partition(x => x % 2 == 0).InPlace();  // move evens to the front
     var front = values.ToSublist(0, index);  // range over the even numbers
     var back = values.ToSublist(index);  // range over the odd numbers
-    Sublist.QuickSort(front);  // 2, 4, 6, 8
-    Sublist.QuickSort(back); // 1, 3, 5, 7, 9
+    front.Sort().InPlace();  // 2, 4, 6, 8
+    back.Sort().InPlace();  // 1, 3, 5, 7, 9
     
 The `ToSublist` extension methods accepts two integer arguments: an offset and a count. The offset is the index into the underlying list where the range should begin. The count is the number of items that should be in the `Sublist`. If only the offset is provided, the range will include the rest of the list. Once the `Sublist` is created, these can be accessed via the `Offset` and `Count` properties. `Sublist` also has a property for the underlying list, `List`, so you can always get back to it.
 
 ### Nesting, Shifting and Resizing
 You should never need to wrap a `Sublist` with another `Sublist`. Instead, you should call the `Nest` method to create a new `Sublist`. The offset is in terms of the `Sublist`, not the underlying list. Just remember that the nested `Sublist` has to fit within the confines of the outer `Sublist`. There's no overhead for creating multiple nested `Sublist`s - they all work directly against the underlying list.
 
-The `Sublist` class supplies a `Shift` method for moving the offset to the left or the right. It accepts a second parameter, `isChecked`, that when `false`, allows the operation to automatically shrink the `Sublist` if it goes past the end of the underlying list. If `isChecked` is `true`, an exception will be thrown.
+The `Sublist` class supplies a `Shift` method for moving the offset to the left or the right. It accepts a second parameter, `isChecked`, that when `false`, allows the operation to automatically shrink the `Sublist` if it goes past the end of the underlying list. If `isChecked` is `true` and the operation would push the sublist off the end of the underlying list, an exception will be thrown.
 
-Similarly, the `Resize` method allows you to resize the `Sublist` without modifying the `Offset`. It also accepts a second parameter, `isChecked`, that when `false`, allows the operation to limit the size of the sublist. If `isChecked` is `true`, an exception will be thrown.
+Similarly, the `Resize` method allows you to resize the `Sublist` without modifying the `Offset`. It also accepts a second parameter, `isChecked`, that when `false`, allows the operation to limit the size of the sublist. If `isChecked` is `true` and the resizing would cause the sublist to go past the end of the underlying list, an exception will be thrown.
 
 ### Sublists Can Be Invalidated
 Since `Sublist` is just a thin wrapper around another list, it is possible that operations on the underlying list will invalidate the `Sublist`. Consider this example:
@@ -60,19 +60,19 @@ Since `Sublist` is just a thin wrapper around another list, it is possible that 
 Algorithms that modify a `Sublist` will return a *new* `Sublist`. If you are dealing with multiple `Sublist`s, you will need to take extra care.
 
 ### The Empty Sublist Trick
-There is a useful trick you can perform using a `Sublist` with a `Count` of zero, so I will mention it here. There are a handful of algorithms that start with `Add`. These allow you to add new values to the end of a list. But what if you wanted to add items to the front or the middle of a list? You can use the same `Add` methods as before, just create an empty `Sublist` whose offset is at the index you want to insert into. For example:
+There is a useful trick you can perform using a `Sublist` with a `Count` of zero, so I will mention it here. There are a handful of algorithms that add to the underlying list. These allow you to add new values to the end of a `Sublist`. But what if you wanted to add items to the front or the middle of a list? You can use the same `Add` methods as before, just create an empty `Sublist` whose offset is at the index you want to insert the values. For example:
 
     List<int> values = new List<int>() { 1, 2, 3, 7, 8, 9 };
     var source = new int[] { 4, 5, 6 }.ToSublist();
     var destination = values.ToSublist(3, 0);  // Count of zero
-    Sublist.Add(source, destination);  // 1, 2, 3, 4, 5, 6, 7, 8, 9
+    source.AddTo(destination);  // 1, 2, 3, 4, 5, 6, 7, 8, 9
     
-Those familiar with data structures might be concerned about the performance implications of inserting into the middle of a list. This is less of a concern with NDex - it is optimized to handle inserting multiple items into the middle of a list efficiently (at the cost of a single shift in items). Of course, you won't see any benefit at all if you call `Add` many, many times. In that case, it might be more efficient to first create a second list and then insert it. Even more efficient would be to add to the end of the list and perform a `RotateLeft`.
+Those familiar with data structures might be concerned about the performance implications of inserting into the middle of a list. This is less of a concern with NDex - it is optimized to handle inserting multiple items into the middle of a list efficiently (at the cost of a single shift in items). Of course, you won't see any benefit at all if you call `AddTo` many, many times. In that case, it might be more efficient to first create a second list and then insert it. Even more efficient would be to add to the end of the list and perform a `RotateLeft`.
 
 ### IReadOnlySublist, IMutableSublist and IExpandableSublist
 There are three interfaces returned by the `ToSublist` method. The `IReadOnlySublist` interface prevents any modification to the underlying list whatsoever. The `IMutableSublist` allows a value to be replaced at a particular index. Finally, `IExpandableSublist` allows items to be added to or removed from the underlying list.
 
-For instance, an array (`int[]`) has a fixed size. Calling `ToSublist` on an array will return a `IMutableSublist`. Algorithms guaranteeing that they will not add or remove items will accept an `IMutableSublist`.
+For instance, an array (`int[]`) has a fixed size. Calling `ToSublist` on an array will return an `IMutableSublist`. Algorithms guaranteeing that they will not add or remove items will accept an `IMutableSublist`.
 
 ## Substring
 `String`s are immutable in .NET. NDex allows you to call algorithms on `string`s via the `Substring` class. This class creates a read-only wrapper around a `string`. You can get back to the original `string` using the `Value` property.
@@ -84,32 +84,32 @@ If you want to manipulate `string`s, you will need to first convert your `string
     var greeting = "Hello, World";
     var substring = greeting.ToSubstring();
     var sequence = "World".ToSubstring();
-    int index = Sublist.FindSequence(substring, sequence);
+    int index = substring.FindSequence(sequence);
     List<char> list = new List<char>();
-    Sublist.Add(greeting.Nest(0, index), list.ToSublist());  // "Hello, "
-    Sublist.Add("Bob".ToSubstring(), list.ToSublist());  // "Hello, Bob"
+    greeting.Nest(0, index).AddTo(list.ToSublist());  // "Hello, "
+    "Bob".ToSubstring().AddTo(list.ToSublist());  // "Hello, Bob"
     greeting = new String(list.ToArray());  // convert back to a string
 
 ## ReversedList
-The `ReversedList` class creates a view over a list, creating the illusion that the items are reversed. `ReversedList` solves some tricky problems.
+The `ReversedList` class creates a view over a list, creating the illusion that the items are reversed. `ReversedList` can be used to solve some tricky problems.
 
-### Copying Items Backwards (but not in reverse...)
-For a more interesting use of `ReversedList`, imagine that you wanted to shift items in a list to the right. You could try to use the `Copy` algorithm, but the results would probably surprise you. Here's what that would look like:
+### Copying Items Backward (but not in reverse...)
+For an interesting use of `ReversedList`, imagine that you wanted to shift items in a list to the right. You could try to use the `CopyTo` algorithm, but the results would probably surprise you. Here's what that would look like:
 
     // We're expecting: 1, 1, 2, 3, 4, 5
     int[] values = new int[] { 1, 2, 3, 4, 5, 0 };
-    var source = values.ToSublist(0, 4);
+    var source = values.ToSublist(0, 5);
     var destination = values.ToSublist(1);
-    Sublist.Copy(source, destination);  // 1, 1, 1, 1, 1, 1
+    source.CopyTo(destination);  // 1, 1, 1, 1, 1, 1
     
-Inspecting the `Copy` algorithm, you'd see why this happens. Before the `2` can be copied, it is overwritten with `1`. This continues until the `1` gets propogated all the way to the right. Copying in the opposite direction, back-to-front, works as expected because the values aren't overwritten before they can be copied. Since NDex doesn't provide an algorithm for copying backward, it would seem like the only other option would be to write the code by hand.
+Inspecting the `CopyTo` algorithm, you'd see why this happens. Before the `2` can be copied, it is overwritten with `1`. This continues until the `1` gets propagated all the way to the right. Copying in the opposite direction, back-to-front, works as expected because the values aren't overwritten before they can be copied. Since NDex doesn't provide an algorithm for copying backward, it would seem like the only other option would be to write the code by-hand.
 
 But wait! We can solve this problem using the `ReversedList` class. This is the updated code:
 
     int[] values = new int[] { 1, 2, 3, 4, 5, 0 };
-    var source = values.ToSublist(0, 4).Reversed();
+    var source = values.ToSublist(0, 5).Reversed();
     var destination = values.ToSublist(1).Reversed();
-    Sublist.Copy(source, destination);
+    source.CopyTo(destination);
     
 Here we call the `Reversed` extension method on each `Sublist`. It takes a little diagramming or a lot of imagination to see why this code works. At a high level, it is basically performing a back-to-front copy, but since the back is the front and the front is the back... it does the right thing. It's so odd, most people aren't likely to think of it on their own. But, hey - it works!
 
@@ -119,12 +119,12 @@ What's cool is that the `Reversed` extension method is smart and will return a n
 ### Reversing a ReversedList
 `Reversed` will return the original, underlying list if you try to reverse a reversed list. This is a good thing because you don't want to add a bunch of unnecessary layers on top of your lists. But wait! What if you reverse a sublist and then reverse it again?!?! Don't worry, NDex handles that, too. Essentially, calling `Reversed` two times in a row is a no-op.
 
-### Translating Indicies
+### Translating Indices
 Some algorithms will return an index, such as `Find`. You can find the last index of a value simply by calling `Reversed` on this list first. The only problem is that the index is in terms of the reversed list, not the underlying list. In order to get the index into the underlying list, just call the `BaseIndex` method on the `ReversedList`.
 
     int[] values = new int[] { 1, 2, 3, 4 };
     var reversed = values.Reversed();
-    int index = Sublist.Find(reversed.ToSublist(), 3);  // 1
+    int index = reversed.ToSublist().Find(3);  // 1
     index = reversed.BaseIndex(index);  // 2
 
 You have to be a little more careful when searching for the last duplicate items or sub-sequence. For example, here is the correct way to find the last sub-sequence in a list:
@@ -132,8 +132,8 @@ You have to be a little more careful when searching for the last duplicate items
     // Find the last occurrence of 1, 2, 3
     int[] values = new int[] { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
     var reversed = values.ToSublist().Reversed();
-    var sequence = new int[] { 1, 2, 3 }.ToSublist().Reversed();
-    int index = Sublist.FindSequence(reversed, sequence);  // returns 7, not 9!
+    var sequence = new int[] { 1, 2, 3 }.ToSublist().Reversed();  // reverse the sequence, too!!
+    int index = reversed.FindSequence(sequence);  // returns 7, not 9!
     var lastSeqReversed = reversed.Nest(index, sequence.Count);  // wrap 3, 2, 1
     var lastSeq = lastSeqReversed.Reversed();  // restore it to 1, 2, 3
     index = lastSeq.Offset;  // 6
@@ -149,7 +149,7 @@ If you are forced to work with non-generic collections, you can still use NDex. 
 From there, you can call `ToSublist` to gain access to the algorithms.
 
 ## ReadOnlyList
-.NET provides a `ReadOnlyCollection<T>` class in the `System.Collections.ObjectModel` namespace. Every now and then, you decide to expose a collection to other classes via a property (or whatever). However, you don't want other code messing with the internal state of your class. To prevent this, you can wrap your collection with a `ReadOnlyCollection`. In most applications, this is a perfectly acceptable solution.
+.NET provides a `ReadOnlyCollection<T>` class in the `System.Collections.ObjectModel` namespace. Every now and then, library designers decide to expose a collection via a property or return value. However, those same designers don't want other code messing with the internal state of their classes. To prevent this, they can wrap their collections with a `ReadOnlyCollection`. In most applications, this is a perfectly acceptable solution.
 
 However, in applications involving large amounts of data, the `ReadOnlyCollection<T>` class can lead to performance problems. Internally, the underlying list is stored as an `IList<T>`. Any operations performed on the list will incur the overhead of a polymorphic call.
 
@@ -162,22 +162,36 @@ NDex provides a large number of algorithms. They are optimized to perform as fas
 
 The NDex algorithms follow different conventions than the built-in .NET algorithms. Read the following sections to see how they differ. These differences have a large impact on the code you write. Ultimately, code written using NDex will be more compact.
 
-### Adding and Removing Items
-Most of the NDex algorithms do not change the size of the underlying list. The `Add*` methods will add items to the end of a list. The only other algorithms that change the size of the list are `Replace` and `RemoveRange`. The overloads of `Replace` that replace a sequence can cause the list to shrink or grow. `RemoveRange` will remove all the items in a `Sublist`.
+### CopyTo, AddTo and InPlace Algorithms
+Some algorithms can be performed in-place, copied over top of another list or added to the end of a list. Whenever you perform a copy or add, the source list is unmodified.
 
-A common mistake is that programmers expect `RemoveIf` and `RemoveDuplicates` to actually remove items. As strange as it might seem, these methods just shift items to the front of the list. These methods return an index - everything after that index is considered garbage. Here is how you can actually remove items from the underlying list:
+A common mistake is to forget to call `InPlace`. For example:
 
-    List<int> values = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-    int index = Sublist.RemoveIf(values.ToSublist(), x => x % 2 != 0);  // shift evens forward
-    Sublist.RemoveRange(values.ToSublist(index));  // 2, 4, 6, 8
+    var values = new List<int>() { 1, 2, -3, -4, 5 };
+    values.Replace(i => i < 0, i => -i);  // won't do anything
     
-Basically, you must call `RemoveRange` to actually shrink the list. You might be wondering why the items aren't actually removed. The `RemoveIf` and `RemoveDuplicates` methods don't assume that the underlying list can be resized. Imagine if you wanted to remove items from an array - arrays are a fixed size, so a `NotSupportedException` would be thrown. Another `Sublist` can always be used to *simulate* that an array is resized. Your code should try to limit calls to `RemoveRange`, only removing items after all processing is finished.
+The code above will essentially do nothing. Without calling `InPlace`, NDex doesn't know that you intend to do the operation in-place. The last line should look like this:
+
+    values.Replace(i => i < 0, i => -1).InPlace();  // 1, 2, 3, 4, 5
+    
+When you call the `Replace` function you are creating an intermediate object. Most intermediate objects implement `IEnumerable<T>`, so you can use them in a `foreach` loop or intermix their use with LINQ:
+
+    Random random = new Random();
+    foreach (int value in values.RandomShuffle(random))
+    {
+        // do something with value
+    }
+    
+Many of the names in NDex correspond with LINQ. This allows you to write code that initially works with LINQ, but allows you to switch over to NDex when performance matters. However, don't get the impression that you can switch between LINQ and NDex painlessly.
+
+#### CopyTo and Destination Length
+One thing to consider when using `CopyTo` is that it stops prematurely if the destination is too small. It returns indexes into the source and destination lists, indicating where the algorithm stopped. In some cases, you can use this information to "pick up" where the algorithm left off. In other cases, the results may surprise you. You should try to guarantee the length of the destination in order to avoid unexpected results.
 
 ### Search Algorithms
 When a .NET search algorithm can't find a value, it returns `-1`. NDex does something completely differently. It will instead return an index past the end of the `Sublist`. For example:
 
     int[] values = new int[] { 1, 2, 4, 5 };
-    int index = Sublist.Find(values.ToSublist(), 3);  // 4
+    int index = values.ToSublist().Find(3);  // 4
     
 You can always check to see if the match was a success by checking if the returned index equals the `Count` of the `Sublist`.
 
@@ -189,13 +203,13 @@ Returning an index past the end of the list actually makes for cleaner code. Ret
     while (index < values.Count)
     {
         var sublist = values.ToSublist(index);
-        index += Sublist.FindSequence(values.ToSublist(index), sequence.ToSublist());
+        index += values.ToSublist(index).FindSequence(sequence.ToSublist());
         var garbage = values.ToSublist(index, 0);  // avoid assuming length
         garbage = garbage.Resize(sequence.Length, false);  // will do nothing if at end
-        Sublist.RemoveRange(garbage);
+        garbage.Clear();
     }
     
-All of the `Find*` algorithms return a `FindResult` object. This object contains two properties: `Index` and `Exists`. These will tell you where the search value was found and whether it was found at all. The `FindResult` class will automatically convert to an `int` or a `bool` representing the two properties.
+All of the `Find*` algorithms return a `SearchResult` object. This object contains two properties: `Index` and `Exists`. These will tell you where the search value was found and whether it was found at all. The `SearchResult` class will automatically convert to an `int` or a `bool` representing the two properties.
     
 #### BinarySearch, LowerBound and UpperBound
 If you have a sorted list, you can perform quick look-ups using the `BinarySearch`, `LowerBound` and `UpperBound` algorithms. There's also a `LowerAndUpperBound` method that finds both bounds in one go.
@@ -207,21 +221,21 @@ If you have a sorted list, you can perform quick look-ups using the `BinarySearc
 You can use `LowerAndUpperBound` to get the indexes surrounding all occurrences of an item. For instance, the following example removes all occurrences of a particular value:
 
     List<int> values = new List<int>() { 1, 1, 2, 2, 2, 3, 3, 3, 4, 5, 5 };
-    var result = Sublist.LowerAndUpperBound(values.ToSublist(), 3);
+    var result = values.ToSublist().LowerAndUpperBound(3);
     int count = result.UpperBound - result.LowerBound;
     var occurrences = values.ToSublist(result.LowerBound, count);
-    Sublist.RemoveRange(occurrences);  // 1, 1, 2, 2, 2, 4, 5, 5
+    occurrences.Clear();  // 1, 1, 2, 2, 2, 4, 5, 5
     
 The `BinarySearch` algorithm is similar to `LowerBound` in that it will find the first occurrence of a value. It returns a result class, providing an `Index` property. It also provides an `Exists` property that says whether the item was found. The result class automatically converts to a `Boolean` or an `Int32`, representing the `Exists` or the `Index` properties, respectively.
 
 ### Comparison Algorithms
-If you need to compare two lists, you should use the `AreEqual`, `Compare` and `Mismatch` methods.
+If you need to compare two lists, you should use the `IsEqualTo`, `CompareTo` and `Mismatch` methods.
 
-`AreEqual` returns `true` if the two lists have the same items and are the same size.
+`IsEqualTo` returns `true` if the two lists have the same items and are the same length.
 
-The `Compare` method will compare two lists in the same way `string`s are compared, using a [lexicographical comparison](http://en.wikipedia.org/wiki/Lexicographical_order). It will return `-1` if the first list is smaller or has an item smaller than what's in same position in the second list. It will return `1` if the first list is larger or has an item larger than what's in the same position in the second list. If the two lists are the same size and have the same items, it will return `0`.
+The `CompareTo` method will compare two lists in the same way `string`s are compared, using a [lexicographical comparison](http://en.wikipedia.org/wiki/Lexicographical_order). It will return `-1` if the first list is smaller or has an item smaller than what's in same position in the second list. It will return `1` if the first list is larger or has an item larger than what's in the same position in the second list. If the two lists are the same length and have the same items, it will return `0`.
 
-Finally, `Mismatch` will return the index where two lists differ. If one list is shorter than the other, it will return the index past the end of the shorter list. If the items at a particular index are different, that index is returned. If all the items are the same and the lists are the same size, an index past the end of both lists will be returned.
+Finally, `Mismatch` will return the index where two lists differ. If one list is shorter than the other, it will return the index past the end of the shorter list. If the items at a particular index are different, that index is returned. If all the items are the same and the lists are the same length, an index past the end of both lists will be returned.
 
 ### Sorting Algorithms
 The sorting algorithms are pretty straight-forward. What might surprise you is that there are multiple sort algorithms. Sorting algorithms have multiple properties:
@@ -231,84 +245,41 @@ The sorting algorithms are pretty straight-forward. What might surprise you is t
 * Do they sort the entire list?
 * How fast do they perform?
 
-Most of the sorting algorithms will do their jobs in-place. However, `MergeSort` uses a separate buffer to do its job. The buffer can be almost any size, in case you need to conserve memory. By default, the buffer is half the size of the `Sublist`.
+Most of the sorting algorithms will do their jobs in-place. However, `StableSort` uses a separate buffer to do its job. The buffer can be almost any size, in case you need to conserve memory. By default, the buffer is half the size of the `Sublist`.
 
-If calling a sorting algorithm on an already sorted list doesn't move any items, it is considered stable. Occasionally, this is a useful property, especially when moving items is a costly operation (e.g., a collection of large structs). Both `MergeSort` and `InsertionSort` are stable sorting algorithms.
+If calling a sorting algorithm on an already sorted list doesn't move around any items, it is considered stable. Occasionally, this is a useful property, especially when moving items is a costly operation (e.g., a collection of large structs).
 
-Not all of the algorithms sort the entire `Sublist`. Namely, `PartialSort` will only sort a given number of values. This is different than nesting another `Sublist` and calling `QuickSort`. `PartialSort` is good when all you care about are the top "N" items. The `ItemAt` method is pretty interesting, too - it will move an item into the specified index as if the rest of the list was sorted.
-
-The benefit of having different sorting algorithms is that you can try them out and compare their run times. If you have a small collection, you can try `BubbleSort`, `SelectionSort` or `InsertionSort`. If the collection has more than a few dozen items, use `MergeSort`, `HashSort`, `ShellSort` or `QuickSort`. Most of the time, you are safe just calling `MergeSort` or `QuickSort` because these will call `InsertionSort` automatically when it makes sense. Use `MergeSort` when you need a stable algorithm and use `QuickSort` otherwise.
+Not all of the algorithms sort the entire `Sublist`. Namely, `PartialSort` will only sort a given number of values. This is different than nesting another `Sublist` and calling `Sort`. `PartialSort` is good when all you care about are the top "N" items. The `ItemAt` method is pretty interesting, too - it will move an item into the specified index as if the rest of the list was sorted. `ItemAt` is useful when you want to know what value came in Nth place.
 
 ### Set Algorithms
 .NET `ISet<T>`s guarantee that every item is unique. NDex sets have an extra requirement: the sets must be *sorted*. Working with sorted sets typically results in faster set operations (O(N)), but it requires more effort on the programmer's part. For one, .NET set operations do not require that both collections be sets, whereas NDex algorithms do.
 
 #### Creating a Set
-It is easy to convert a list into a NDex set, using the `MakeSet` algorithm. A common mistake is to assume that `MakeSet` will remove items from the underlying list. Instead, `MakeSet` returns an index past the end of the set - any items past the index are considered garbage. If you want to shrink the list, you will have to do it manually. For example:
+It is easy to convert a list into a NDex set, using the `MakeSet` algorithm. A common mistake is to assume that the in-place version of `MakeSet` will remove items from the underlying list. Instead, the in-place `MakeSet` returns an index past the end of the set - any items past the index are considered garbage. If you want to shrink the list, you will have to do it manually. For example:
 
     List<int> values = new List<int>() { 1, 2, 3, 4, 2, 3, 4, 1, 5 };
-    int index = Sublist.MakeSet(values.ToSublist());
-    Sublist.RemoveRange(values.ToSublist(index));
+    int index = values.ToSublist().MakeSet().InPlace();
+    values.ToSublist(index).Clear();
     var set = values.ToSublist();  // 1, 2, 3, 4, 5
 
-NDex doesn't assume that you want to re-size the list. This also makes the algorithm more reusable since it can be run against `Sublist`s wrapping fixed-length collections. Even when you can remove the items, you should consider whether removing them is truly necessary.
+NDex doesn't assume that you want to re-size the list. This makes the algorithm more reusable since it can be run against `Sublist`s wrapping fixed-length collections. Even when you can remove the items, you should consider whether removing them is truly necessary.
 
 #### Working with Sets
-Once you have a set or two, you can pass them to any of the algorithms expecting sets. These include variations of union, intersection, difference and symmetric difference. There is a version of each algorithm that adds the items to a list (`Add*`) and another version that copies the items (`Copy*`). The `Copy*` algorithms return the index past the end of the new set. What's interesting about some of the `Copy*` algorithms is that the destination can be the same as one of sources, so you can save a lot of memory when necessary.
+Once you have a set or two, you can pass them to any of the algorithms expecting sets. These include: `Union`, `Intersect`, `Except`, `SymmetricExcept` and `IsOverlapping`.
 
 ### Heap Algorithms
 If you need to efficiently track items by priority, the [heap algorithms](http://en.wikipedia.org/wiki/Heap_data_structure) are what you are looking for. Working with heap algorithms is interesting because they have unique pre- and post-conditions. For instance, this is the code for adding to a heap:
 
     List<int> values = new List<int>() { 1, 2, 3, 4, 5 };
-    Sublist.MakeHeap(values.ToSublist());  // 5, 4, 3, 1, 2
+    values.ToSublist().MakeHeap().InPlace();  // 5, 4, 3, 1, 2
     values.Add(6);  // 5, 4, 1, 2, 3, 6 -> no longer a heap
-    Sublist.HeapAdd(values.ToSublist());  // 6, 4, 5, 1, 2, 3
+    values.ToSublist().HeapAdd();  // 6, 4, 5, 1, 2, 3
 
 As you can see in this example, in order to add an item to a heap, you first place it past the end of the heap. Then you call `HeapAdd` passing in a `Sublist` wrapping the heap and the new item. It will move the item up the heap into its proper location.
 
 Removing an item from a heap is similar. First you call `HeapRemove` to move the top item past the end of the heap. Then you can remove the last item from the list:
 
-    Sublist.HeapRemove(values.ToSublist());  // 5, 4, 3, 1, 2, 6
+    values.ToSublist().HeapRemove();  // 5, 4, 3, 1, 2, 6
     values.RemoveAt(values.Count - 1);
 
-Anytime you have a heap, you can call `HeapSort` on it - `HeapSort` won't work on a list that isn't a proper heap. A benefit to `HeapSort` is that it has guaranteed runtime performance and can run faster than `MergeSort` in some cases.
-
-### Miscellaneous Algorithms
-There are a handful of additional algorithms:
-
-* `AddCombined` and `CopyCombined` - Zip together the values from two lists.
-* `AddConverted` and `CopyConverted` - Convert/Map the items in one collection into other values.
-* `AddGenerated` and `CopyGenerated` - Populate a list with a fixed value or the results of a generator.
-* `AddIf` and `CopyIf` - Add or copy items satisfying a predicate.
-* `AddMerged` and `CopyMerged` - Merge the items from two sorted lists so that they remaining in sorted order.
-* `AddRandomSamples` and `CopyRandomSamples` - Select N items from a list at random.
-* `Aggregate` - aggregate the values in the list.
-* `CountIf` - Count all items satisfying a condition.
-* `ForEach` - Perform and action for each item in a list.
-* `Partition` and `StablePartition` - Move items satisfying a condition to the front of a list.
-* `RandomShuffle` - Rearrange the items in the list at random.
-* `Replace` - Replace items satisfying a condition with another value.
-* `Reverse` - Reverse a list.
-* `RotateLeft` - Rotate the items in a list to the left (or the right).
-* `NextPermutation` and `PreviousPermutation` - Reorder the items into every unique combination.
-* `SwapRanges` - Swap the items between two lists.
-* `TrueForAll` - Check to see if all the items in a list satisfy a condition.
-
-### Combining Add and Copy Algorithms
-The `Copy*` algorithms return one or more indexes because they will stop prematurely if they detect that there isn't enough room in the destination(s) to continue. These indexes represent where in the list(s) the algorithm stopped. Most algorithms attempt to exit in a way that you can switch over to using an `Add*` algorithm to complete the task.
-
-For instance, `CopyCombined` will combine the items from two lists and store them in the destination. If the destination is too small, the indexes into the two source lists where the algorithm stopped will be available:
-
-    var values = new int[] { 1, 2, 3, 4, 5 }.ToSublist();
-    var multipliers = new int[] { 2, 2, 2, 2, 2 }.ToSublist();
-    var results = new List<int>() { 0, 0 }.ToSublist();  // initial size of two
-    var indexes = Sublist.CopyCombined(values, multipliers, results, (i, j) => i * j);  // 2, 4
-    values = values.Nest(indexes.SourceOffset1);
-    multipiers = multipliers.Nest(indexes.SourceOffset2);
-    results = results.Nest(0, indexes.DestinationOffset);
-    results = Sublist.AddCombined(values, multipliers, results, (i, j) => i * j);  // 2, 4, 6, 8, 10
-    
-Notice that I didn't have to check whether the `CopyCombined` algorithm ran to completion or whether it stopped prematurely. I know that if it stopped normally, `SourceOffset1` or `SourceOffset2` will be past the end of their respective lists and the `AddCombined` algorithm would do nothing. I make sure to `Nest` the `results` list, as well, since the algorithm might have stopped before completely filling the `results` list (perhaps in a less contrived example).
-
-You typically wouldn't use this technique to simply avoid clearing a list. Clearing a list will have little impact on performance. What little impact it does have probably isn't worth the added complexity. This technique might pay off if you're doing a lot of manipulation in the middle of a list, where clearing and adding items results in shifts of items further back in the list. Even in this scenario, it may more performant to simply build a separate list, clear the gap and add it after it's finished.
-
-Even if you shouldn't combine `Copy*` and `Add*` algorithms, it's important to be aware of the behavior of the `Copy*` algorithms. You may need to pick up where the algorithm leaves off.
+Anytime you have a heap, you can call `HeapSort` on it - `HeapSort` won't work on a list that isn't a proper heap. A benefit to `HeapSort` is that it has guaranteed runtime performance and can run faster than `StableSort` in some cases.
