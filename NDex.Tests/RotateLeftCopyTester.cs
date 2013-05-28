@@ -58,7 +58,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRotateLeftCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int shift = 0;
             list.RotateLeft(shift);
         }
@@ -70,8 +70,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRotateLeftCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             int shift = 0;
             list.RotateLeft(shift).CopyTo(destination);
         }
@@ -85,7 +85,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftCopy_DestinationTooSmall_CopiesStartingAtShift()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             int shift = 2;
             var result = list.RotateLeft(shift).CopyTo(destination);
@@ -104,7 +104,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftCopy_DestinationLargerThanShift_CopiesBeginningOfSecondHalf()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             int shift = 2;
             var result = list.RotateLeft(shift).CopyTo(destination);
@@ -122,7 +122,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftCopy_NegativeShift_ShiftsToTheRight()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             int shift = -1;
             var result = list.RotateLeft(shift).CopyTo(destination);
@@ -140,7 +140,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftCopy_ShiftLargerThanList_ShiftsFullCircle()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             int shift = list.Count + 1;
             var result = list.RotateLeft(shift).CopyTo(destination);
@@ -158,7 +158,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftCopy_ShiftZero_Copies()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             int shift = 0;
             var result = list.RotateLeft(shift).CopyTo(destination);
@@ -177,7 +177,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftCopy_ShiftBackToFront_IndexAtBeginningOfList()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             int shift = 2;
             var result = list.RotateLeft(shift).CopyTo(destination);

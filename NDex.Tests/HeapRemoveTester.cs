@@ -21,7 +21,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestHeapRemove_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             list.HeapRemove();
         }
 
@@ -32,7 +32,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestHeapRemove_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.HeapRemove(comparer);
         }
@@ -44,7 +44,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestHeapRemove_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.HeapRemove(comparison);
         }
@@ -56,7 +56,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestHeapRemove_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.HeapRemove(comparer);
         }
@@ -68,7 +68,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestHeapRemove_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.HeapRemove(comparison);
         }

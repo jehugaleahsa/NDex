@@ -44,7 +44,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMakeSetAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             list.MakeSet();
         }
 
@@ -55,7 +55,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMakeSetAdd_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.MakeSet(comparer);
         }
@@ -67,7 +67,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMakeSetAdd_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.MakeSet(comparison);
         }
@@ -79,7 +79,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMakeSetAdd_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.MakeSet(comparer);
         }
@@ -91,7 +91,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMakeSetAdd_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.MakeSet(comparison);
         }
@@ -103,8 +103,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMakeSetAdd_DestinationNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list.MakeSet().AddTo(destination);
         }
 
@@ -116,7 +116,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestMakeSetAdd_EmptyList_DoesNothing()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
             destination = list.MakeSet().AddTo(destination);
@@ -133,7 +133,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestMakeSetAdd_ListOfOne_DoesNothing()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1 });
             var destination = TestHelper.Wrap(new List<int>());
 
             destination = list.MakeSet().AddTo(destination);
@@ -150,7 +150,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestMakeSetAdd_RandomizedItems_Sorts()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 5, 3, 2, 4, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 5, 3, 2, 4, });
             var destination = TestHelper.Wrap(new List<int>());
 
             destination = list.MakeSet((x, y) => Comparer<int>.Default.Compare(y, x)).AddTo(destination);
@@ -168,7 +168,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestMakeSetAdd_DuplicateItems_RemovesDuplicates()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 5, 3, 2, 4, 2, 1, 5, 4 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 5, 3, 2, 4, 2, 1, 5, 4 });
             var destination = TestHelper.Wrap(new List<int>());
 
             destination = list.MakeSet(Comparer<int>.Default).AddTo(destination);

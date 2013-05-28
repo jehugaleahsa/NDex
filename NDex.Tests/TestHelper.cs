@@ -12,11 +12,21 @@ namespace NDex.Tests
             Sublist.Generate(100, i => i).AddTo(wrapper.ToSublist());
             wrapper.ToSublist().AddTo(list.ToSublist(0, 0)); // add to front
             wrapper.ToSublist().AddTo(list.ToSublist()); // add to back
-            var sublist = new Sublist<List<int>, int>(list, 100, count);
+            var sublist = list.ToSublist(100, count);
             return sublist;
         }
 
-        public static void CheckHeaderAndFooter(IExpandableSublist<List<int>, int> list)
+        public static IReadOnlySublist<List<int>, int> WrapReadOnly(List<int> list)
+        {
+            return Wrap(list);
+        }
+
+        public static IExpandableSublist<List<int>, int> Populate(IReadOnlySublist<List<int>, int> sublist)
+        {
+            return new Sublist<List<int>, int>(sublist.List, sublist.Offset, sublist.Count);
+        }
+
+        public static void CheckHeaderAndFooter(IReadOnlySublist<List<int>, int> list)
         {
             for (int index = 0, value = 0; index != list.Offset; ++index, ++value)
             {

@@ -47,7 +47,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestAggregate_ListNull_Throws()
         {
-            Sublist<int[], int> sublist = null;
+            IExpandableSublist<int[], int> sublist = null;
             Func<int, int, int> aggregator = (s, i) => s + i;
             sublist.Aggregate(aggregator);
         }
@@ -59,7 +59,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestAggregate_Seeded_ListNull_Throws()
         {
-            Sublist<int[], int> sublist = null;
+            IExpandableSublist<int[], int> sublist = null;
             int seed = 0;
             Func<int, int, int> aggregator = (s, i) => s + i;
             sublist.Aggregate(seed, aggregator);

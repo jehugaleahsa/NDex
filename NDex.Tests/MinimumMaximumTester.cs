@@ -46,7 +46,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMinimumMaximum_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             list.MinimumMaximum();
         }
 
@@ -57,7 +57,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMinimumMaximum_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.MinimumMaximum(comparer);
         }
@@ -69,7 +69,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMinimumMaximum_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.MinimumMaximum(comparison);
         }
@@ -81,7 +81,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMinimumMaximum_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.MinimumMaximum(comparer);
         }
@@ -93,7 +93,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMinimumMaximum_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.MinimumMaximum(comparison);
         }

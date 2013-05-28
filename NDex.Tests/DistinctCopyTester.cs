@@ -50,7 +50,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             list.Distinct();
         }
 
@@ -61,7 +61,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctCopy_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Distinct(comparer);
         }
@@ -73,7 +73,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctCopy_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Distinct(comparison);
         }
@@ -85,8 +85,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list.Distinct().CopyTo(destination);
         }
 
@@ -97,8 +97,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctCopy_WithComparer_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Distinct(comparer).CopyTo(destination);
         }
@@ -110,8 +110,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctCopy_WithComparison_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Distinct(comparison).CopyTo(destination);
         }
@@ -123,7 +123,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctCopy_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = null;
             list.Distinct(comparer);
         }
@@ -135,7 +135,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctCopy_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, bool> comparison = null;
             list.Distinct(comparison);
         }
@@ -148,7 +148,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctCopy_AllValuesTheSame_OnlyCopiesOne()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 1, 1, 1, 1, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = list.Distinct(EqualityComparer<int>.Default.Equals).CopyTo(destination);
@@ -168,7 +168,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctCopy_DestinationTooSmallForUniqueValues_StopsPrematurely()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, });
 
             var result = list.Distinct(EqualityComparer<int>.Default).CopyTo(destination);
@@ -188,7 +188,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctCopy_DestinationEmpty_DoesNothing()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>());
 
             var result = list.Distinct().CopyTo(destination);
@@ -205,7 +205,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctCopy_ListEmpty_DoesNothing()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
             var result = list.Distinct().CopyTo(destination);
@@ -223,7 +223,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctCopy_DestinationTooSmall_FindsNextUniqueValue()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 2, 3, 4 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 2, 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
 
             var result = list.Distinct().CopyTo(destination);

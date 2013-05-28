@@ -61,7 +61,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsSet_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             list.IsSet();
         }
 
@@ -72,7 +72,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsSet_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.IsSet(comparer);
         }
@@ -84,7 +84,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsSet_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.IsSet(comparison);
         }
@@ -96,7 +96,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsSet_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.IsSet(comparer);
         }
@@ -108,7 +108,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsSet_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.IsSet(comparison);
         }

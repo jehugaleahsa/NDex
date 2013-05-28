@@ -62,7 +62,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestFind_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int value = 0;
             list.Find(value);
         }
@@ -74,7 +74,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestFind_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int value = 0;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Find(value, comparer);
@@ -87,7 +87,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestFind_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int value = 0;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Find(value, comparison);
@@ -100,7 +100,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestFind_WithPredicate_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
             list.Find(predicate);
         }
@@ -112,7 +112,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestFind_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int value = 0;
             IEqualityComparer<int> comparer = null;
             list.Find(value, comparer);
@@ -125,7 +125,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestFind_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int value = 0;
             Func<int, int, bool> comparison = null;
             list.Find(value, comparison);
@@ -138,7 +138,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestFind_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, bool> predicate = null;
             list.Find(predicate);
         }

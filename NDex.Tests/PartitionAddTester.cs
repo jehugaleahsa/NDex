@@ -59,7 +59,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartitionAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
             list.Partition(predicate);
         }
@@ -71,9 +71,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartitionAdd_NullDestination1_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination1 = null;
-            Sublist<List<int>, int> destination2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination1 = null;
+            IExpandableSublist<List<int>, int> destination2 = new List<int>().ToSublist();
             Func<int, bool> predicate = i => true;
             list.Partition(predicate).AddTo(destination1, destination2);
         }
@@ -85,9 +85,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartitionAdd_NullDestination2_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination1 = new List<int>();
-            Sublist<List<int>, int> destination2 = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination2 = null;
             Func<int, bool> predicate = i => true;
             list.Partition(predicate).AddTo(destination1, destination2);
         }
@@ -99,7 +99,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartitionAdd_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, bool> predicate = null;
             list.Partition(predicate);
         }
@@ -112,7 +112,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartitionAdd()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
             var evens = TestHelper.Wrap(new List<int>());
             var odds = TestHelper.Wrap(new List<int>());
             var result = list.Partition(i => i % 2 == 0).AddTo(evens, odds);

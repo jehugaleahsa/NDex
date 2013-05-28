@@ -64,8 +64,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSwapWith_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IExpandableSublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             list1.SwapWith(list2);
         }
 
@@ -76,8 +76,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSwapWith_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IExpandableSublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             list1.SwapWith(list2);
         }
 

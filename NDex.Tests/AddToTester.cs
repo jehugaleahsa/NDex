@@ -71,8 +71,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestAddTo_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
+            IExpandableSublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> destination = new List<int>().ToSublist();
             list.AddTo(destination);
         }
 
@@ -95,8 +95,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestAddTo_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list.AddTo(destination);
         }
 
@@ -107,8 +107,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestAddTo_IEnumerable_NullDestination_Throws()
         {
-            IEnumerable<int> source = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IEnumerable<int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             source.AddTo(destination);
         }
 

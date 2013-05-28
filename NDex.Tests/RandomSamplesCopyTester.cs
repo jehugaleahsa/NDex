@@ -51,7 +51,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomSamplesCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Random random = new Random();
             list.RandomSamples(0, random);
         }
@@ -63,7 +63,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomSamplesCopy_WithGenerator_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int numberOfSamples = 0;
             Func<int> generator = () => 0;
             list.RandomSamples(numberOfSamples, generator);
@@ -76,9 +76,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomSamplesCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfSamples = 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             Random random = new Random();
             list.RandomSamples(numberOfSamples, random).CopyTo(destination);
         }
@@ -90,9 +90,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomSamplesCopy_WithGenerator_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfSamples = 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int> generator = () => 0;
             list.RandomSamples(numberOfSamples, generator).CopyTo(destination);
         }
@@ -104,7 +104,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomSamplesCopy_NullRandom_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfSamples = 0;
             Random random = null;
             list.RandomSamples(numberOfSamples, random);
@@ -117,7 +117,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomSamplesCopy_NullGenerator_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfSamples = 0;
             Func<int> generator = null;
             list.RandomSamples(numberOfSamples, generator);
@@ -132,7 +132,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRandomSamplesCopy_DestinationSizeEqualsSource_SimplyCopies()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             Func<int> generator = () => 0;
             var result = list.RandomSamples(destination.Count, generator).CopyTo(destination);
@@ -151,7 +151,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRandomSamplesCopy_GeneratorWithNegatives()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             Random random = new Random();
             Func<int> generator = () => random.Next(-5, 6);

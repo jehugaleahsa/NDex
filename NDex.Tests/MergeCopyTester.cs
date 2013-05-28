@@ -54,8 +54,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             list1.Merge(list2);
         }
 
@@ -66,8 +66,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_WithComparer_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             IComparer<int> comparer = Comparer<int>.Default;
             list1.Merge(list2, comparer);
         }
@@ -79,8 +79,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_WithComparison_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list1.Merge(list2, comparison);
         }
@@ -92,8 +92,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             list1.Merge(list2);
         }
 
@@ -104,8 +104,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_WithComparer_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list1.Merge(list2, comparer);
         }
@@ -117,8 +117,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_WithComparison_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list1.Merge(list2, comparison);
         }
@@ -130,9 +130,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list1.Merge(list2).CopyTo(destination);
         }
 
@@ -143,9 +143,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_WithComparer_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list1.Merge(list2, comparer).CopyTo(destination);
         }
@@ -157,9 +157,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_WithComparison_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list1.Merge(list2, comparison).CopyTo(destination);
         }
@@ -171,8 +171,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list1.Merge(list2, comparer);
         }
@@ -184,8 +184,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestMergeCopy_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list1.Merge(list2, comparison);
         }
@@ -198,8 +198,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestMergeCopy_Merges()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8 });
-            var list2 = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 2, 4, 6, 8 });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 1, 3, 5, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0 });
             IComparer<int> comparer = Comparer<int>.Default;
             var result = list1.Merge(list2, comparer).CopyTo(destination);
@@ -219,8 +219,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestMergeCopy_HandlesDuplicates()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8, });
-            var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3, 5, 7 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 2, 4, 6, 8, });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 5, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0 });
             var result = list1.Merge(list2).CopyTo(destination);
             Assert.AreEqual(list1.Count, result.SourceOffset1, "The first source offset was wrong.");
@@ -239,8 +239,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestMergeCopy_MergeInReverse()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 6, 4, 2 });
-            var list2 = TestHelper.Wrap(new List<int>() { 7, 5, 3, 1 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 6, 4, 2 });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 7, 5, 3, 1 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, });
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
             var result = list1.Merge(list2, comparison).CopyTo(destination);
@@ -260,8 +260,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestMergeCopy_DestinationTooSmall_StopsPrematurely()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
-            var list2 = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 2, 4, 6 });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 1, 3, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, });
             var result = list1.Merge(list2).CopyTo(destination);
             Assert.AreEqual(1, result.SourceOffset1, "The first source offset was wrong.");

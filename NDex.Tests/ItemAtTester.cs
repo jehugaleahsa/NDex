@@ -48,7 +48,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestItemAt_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int index = 0;
             list.ItemAt(index);
         }
@@ -60,7 +60,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestItemAt_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int index = 0;
             IComparer<int> comparer = Comparer<int>.Default;
             list.ItemAt(index, comparer);
@@ -73,7 +73,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestItemAt_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int index = 0;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.ItemAt(index, comparison);
@@ -86,7 +86,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestItemAt_NegativeIndex_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = -1;
             list.ItemAt(index);
         }
@@ -98,7 +98,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestItemAt_WithComparer_NegativeIndex_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = -1;
             IComparer<int> comparer = Comparer<int>.Default;
             list.ItemAt(index, comparer);
@@ -111,7 +111,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestItemAt_WithComparison_NegativeIndex_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = -1;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.ItemAt(index, comparison);
@@ -124,7 +124,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestItemAt_IndexTooBig_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = 0;
             list.ItemAt(index);
         }
@@ -136,7 +136,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestItemAt_WithComparer_IndexTooBig_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = 0;
             IComparer<int> comparer = Comparer<int>.Default;
             list.ItemAt(index, comparer);
@@ -149,7 +149,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestItemAt_WithComparison_IndexTooBig_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = 0;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.ItemAt(index, comparison);
@@ -162,7 +162,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestItemAt_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>() { 1 };
+            IExpandableSublist<List<int>, int> list = new List<int>() { 1 }.ToSublist();
             int index = 0;
             IComparer<int> comparer = null;
             list.ItemAt(index, comparer);
@@ -175,7 +175,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestItemAt_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>() { 1 };
+            IExpandableSublist<List<int>, int> list = new List<int>() { 1 }.ToSublist();
             int index = 0;
             Func<int, int, int> comparison = null;
             list.ItemAt(index, comparison);

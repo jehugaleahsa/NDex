@@ -38,7 +38,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestWhereCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true; // always true
             list.Where(predicate);
         }
@@ -50,8 +50,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestWhereCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, bool> predicate = i => true; // always true
             list.Where(predicate).CopyTo(destination);
         }
@@ -63,7 +63,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestWhereCopy_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, bool> predicate = null; // always true
             list.Where(predicate);
         }
@@ -77,7 +77,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestWhereCopy_DestinationTooSmall_StopsPrematurely()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             Func<int, bool> predicate = i => true; // always true
             var result = list.Where(predicate).CopyTo(destination);
@@ -95,7 +95,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestWhereCopy_SourceSmaller_StopsPrematurely()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             Func<int, bool> predicate = i => true; // always true
             var result = list.Where(predicate).CopyTo(destination);
@@ -113,7 +113,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestWhereCopy_DestinationTooSmall_FindsNextMatchingItem()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0 });
             Func<int, bool> predicate = i => i % 2 == 0;
             var result = list.Where(predicate).CopyTo(destination);

@@ -63,7 +63,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestGenerateAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int numberOfItems = 0;
             int value = 0;
             Sublist.Generate(numberOfItems, value).AddTo(list);
@@ -76,7 +76,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestGenerateAdd_WithGenerator_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int numberOfItems = 0;
             Func<int> generator = () => 0;
             Sublist.Generate(numberOfItems, generator).AddTo(list);
@@ -89,7 +89,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestGenerateAdd_WithIndexedGenerator_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int numberOfItems = 0;
             Func<int, int> generator = i => i;
             Sublist.Generate(numberOfItems, generator).AddTo(list);
@@ -102,7 +102,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestGenerateAdd_NegativeNumberOfItems_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = -1;
             int value = 0;
             Sublist.Generate(numberOfItems, value).AddTo(list);
@@ -115,7 +115,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestGenerateAdd_NegativeNumberOfItems_Generator_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = -1;
             Func<int> generator = () => 0;
             Sublist.Generate(numberOfItems, generator).AddTo(list);
@@ -128,7 +128,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestGenerateAdd_NegativeNumberOfItems_IndexedGenerator_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = -1;
             Func<int, int> generator = i => i;
             Sublist.Generate(numberOfItems, generator).AddTo(list);
@@ -141,7 +141,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestGenerateAdd_NullGenerator_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 10;
             Func<int> generator = null;
             Sublist.Generate(numberOfItems, generator).AddTo(list);
@@ -154,7 +154,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestGenerateAdd_NullIndexedGenerator_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 10;
             Func<int, int> generator = null;
             Sublist.Generate(numberOfItems, generator).AddTo(list);

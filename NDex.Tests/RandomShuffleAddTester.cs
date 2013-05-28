@@ -52,7 +52,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomShuffleAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Random random = new Random();
             list.RandomShuffle(random);
         }
@@ -64,7 +64,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomShuffleAdd_WithGenerator_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int> generator = () => 0;
             list.RandomShuffle(generator);
         }
@@ -76,7 +76,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomShuffleAdd_NullRandom_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Random random = null;
             list.RandomShuffle(random);
         }
@@ -88,7 +88,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomShuffleAdd_NullGenerator_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int> generator = null;
             list.RandomShuffle(generator);
         }
@@ -100,9 +100,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRandomShuffleAdd_DestinationNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int> generator = () => 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             list.RandomShuffle(generator).CopyTo(destination);
         }
 
@@ -113,9 +113,27 @@ namespace NDex.Tests
         /// that simply takes a generator.
         /// </summary>
         [TestMethod]
+        public void TestRandomShuffleAdd()
+        {
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
+            var destination = TestHelper.Wrap(new List<int>());
+            Random random = new Random();
+            destination = list.RandomShuffle(random).AddTo(destination);
+            var sorted = list.Sort().AddTo(new List<int>().ToSublist());
+            destination.Sort().InPlace();
+            Assert.IsTrue(sorted.IsEqualTo(destination), "Some of the items were lost during the shuffling.");
+            TestHelper.CheckHeaderAndFooter(list);
+            TestHelper.CheckHeaderAndFooter(destination);
+        }
+
+        /// <summary>
+        /// If the built in Random class isn't sufficient, then you can use the overload
+        /// that simply takes a generator.
+        /// </summary>
+        [TestMethod]
         public void TestRandomShuffleAdd_ArbitraryGenerator()
-        {            
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+        {
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>());
             var sorted = list.Sort().AddTo(new List<int>().ToSublist());
             using (RandomNumberGenerator random = RandomNumberGenerator.Create()) // slow

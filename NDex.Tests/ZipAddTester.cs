@@ -52,8 +52,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestZipAddTo_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             Func<int, int, int> combiner = (i, j) => i + j;
             list1.Zip(list2, combiner);
         }
@@ -65,8 +65,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestZipAddTo_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             Func<int, int, int> combiner = (i, j) => i + j;
             list1.Zip(list2, combiner);
         }
@@ -78,9 +78,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestZipAddTo_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int, int> combiner = (i, j) => i + j;
             list1.Zip(list2, combiner).AddTo(destination);
         }
@@ -92,8 +92,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestZipAddTo_NullCombiner_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             Func<int, int, int> combiner = null;
             list1.Zip(list2, combiner);
         }
@@ -106,8 +106,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestZipAddTo_ListsDifferentSizes_StopsPrematurely()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3, });
-            var list2 = TestHelper.Wrap(new List<int>() { 4, 3, });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 4, 3, });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.Zip(list2, (i, j) => i + j).AddTo(destination);
             int[] expected = { 5, 5, };

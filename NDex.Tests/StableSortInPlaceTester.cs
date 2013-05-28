@@ -75,7 +75,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             list.StableSort();
         }
 
@@ -86,8 +86,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_WithBuffer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> buffer = new List<int>();
+            IExpandableSublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             list.StableSort(buffer);
         }
 
@@ -98,7 +98,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.StableSort(comparer);
         }
@@ -110,8 +110,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_WithBuffer_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> buffer = new List<int>();
+            IExpandableSublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             IComparer<int> comparer = Comparer<int>.Default;
             list.StableSort(buffer, comparer);
         }
@@ -123,7 +123,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.StableSort(comparison);
         }
@@ -135,8 +135,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_WithBuffer_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> buffer = new List<int>();
+            IExpandableSublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.StableSort(buffer, comparison);
         }
@@ -148,8 +148,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_NullBuffer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> buffer = null;
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> buffer = null;
             list.StableSort(buffer);
         }
 
@@ -160,8 +160,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_WithComparer_NullBuffer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> buffer = null;
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> buffer = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.StableSort(buffer, comparer);
         }
@@ -173,8 +173,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortInPlace_WithComparison_NullBuffer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> buffer = null;
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> buffer = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.StableSort(buffer, comparison);
         }
@@ -199,7 +199,7 @@ namespace NDex.Tests
         public void TestStableSortInPlace_WithBuffer_NullComparer_Throws()
         {
             var list = new List<int>().ToSublist();
-            Sublist<List<int>, int> buffer = new List<int>();
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.StableSort(buffer, comparer);
         }
@@ -224,7 +224,7 @@ namespace NDex.Tests
         public void TestStableSortInPlace_WithBuffer_NullComparison_Throws()
         {
             var list = new List<int>().ToSublist();
-            Sublist<List<int>, int> buffer = new List<int>();
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.StableSort(buffer, comparison);
         }

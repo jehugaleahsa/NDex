@@ -46,7 +46,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctInPlace_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             list.Distinct().InPlace();
         }
 
@@ -57,7 +57,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctInPlace_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Distinct(comparer);
         }
@@ -69,7 +69,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctInPlace_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Distinct(comparison);
         }
@@ -81,7 +81,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctInPlace_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = null;
             list.Distinct(comparer);
         }
@@ -93,7 +93,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctInPlace_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, bool> comparison = null;
             list.Distinct(comparison);
         }

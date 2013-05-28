@@ -78,7 +78,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int replacement = 0;
             Func<int, bool> predicate = i => true;
             list.Replace(predicate, replacement);
@@ -91,7 +91,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithGenerator_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => true;
             list.Replace(predicate, generator);
@@ -104,8 +104,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             int replacement = 0;
             Func<int, bool> predicate = i => true;
             list.Replace(predicate, replacement).CopyTo(destination);
@@ -118,8 +118,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithGenerator_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => true;
             list.Replace(predicate, generator).CopyTo(destination);
@@ -132,7 +132,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int replacement = 0;
             Func<int, bool> predicate = null;
             list.Replace(predicate, replacement);
@@ -145,7 +145,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithGenerator_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = null;
             list.Replace(predicate, generator);
@@ -158,7 +158,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_NullGenerator_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int> generator = null;
             Func<int, bool> predicate = i => true;
             list.Replace(predicate, generator);
@@ -171,9 +171,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_SourceNull_Throws()
         {
-            Sublist<List<int>, int> source = null;
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = null;
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             source.Replace(sequence, replacement);
         }
 
@@ -184,9 +184,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_SequenceNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = null;
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = null;
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             source.Replace(sequence, replacement);
         }
 
@@ -197,9 +197,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void TestReplaceCopy_SequenceEmpty_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>();
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             source.Replace(sequence, replacement);
         }
 
@@ -210,9 +210,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_ReplacementNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = null;
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = null;
             source.Replace(sequence, replacement);
         }
 
@@ -223,10 +223,10 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_DestinationNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             source.Replace(sequence, replacement).CopyTo(destination);
         }
 
@@ -237,9 +237,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparer_SourceNull_Throws()
         {
-            Sublist<List<int>, int> source = null;
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = null;
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             source.Replace(sequence, replacement, comparer);
         }
@@ -251,9 +251,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparer_SequenceNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = null;
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = null;
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             source.Replace(sequence, replacement, comparer);
         }
@@ -265,9 +265,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void TestReplaceCopy_WithComparer_SequenceEmpty_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>();
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             source.Replace(sequence, replacement, comparer);
         }
@@ -279,9 +279,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparer_ReplacementNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = null;
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             source.Replace(sequence, replacement, comparer);
         }
@@ -293,10 +293,10 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparer_DestinationNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             source.Replace(sequence, replacement, comparer).CopyTo(destination);
         }
@@ -308,9 +308,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparer_ComparerNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = null;
             source.Replace(sequence, replacement, comparer);
         }
@@ -322,9 +322,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparison_SourceNull_Throws()
         {
-            Sublist<List<int>, int> source = null;
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = null;
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             source.Replace(sequence, replacement, comparison);
         }
@@ -336,9 +336,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparison_SequenceNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = null;
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = null;
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             source.Replace(sequence, replacement, comparison);
         }
@@ -350,9 +350,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void TestReplaceCopy_WithComparison_SequenceEmpty_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>();
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             source.Replace(sequence, replacement, comparison);
         }
@@ -364,9 +364,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparison_ReplacementNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = null;
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             source.Replace(sequence, replacement, comparison);
         }
@@ -378,10 +378,10 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparison_DestinationNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             source.Replace(sequence, replacement, comparison).CopyTo(destination);
         }
@@ -393,9 +393,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplaceCopy_WithComparison_ComparisonNull_Throws()
         {
-            Sublist<List<int>, int> source = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IReadOnlySublist<List<int>, int> source = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             Func<int, int, bool> comparison = null;
             source.Replace(sequence, replacement, comparison);
         }
@@ -408,7 +408,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_DestinationTooSmall_StopsPrematurely()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             int replacement = 0;
             Func<int, bool> predicate = i => false;
@@ -427,7 +427,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_WithGenerator_DestinationTooSmall_StopsPrematurely()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => false;
@@ -446,7 +446,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SourceSmaller_SpaceLeftOver()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             int replacement = 0;
             Func<int, bool> predicate = i => false;
@@ -465,7 +465,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_WithGenerator_SourceSmaller_SpaceLeftOver()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => false;
@@ -484,7 +484,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_ItemsMatchingPredicateAreReplaced()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             int replacement = 3;
             Func<int, bool> predicate = i => i % 2 == 0;
@@ -503,7 +503,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_WithGenerator_ItemsMatchingPredicateAreReplaced()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 5, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             Func<int, int> generator = i => i + 1; // make odd by adding one
             Func<int, bool> predicate = i => i % 2 == 0;
@@ -523,9 +523,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceEqualsSource_ReplacementEmpty_CopiesNothing()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var replacement = TestHelper.Wrap(new List<int>());
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -547,9 +547,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInFront_ReplacementEmpty_RemovesFrontOfList()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            var replacement = TestHelper.Wrap(new List<int>());
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -571,9 +571,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInBack_ReplacementEmpty_RemovesBackOfList()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
-            var replacement = TestHelper.Wrap(new List<int>());
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 3, 4, 5 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -595,9 +595,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMiddle_ReplacementEmpty_RemovesMiddleOfList()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
-            var replacement = TestHelper.Wrap(new List<int>());
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3, 4 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -619,9 +619,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMultipleLocations_ReplacementEmpty_RemovesAllOccurrences()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
-            var replacement = TestHelper.Wrap(new List<int>());
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -643,9 +643,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceEqualsSource_ReplacementSmaller_CopiesReplacement()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -667,9 +667,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInFront_ReplacementSmaller_ReplacesValues()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -691,9 +691,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInBack_ReplacementSmaller_ReplacesValues()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 3, 4, 5 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -715,9 +715,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMiddle_ReplacementSmaller_ReplacesValues()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3, 4 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -739,9 +739,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMultipleLocations_ReplacementSmaller_ReplacesAllOccurrences()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 1 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 1 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3, 4 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -763,9 +763,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceEqualsSource_ReplacementLarger_CopiesReplacement()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -786,9 +786,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInFront_ReplacementLarger_ReplacesValues()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -810,9 +810,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInBack_ReplacementLarger_ReplacesValues()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 3, 4, 5 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -834,9 +834,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMiddle_ReplacementLarger_ReplacesValues()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3, 4 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -858,9 +858,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMultipleLocations_ReplacementLarger_ReplacesAllOccurrences()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -882,8 +882,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceEqualsSource_ReplacementEqualsSequence_NoChange()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, sequence).CopyTo(destination);
@@ -903,8 +903,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInFront_ReplacementEqualsSequence_NoChange()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, sequence).CopyTo(destination);
@@ -924,8 +924,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInBack_ReplacementEqualsSequence_NoChange()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, sequence).CopyTo(destination);
@@ -945,8 +945,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMiddle_ReplacementEqualsSequence_NoChange()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3, 4 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, sequence).CopyTo(destination);
@@ -966,8 +966,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMultipleLocations_ReplacementEqualsSequence_NoChange()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 2, 3, 4, 5, 2, 3, 1 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, sequence).CopyTo(destination);
@@ -987,9 +987,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInBack_DestinationTooSmall_StopsPrematurely()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 3, 4, 5 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 3, 4, 5 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -1010,9 +1010,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInFront_DestinationTooSmall_StopsPrematurely()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
             var result = source.Replace(sequence, replacement).CopyTo(destination);
@@ -1033,9 +1033,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceInMiddle_DestinationTooSmall_StopsPrematurely()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
-            var sequence = TestHelper.Wrap(new List<int>() { 2, 3, 4 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 2, 3, 4 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
 
@@ -1057,9 +1057,9 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReplaceCopy_SequenceFartherThanDestinationLength_StopsPrematurely()
         {
-            var source = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6 });
-            var sequence = TestHelper.Wrap(new List<int>() { 4, 5, 6 });
-            var replacement = TestHelper.Wrap(new List<int>() { 9, 9, 9 });
+            var source = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, 6 });
+            var sequence = TestHelper.WrapReadOnly(new List<int>() { 4, 5, 6 });
+            var replacement = TestHelper.WrapReadOnly(new List<int>() { 9, 9, 9 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
 

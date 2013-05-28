@@ -38,8 +38,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCopyTo_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> destination = new List<int>();
+            IExpandableSublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> destination = new List<int>().ToSublist();
             list.CopyTo(destination);
         }
 
@@ -51,7 +51,7 @@ namespace NDex.Tests
         public void TestCopyTo_IEnumerable_NullSource_Throws()
         {
             IEnumerable<int> source = null;
-            Sublist<List<int>, int> destination = new List<int>();
+            IExpandableSublist<List<int>, int> destination = new List<int>().ToSublist();
             source.CopyTo(destination);
         }
 
@@ -62,8 +62,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCopyTo_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list.CopyTo(destination);
         }
 
@@ -75,7 +75,7 @@ namespace NDex.Tests
         public void TestCopyTo_IEnumerable_NullDestination_Throws()
         {
             IEnumerable<int> source = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             source.CopyTo(destination);
         }
 

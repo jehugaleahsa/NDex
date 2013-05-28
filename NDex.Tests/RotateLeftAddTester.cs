@@ -57,7 +57,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRotateLeftAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int shift = 0;
             list.RotateLeft(shift);
         }
@@ -69,8 +69,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestRotateLeftAdd_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             int shift = 0;
             list.RotateLeft(shift).AddTo(destination);
         }
@@ -84,7 +84,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftAdd_PositiveShift_ShiftToLeft()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>());
             int shift = 2;
             destination = list.RotateLeft(shift).AddTo(destination);
@@ -100,7 +100,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftAdd_NegativeShift_ShiftsToTheRight()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>());
             int shift = -1;
             destination = list.RotateLeft(shift).AddTo(destination);
@@ -116,7 +116,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestRotateLeftAdd_ShiftLargerThanList_ShiftsFullCircle()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, });
             var destination = TestHelper.Wrap(new List<int>());
             int shift = list.Count + 1;
             destination = list.RotateLeft(shift).AddTo(destination);

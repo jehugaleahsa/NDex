@@ -48,7 +48,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             list.Distinct();
         }
 
@@ -59,7 +59,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctAdd_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Distinct(comparer);
         }
@@ -71,7 +71,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctAdd_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Distinct(comparison);
         }
@@ -83,8 +83,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctAdd_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list.Distinct().AddTo(destination);
         }
 
@@ -95,8 +95,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctAdd_WithComparer_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Distinct(comparer).AddTo(destination);
         }
@@ -108,8 +108,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctAdd_WithComparison_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Distinct(comparison).AddTo(destination);
         }
@@ -121,7 +121,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctAdd_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = null;
             list.Distinct(comparer);
         }
@@ -133,7 +133,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestDistinctAdd_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, bool> comparison = null;
             list.Distinct(comparison);
         }
@@ -146,7 +146,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctAdd_AllValuesTheSame_OnlyAddsOne()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 1, 1, 1, 1, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 1, 1, 1, 1, });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.Distinct().AddTo(destination);
             int[] expected = { 1 };
@@ -161,7 +161,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctAdd_AllValuesUnique_AddsAll()
         {
-            var list = TestHelper.Wrap(new List<int>() { 5, 4, 3, 2, 1 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 5, 4, 3, 2, 1 });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.Distinct(EqualityComparer<int>.Default.Equals).AddTo(destination);
             int[] expected = { 5, 4, 3, 2, 1 };
@@ -176,7 +176,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctAdd_LastItemsDuplicate()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 4, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 4, });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.Distinct(EqualityComparer<int>.Default).AddTo(destination);
             int[] expected = { 1, 2, 3, 4 };
@@ -191,7 +191,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctAdd_FirstItemsDuplicate()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 1, 2, 3, 4, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 1, 2, 3, 4, });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.Distinct().AddTo(destination);
             int[] expected = { 1, 2, 3, 4 };
@@ -206,7 +206,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestDistinctAdd_MiddleItemsDuplicate()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 2, 3, 4, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 2, 3, 4, });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.Distinct().AddTo(destination);
             int[] expected = { 1, 2, 3, 4 };

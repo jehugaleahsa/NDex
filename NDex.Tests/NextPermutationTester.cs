@@ -73,7 +73,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestNextPermutation_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             list.NextPermutation();
         }
 
@@ -84,7 +84,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestNextPermutation_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.NextPermutation(comparer);
         }
@@ -96,7 +96,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestNextPermutation_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.NextPermutation(comparison);
         }
@@ -108,7 +108,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestNextPermutation_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.NextPermutation(comparer);
         }
@@ -120,7 +120,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestNextPermutation_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.NextPermutation(comparison);
         }
@@ -173,7 +173,7 @@ namespace NDex.Tests
             List<int[]> permutations = new List<int[]>() { list.ToArray() };
             while (list.NextPermutation(Comparer<int>.Default.Compare))
             {
-                Assert.IsFalse(permutations.Any(item => list.Equals(item.ToSublist())), "The same permutation appeared twice.");
+                Assert.IsFalse(permutations.Any(item => list.IsEqualTo(item.ToSublist())), "The same permutation appeared twice.");
                 permutations.Add(list.ToArray());
             }
             Assert.AreEqual(120, permutations.Count, "Not all permutations were found.");

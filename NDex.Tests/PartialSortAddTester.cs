@@ -55,7 +55,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int numberOfItems = 0;
             list.PartialSort(numberOfItems);
         }
@@ -67,7 +67,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortAdd_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int numberOfItems = 0;
             IComparer<int> comparer = Comparer<int>.Default;
             list.PartialSort(numberOfItems, comparer);
@@ -80,7 +80,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortAdd_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int numberOfItems = 0;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.PartialSort(numberOfItems, comparison);
@@ -93,7 +93,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestPartialSortAdd_NegativeNumberOfItems_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = -1;
             list.PartialSort(numberOfItems);
         }
@@ -105,7 +105,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestPartialSortAdd_WithComparer_NegativeNumberOfItems_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = -1;
             IComparer<int> comparer = Comparer<int>.Default;
             list.PartialSort(numberOfItems, comparer);
@@ -118,7 +118,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestPartialSortAdd_WithComparison_NegativeNumberOfItems_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = -1;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.PartialSort(numberOfItems, comparison);
@@ -131,7 +131,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestPartialSortAdd_NumberOfItemsTooBig_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 1;
             list.PartialSort(numberOfItems);
         }
@@ -143,7 +143,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestPartialSortAdd_WithComparer_NumberOfItemsTooBig_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 1;
             IComparer<int> comparer = Comparer<int>.Default;
             list.PartialSort(numberOfItems, comparer);
@@ -156,7 +156,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void TestPartialSortAdd_WithComparison_NumberOfItemsTooBig_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 1;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.PartialSort(numberOfItems, comparison);
@@ -169,9 +169,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortAdd_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             list.PartialSort(numberOfItems).AddTo(destination);
         }
 
@@ -182,9 +182,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortAdd_WithComparer_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.PartialSort(numberOfItems, comparer).AddTo(destination);
         }
@@ -196,9 +196,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortAdd_WithComparison_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.PartialSort(numberOfItems, comparison).AddTo(destination);
         }
@@ -210,7 +210,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortAdd_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
             IComparer<int> comparer = null;
             list.PartialSort(numberOfItems, comparer);
@@ -223,7 +223,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortAdd_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
             Func<int, int, int> comparison = null;
             list.PartialSort(numberOfItems, comparison);
@@ -237,7 +237,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartialSortAdd_NumberOfItemsSmaller_HasSmallestItems()
         {
-            var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 8, 5, 12, 1, 7 });
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.PartialSort(numberOfItems).AddTo(destination);
@@ -253,7 +253,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartialSortAdd_WithComparer_NumberOfItemsSmaller_HasLargestItems()
         {
-            var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 8, 5, 12, 1, 7 });
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer = Comparer<int>.Default;
@@ -270,7 +270,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartialSortAdd_WithComparison_NumberOfItemsSmaller_HasLargestItems()
         {
-            var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 8, 5, 12, 1, 7 });
             int numberOfItems = 3;
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);

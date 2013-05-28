@@ -77,7 +77,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             list.StableSort();
         }
 
@@ -88,8 +88,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithBuffer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> buffer = new List<int>();
+            IReadOnlySublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             list.StableSort(buffer);
         }
 
@@ -100,7 +100,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.StableSort(comparer);
         }
@@ -112,8 +112,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithBuffer_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> buffer = new List<int>();
+            IReadOnlySublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             IComparer<int> comparer = Comparer<int>.Default;
             list.StableSort(buffer, comparer);
         }
@@ -125,7 +125,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.StableSort(comparison);
         }
@@ -137,8 +137,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithBuffer_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> buffer = new List<int>();
+            IReadOnlySublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.StableSort(buffer, comparison);
         }
@@ -150,8 +150,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_NullBuffer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> buffer = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> buffer = null;
             list.StableSort(buffer);
         }
 
@@ -162,8 +162,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithComparer_NullBuffer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> buffer = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> buffer = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.StableSort(buffer, comparer);
         }
@@ -175,8 +175,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithComparison_NullBuffer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> buffer = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> buffer = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.StableSort(buffer, comparison);
         }
@@ -188,7 +188,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_NullComparer_Throws()
         {
-            var list = new List<int>().ToSublist();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.StableSort(comparer);
         }
@@ -200,8 +200,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithBuffer_NullComparer_Throws()
         {
-            var list = new List<int>().ToSublist();
-            Sublist<List<int>, int> buffer = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.StableSort(buffer, comparer);
         }
@@ -213,7 +213,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_NullComparison_Throws()
         {
-            var list = new List<int>().ToSublist();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.StableSort(comparison);
         }
@@ -225,8 +225,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_WithBuffer_NullComparison_Throws()
         {
-            var list = new List<int>().ToSublist();
-            Sublist<List<int>, int> buffer = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> buffer = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.StableSort(buffer, comparison);
         }
@@ -238,8 +238,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestStableSortAdd_DestinationNull_Throws()
         {
-            var list = new List<int>().ToSublist();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list.StableSort().AddTo(destination);
         }
 
@@ -251,7 +251,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_EmptyList()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
             list.StableSort().AddTo(destination);
@@ -268,7 +268,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_EmptyBuffer_CallsInsertionSort()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
@@ -285,10 +285,10 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_Reversed()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(200, i => 199 - i).AddTo(list);
+            list = Sublist.Generate(200, i => 199 - i).AddTo(TestHelper.Populate(list));
             destination = list.StableSort(Comparer<int>.Default).AddTo(destination);
 
             bool result = destination.IsSorted(Comparer<int>.Default);
@@ -304,11 +304,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_Reversed_QuarterBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(100, i => 99 - i).AddTo(list);
+            list = Sublist.Generate(100, i => 99 - i).AddTo(list.List.ToSublist());
             buffer = Sublist.Generate(25, 0).AddTo(buffer);
             destination = list.StableSort(buffer, Comparer<int>.Default).AddTo(destination);
 
@@ -326,11 +326,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_Reversed_TinyBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(101, i => 101 - i).AddTo(list);
+            list = Sublist.Generate(101, i => 101 - i).AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(3, 0).AddTo(buffer);
             destination = list.StableSort(buffer, Comparer<int>.Default).AddTo(destination);
 
@@ -348,11 +348,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_PipeOrganed()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(100, i => i * 2).AddTo(list);
-            list = Sublist.Generate(200, i => 199 - (i - 100) * 2).AddTo(list);
+            list = Sublist.Generate(100, i => i * 2).AddTo(TestHelper.Populate(list));
+            list = Sublist.Generate(200, i => 199 - (i - 100) * 2).AddTo(TestHelper.Populate(list));
             destination = list.StableSort(Comparer<int>.Default.Compare).AddTo(destination);
 
             bool result = destination.IsSorted(Comparer<int>.Default.Compare);
@@ -368,12 +368,12 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_PipeOrganed_QuarterBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(50, i => i * 2).AddTo(list);
-            list = Sublist.Generate(100, i => 99 - (i - 50) * 2).AddTo(list);
+            list = Sublist.Generate(50, i => i * 2).AddTo(TestHelper.Populate(list));
+            list = Sublist.Generate(100, i => 99 - (i - 50) * 2).AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(25, 0).AddTo(buffer);
             destination = list.StableSort(buffer, Comparer<int>.Default.Compare).AddTo(destination);
 
@@ -391,12 +391,12 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_PipeOrganed_TinyBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(50, i => i * 2).AddTo(list);
-            list = Sublist.Generate(101, i => 101 - (i - 50) * 2).AddTo(list);
+            list = Sublist.Generate(50, i => i * 2).AddTo(TestHelper.Populate(list));
+            list = Sublist.Generate(101, i => 101 - (i - 50) * 2).AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(3, 0).AddTo(buffer);
             destination = list.StableSort(buffer, Comparer<int>.Default.Compare).AddTo(destination);
 
@@ -414,10 +414,10 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_Interweaved()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(200, i => i % 2 == 0 ? i : 199 - (i - 1)).AddTo(list);
+            list = Sublist.Generate(200, i => i % 2 == 0 ? i : 199 - (i - 1)).AddTo(TestHelper.Populate(list));
             destination = list.StableSort().AddTo(destination);
 
             bool result = destination.IsSorted();
@@ -433,11 +433,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_Interweaved_QuarterBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(100, i => i % 2 == 0 ? i : 99 - (i - 1)).AddTo(list);
+            list = Sublist.Generate(100, i => i % 2 == 0 ? i : 99 - (i - 1)).AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(25, 0).AddTo(buffer);
             destination = list.StableSort(buffer).AddTo(destination);
 
@@ -455,11 +455,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_Interweaved_TinyBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(101, i => i % 2 == 0 ? i : 101 - (i - 1)).AddTo(list);
+            list = Sublist.Generate(101, i => i % 2 == 0 ? i : 101 - (i - 1)).AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(3, 0).AddTo(buffer);
             destination = list.StableSort(buffer).AddTo(destination);
 
@@ -477,11 +477,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_LastMisplaced()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(200, i => i + 1).AddTo(list);
-            list = new int[] { 0 }.AddTo(list);
+            list = Sublist.Generate(200, i => i + 1).AddTo(TestHelper.Populate(list));
+            list = new int[] { 0 }.AddTo(TestHelper.Populate(list));
             destination = list.StableSort().AddTo(destination);
 
             bool result = destination.IsSorted();
@@ -497,12 +497,12 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_LastMisplaced_QuarterBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(100, i => i).AddTo(list);
-            list = new int[] { -1 }.AddTo(list);
+            list = Sublist.Generate(100, i => i).AddTo(TestHelper.Populate(list));
+            list = new int[] { -1 }.AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(25, 0).AddTo(buffer);
             destination = list.StableSort(buffer).AddTo(destination);
 
@@ -520,12 +520,12 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_LastMisplaced_TinyBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(101, i => i).AddTo(list);
-            list = new int[] { -1 }.AddTo(list);
+            list = Sublist.Generate(101, i => i).AddTo(TestHelper.Populate(list));
+            list = new int[] { -1 }.AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(3, 0).AddTo(buffer);
             destination = list.StableSort(buffer).AddTo(destination);
 
@@ -543,11 +543,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_FirstMisplaced()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = new int[] { 200 }.AddTo(list);
-            list = Sublist.Generate(201, i => i - 1).AddTo(list);
+            list = new int[] { 200 }.AddTo(TestHelper.Populate(list));
+            list = Sublist.Generate(201, i => i - 1).AddTo(TestHelper.Populate(list));
             destination = list.StableSort().AddTo(destination);
 
             bool result = destination.IsSorted();
@@ -563,12 +563,12 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_FirstMisplaced_QuarterBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = new int[] { 100 }.AddTo(list);
-            list = Sublist.Generate(101, i => i - 1).AddTo(list);
+            list = new int[] { 100 }.AddTo(TestHelper.Populate(list));
+            list = Sublist.Generate(101, i => i - 1).AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(25, 0).AddTo(buffer);
             destination = list.StableSort(buffer).AddTo(destination);
 
@@ -586,12 +586,12 @@ namespace NDex.Tests
         [TestMethod]
         public void TestStableSortAdd_FirstMisplaced_TinyBuffer()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var buffer = TestHelper.Wrap(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = new int[] { 100 }.AddTo(list);
-            list = Sublist.Generate(101, i => i - 1).AddTo(list);
+            list = new int[] { 100 }.AddTo(TestHelper.Populate(list));
+            list = Sublist.Generate(101, i => i - 1).AddTo(TestHelper.Populate(list));
             buffer = Sublist.Generate(3, 0).AddTo(buffer);
             destination = list.StableSort(buffer).AddTo(destination);
 

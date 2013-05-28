@@ -63,7 +63,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartitionCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true;
             list.Partition(predicate);
         }
@@ -75,9 +75,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartitionCopy_NullDestination1_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination1 = null;
-            Sublist<List<int>, int> destination2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination1 = null;
+            IExpandableSublist<List<int>, int> destination2 = new List<int>().ToSublist();
             Func<int, bool> predicate = i => true;
             list.Partition(predicate).CopyTo(destination1, destination2);
         }
@@ -89,9 +89,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartitionCopy_NullDestination2_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination1 = new List<int>();
-            Sublist<List<int>, int> destination2 = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination2 = null;
             Func<int, bool> predicate = i => true;
             list.Partition(predicate).CopyTo(destination1, destination2);
         }
@@ -103,7 +103,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartitionCopy_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, bool> predicate = null;
             list.Partition(predicate);
         }
@@ -116,7 +116,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartitionCopy()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8, 9 });
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             var odds = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0 });
 
@@ -141,7 +141,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartitionCopy_FirstDestinationFull_StopsPrematurely()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 6, 8, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 6, 8, });
             var odds = TestHelper.Wrap(new List<int>() { 0 }); // can't hold 2
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
 
@@ -166,7 +166,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartitionCopy_SecondDestinationFull_ContinueToFillFirst()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 6, 8, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 6, 8, });
             var evens = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0 });
             var odds = TestHelper.Wrap(new List<int>() { 0 }); // can't hold 3
 

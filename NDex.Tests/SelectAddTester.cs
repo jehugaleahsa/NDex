@@ -49,7 +49,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSelectAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, int> converter = i => i;
             list.Select(converter);
         }
@@ -61,8 +61,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSelectAdd_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int> converter = i => i;
             list.Select(converter).AddTo(destination);
         }
@@ -74,7 +74,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSelectAdd_NullConverter_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int> converter = null;
             list.Select(converter);
         }
@@ -87,7 +87,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSelectAdd_DoubleValues()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.Select(i => i * 2).AddTo(destination);
             int[] expected = { 2, 4, 6, };

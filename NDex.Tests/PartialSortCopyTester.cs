@@ -56,7 +56,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int numberOfItems = 0;
             list.PartialSort(numberOfItems);
         }
@@ -68,7 +68,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortCopy_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int numberOfItems = 0;
             IComparer<int> comparer = Comparer<int>.Default;
             list.PartialSort(numberOfItems, comparer);
@@ -81,9 +81,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortCopy_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = new List<int>();
+            IExpandableSublist<List<int>, int> destination = new List<int>().ToSublist();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.PartialSort(numberOfItems, comparison);
         }
@@ -95,9 +95,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             list.PartialSort(numberOfItems).CopyTo(destination);
         }
 
@@ -108,9 +108,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortCopy_WithComparer_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.PartialSort(numberOfItems, comparer).CopyTo(destination);
         }
@@ -122,9 +122,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortCopy_WithComparison_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
-            Sublist<List<int>, int> destination = null;
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.PartialSort(numberOfItems, comparison).CopyTo(destination);
         }
@@ -136,7 +136,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortCopy_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
             IComparer<int> comparer = null;
             list.PartialSort(numberOfItems, comparer);
@@ -149,7 +149,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestPartialSortCopy_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             int numberOfItems = 0;
             Func<int, int, int> comparison = null;
             list.PartialSort(numberOfItems, comparison);
@@ -163,7 +163,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartialSortCopy_DestinationSmaller_HasSmallestItems()
         {
-            var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 8, 5, 12, 1, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             IComparer<int> comparer = Comparer<int>.Default;
             var result = list.PartialSort(destination.Count, comparer).CopyTo(destination);
@@ -181,7 +181,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestPartialSortCopy_SourceSmaller_HeapSort()
         {
-            var list = TestHelper.Wrap(new List<int>() { 8, 5, 12, 1, 7 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 8, 5, 12, 1, 7 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0, 0, 0, 0 });
             var result = list.PartialSort(list.Count).CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset was wrong.");

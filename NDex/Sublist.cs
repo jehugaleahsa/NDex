@@ -6287,15 +6287,5 @@ namespace NDex
         {
             return GetEnumerator();
         }
-
-        /// <summary>
-        /// Implicitly creates a new instance of a Sublist spanning the entirety of a list.
-        /// </summary>
-        /// <param name="list">The list to wrap with a Sublist.</param>
-        /// <returns>A new instance of a Sublist.</returns>
-        public static implicit operator Sublist<TList, T>(TList list)
-        {
-            return new Sublist<TList, T>(list);
-        }
     }
 }

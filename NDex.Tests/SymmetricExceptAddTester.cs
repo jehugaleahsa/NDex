@@ -53,8 +53,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             list1.SymmetricExcept(list2);
         }
 
@@ -65,8 +65,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_WithComparer_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             IComparer<int> comparer = Comparer<int>.Default;
             list1.SymmetricExcept(list2, comparer);
         }
@@ -78,8 +78,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_WithComparison_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list1.SymmetricExcept(list2, comparison);
         }
@@ -91,8 +91,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             list1.SymmetricExcept(list2);
         }
 
@@ -103,8 +103,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_WithComparer_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list1.SymmetricExcept(list2, comparer);
         }
@@ -116,8 +116,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_WithComparison_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list1.SymmetricExcept(list2, comparison);
         }
@@ -129,9 +129,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list1.SymmetricExcept(list2).AddTo(destination);
         }
 
@@ -142,9 +142,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_WithComparer_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list1.SymmetricExcept(list2, comparer).AddTo(destination);
         }
@@ -156,9 +156,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_WithComparison_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list1.SymmetricExcept(list2, comparison).AddTo(destination);
         }
@@ -170,8 +170,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list1.SymmetricExcept(list2, comparer);
         }
@@ -183,8 +183,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSymmetricExceptAdd_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
+            IReadOnlySublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list1.SymmetricExcept(list2, comparison);
         }
@@ -197,7 +197,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSymmetricExceptAdd_EqualLists_AddsNothing()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3, 4, 5 });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list.SymmetricExcept(list).AddTo(destination);
             int[] expected = { };
@@ -212,8 +212,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSymmetricExceptAdd_Disjoint_AddsAll()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 1, 3, 5 });
-            var list2 = TestHelper.Wrap(new List<int>() { 2, 4, 6 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 1, 3, 5 });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 2, 4, 6 });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.SymmetricExcept(list2).AddTo(destination);
             int[] expected = { 1, 2, 3, 4, 5, 6 };
@@ -229,8 +229,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSymmetricExceptAdd_List1Shorter_RemainingCopied()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 1, 2 });
-            var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 1, 2 });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.SymmetricExcept(list2).AddTo(destination);
             int[] expected = { 3 };
@@ -246,8 +246,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSymmetricExceptAdd_List2Shorter_RemainingCopied()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 1, 2 });
             var destination = TestHelper.Wrap(new List<int>());
             destination = list1.SymmetricExcept(list2).AddTo(destination);
             int[] expected = { 3 };
@@ -263,8 +263,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSymmetricExceptAdd_WithComparer()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
-            var list2 = TestHelper.Wrap(new List<int>() { 2, 3 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 2, 3 });
             var destination = TestHelper.Wrap(new List<int>());
             IComparer<int> comparer = Comparer<int>.Default;
             destination = list1.SymmetricExcept(list2, comparer).AddTo(destination);
@@ -281,8 +281,8 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSymmetricExceptAdd_WithComparison()
         {
-            var list1 = TestHelper.Wrap(new List<int>() { 3, 2, 1 });
-            var list2 = TestHelper.Wrap(new List<int>() { 3, 2 });
+            var list1 = TestHelper.WrapReadOnly(new List<int>() { 3, 2, 1 });
+            var list2 = TestHelper.WrapReadOnly(new List<int>() { 3, 2 });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, int, int> comparison = (x, y) => Comparer<int>.Default.Compare(y, x);
             destination = list1.SymmetricExcept(list2, comparison).AddTo(destination);

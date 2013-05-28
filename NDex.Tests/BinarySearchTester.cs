@@ -54,7 +54,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestBinarySearch_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int value = 0;
             list.BinarySearch(value);
         }
@@ -66,7 +66,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestBinarySearch_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int value = 0;
             IComparer<int> comparer = Comparer<int>.Default;
             list.BinarySearch(value, comparer);
@@ -79,7 +79,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestBinarySearch_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int value = 0;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.BinarySearch(value, comparison);
@@ -92,7 +92,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestBinarySearch_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int value = 0;
             IComparer<int> comparer = null;
             list.BinarySearch(value, comparer);
@@ -105,7 +105,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestBinarySearch_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int value = 0;
             Func<int, int, int> comparison = null;
             list.BinarySearch(value, comparison);

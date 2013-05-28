@@ -227,7 +227,7 @@ namespace NDex.Tests
         public void TestCtor_NullList_Throws()
         {
             List<int> list = null;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list);
+            new Sublist<List<int>, int>(list);
         }
 
         /// <summary>
@@ -239,7 +239,7 @@ namespace NDex.Tests
         {
             List<int> list = null;
             int offset = 0;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list, offset);
+            new Sublist<List<int>, int>(list, offset);
         }
 
         /// <summary>
@@ -252,7 +252,7 @@ namespace NDex.Tests
             List<int> list = null;
             int offset = 0;
             int count = 0;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list, offset, count);
+            new Sublist<List<int>, int>(list, offset, count);
         }
 
         /// <summary>
@@ -264,7 +264,7 @@ namespace NDex.Tests
         {
             List<int> list = new List<int>();
             int offset = -1;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list, offset);
+            new Sublist<List<int>, int>(list, offset);
         }
 
         /// <summary>
@@ -277,7 +277,7 @@ namespace NDex.Tests
             List<int> list = new List<int>();
             int offset = -1;
             int count = 0;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list, offset, count);
+            new Sublist<List<int>, int>(list, offset, count);
         }
 
         /// <summary>
@@ -289,7 +289,7 @@ namespace NDex.Tests
         {
             List<int> list = new List<int>();
             int offset = 1;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list, offset);
+            new Sublist<List<int>, int>(list, offset);
         }
 
         /// <summary>
@@ -302,7 +302,7 @@ namespace NDex.Tests
             List<int> list = new List<int>();
             int offset = 1;
             int count = 0;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list, offset, count);
+            new Sublist<List<int>, int>(list, offset, count);
         }
 
         /// <summary>
@@ -315,7 +315,7 @@ namespace NDex.Tests
             List<int> list = new List<int>();
             int offset = 0;
             int count = -1;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list, offset, count);
+            new Sublist<List<int>, int>(list, offset, count);
         }
 
         /// <summary>
@@ -328,7 +328,7 @@ namespace NDex.Tests
             List<int> list = new List<int>();
             int offset = 0;
             int count = 1;
-            Sublist<List<int>, int> sublist = new Sublist<List<int>, int>(list, offset, count);
+            new Sublist<List<int>, int>(list, offset, count);
         }
 
         /// <summary>
@@ -680,7 +680,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestShift_ReadOnly()
         {
-            IReadOnlySublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            IReadOnlySublist<List<int>, int> sublist = new List<int>().ToSublist();
             sublist.Shift(0, true);
         }
 
@@ -690,7 +690,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestShift_Mutable()
         {
-            IMutableSublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            IMutableSublist<List<int>, int> sublist = new List<int>().ToSublist();
             sublist.Shift(0, true);
         }
 
@@ -700,7 +700,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestShift_Expandable()
         {
-            IExpandableSublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            IExpandableSublist<List<int>, int> sublist = new List<int>().ToSublist();
             sublist.Shift(0, true);
         }
 
@@ -780,7 +780,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestResize_ReadOnly()
         {
-            IReadOnlySublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            IReadOnlySublist<List<int>, int> sublist = new List<int>().ToSublist();
             sublist.Resize(sublist.Count, true);
         }
 
@@ -790,7 +790,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestResize_Mutable()
         {
-            IMutableSublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            IMutableSublist<List<int>, int> sublist = new List<int>().ToSublist();
             sublist.Resize(sublist.Count, true);
         }
 
@@ -800,7 +800,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestResize_Expandable()
         {
-            IExpandableSublist<List<int>, int> sublist = new Sublist<List<int>, int>(new List<int>());
+            IExpandableSublist<List<int>, int> sublist = new List<int>().ToSublist();
             sublist.Resize(sublist.Count, true);
         }
 

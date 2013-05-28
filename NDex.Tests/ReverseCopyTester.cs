@@ -40,7 +40,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReverseCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             list.Reverse();
         }
 
@@ -51,8 +51,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReverseCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             list.Reverse().CopyTo(destination);
         }
 
@@ -65,7 +65,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReverseCopy_DestinationSmaller_OnlyCopyFirstItems()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0 });
             var result = list.Reverse().CopyTo(destination);
             Assert.AreEqual(2, result.SourceOffset, "The source offset is wrong.");
@@ -82,7 +82,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestReverseCopy_SourceSmaller_SpaceLeftOver()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             var result = list.Reverse().CopyTo(destination);
             Assert.AreEqual(list.Count, result.SourceOffset, "The source offset is wrong.");

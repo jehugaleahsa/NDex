@@ -48,6 +48,17 @@ namespace NDex.Tests
         }
 
         /// <summary>
+        /// If the Sublist is null, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReversed_NullSublist_Throws()
+        {
+            Sublist<List<int>, int> sublist = null;
+            sublist.Reversed();
+        }
+
+        /// <summary>
         /// If we reverse a read-only sublist, we should see the items backwards.
         /// </summary>
         [TestMethod]
@@ -80,6 +91,19 @@ namespace NDex.Tests
         public void TestReversed_Expandable_Reversed()
         {
             IExpandableSublist<List<int>, int> substring = new List<int>() { 1, 2, 3, 4, 5 }.ToSublist(1, 3);
+            var reversed = substring.Reversed();
+            Assert.AreEqual(substring[0], reversed[2], "The first item was wrong.");
+            Assert.AreEqual(substring[1], reversed[1], "The second item was wrong.");
+            Assert.AreEqual(substring[2], reversed[0], "The third item was wrong.");
+        }
+
+        /// <summary>
+        /// If we reverse a sublist, we should see the items backwards.
+        /// </summary>
+        [TestMethod]
+        public void TestReversed_Reversed()
+        {
+            Sublist<List<int>, int> substring = new Sublist<List<int>,int>(new List<int>() { 1, 2, 3, 4, 5 }, 1, 3);
             var reversed = substring.Reversed();
             Assert.AreEqual(substring[0], reversed[2], "The first item was wrong.");
             Assert.AreEqual(substring[1], reversed[1], "The second item was wrong.");
@@ -179,13 +203,36 @@ namespace NDex.Tests
         }
 
         /// <summary>
+        /// If we try to reverse a null reversed sublist, an exception should be thrown.
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestReversed_OnReversedSublist_NullSublist_Throws()
+        {
+            Sublist<ReversedList<List<int>, int>, int> original = null;
+            original.Reversed();
+        }
+
+        /// <summary>
+        /// If a reversed, expandable sublist is reversed, the original sublist should be returned.
+        /// </summary>
+        [TestMethod]
+        public void TestReversed_OnReversedSublist_ReturnsOriginal()
+        {
+            var original = new Sublist<List<int>, int>(new List<int>() { 1, 2, 3, 4, 5 }, 1, 3);
+            var reversed = original.Reversed();
+            var rereversed = reversed.Reversed();
+            Assert.IsTrue(original.IsEqualTo(rereversed), "The original and re-reversed were not the same.");
+        }
+
+        /// <summary>
         /// If we try to reverse a null sublist, an exception should be thrown.
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReversed_OnSublist_NullSublist_Throws()
         {
-            Sublist<List<int>, int> sublist = null;
+            IExpandableSublist<List<int>, int> sublist = null;
             sublist.Reversed();
         }
 
@@ -196,20 +243,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReversed_OnReversedSublist_NullSublist_ReturnsOriginal()
         {
-            Sublist<ReversedList<List<int>, int>, int> reversed = null;
+            IExpandableSublist<ReversedList<List<int>, int>, int> reversed = null;
             reversed.Reversed();
-        }
-
-        /// <summary>
-        /// If a reversed, sublist is reversed, the original sublist should be returned.
-        /// </summary>
-        [TestMethod]
-        public void TestReversed_OnReversedSublist_ReturnsOriginal()
-        {
-            var original = new Sublist<List<int>, int>(new List<int>() { 1, 2, 3, 4, 5 }, 1, 3);
-            var reversed = original.Reversed();
-            var rereversed = reversed.Reversed();
-            Assert.IsTrue(original.IsEqualTo(rereversed), "The original and re-reversed were not the same.");
         }
 
         /// <summary>

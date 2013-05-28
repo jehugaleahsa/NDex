@@ -51,7 +51,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSelectCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, int> converter = i => i;
             list.Select(converter);
         }
@@ -63,8 +63,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSelectCopy_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, int> converter = i => i;
             list.Select(converter).CopyTo(destination);
         }
@@ -76,7 +76,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSelectCopy_NullConverter_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int> converter = null;
             list.Select(converter);
         }
@@ -89,7 +89,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSelectCopy_DestinationTooSmall_StopsPrematurely()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, 3 });
             var destination = TestHelper.Wrap(new List<int>() { 0 });
             Func<int, int> converter = i => i;
             var result = list.Select(converter).CopyTo(destination);
@@ -107,7 +107,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSelectCopy_SourceSmallerThanDestination_StopsPrematurely()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>() { 0, 0, 0 });
             Func<int, int> converter = i => i;
             var result = list.Select(converter).CopyTo(destination);

@@ -43,8 +43,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsEqualTo_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IExpandableSublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             list1.IsEqualTo(list2);
         }
 
@@ -55,8 +55,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsEqualTo_WithComparer_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IExpandableSublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list1.IsEqualTo(list2, comparer);
         }
@@ -68,8 +68,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsEqualTo_WithComparison_NullList1_Throws()
         {
-            Sublist<List<int>, int> list1 = null;
-            Sublist<List<int>, int> list2 = new List<int>();
+            IExpandableSublist<List<int>, int> list1 = null;
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list1.IsEqualTo(list2, comparison);
         }
@@ -81,8 +81,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsEqualTo_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IExpandableSublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             list1.IsEqualTo(list2);
         }
 
@@ -93,8 +93,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsEqualTo_WithComparer_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IExpandableSublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list1.IsEqualTo(list2, comparer);
         }
@@ -106,8 +106,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsEqualTo_WithComparison_NullList2_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = null;
+            IExpandableSublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list1.IsEqualTo(list2, comparison);
         }
@@ -119,8 +119,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsEqualTo_NullComparer_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
+            IExpandableSublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = null;
             list1.IsEqualTo(list2, comparer);
         }
@@ -132,8 +132,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestIsEqualTo_NullComparison_Throws()
         {
-            Sublist<List<int>, int> list1 = new List<int>();
-            Sublist<List<int>, int> list2 = new List<int>();
+            IExpandableSublist<List<int>, int> list1 = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> list2 = new List<int>().ToSublist();
             Func<int, int, bool> comparison = null;
             list1.IsEqualTo(list2, comparison);
         }
@@ -175,7 +175,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2 });
-            bool result = list1.Equals(list2);
+            bool result = list1.IsEqualTo(list2);
             Assert.IsFalse(result, "Lists of different sizes were determined equal.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -189,7 +189,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 1, 2, 4 });
-            bool result = list1.Equals(list2);
+            bool result = list1.IsEqualTo(list2);
             Assert.IsFalse(result, "Lists were determined equal even though the last items were different.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -203,7 +203,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 1, 2, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 2, 3 });
-            bool result = list1.Equals(list2);
+            bool result = list1.IsEqualTo(list2);
             Assert.IsFalse(result, "Lists were determined equal even though the first items were different.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);
@@ -217,7 +217,7 @@ namespace NDex.Tests
         {
             var list1 = TestHelper.Wrap(new List<int>() { 0, 1, 3 });
             var list2 = TestHelper.Wrap(new List<int>() { 0, 2, 3 });
-            bool result = list1.Equals(list2);
+            bool result = list1.IsEqualTo(list2);
             Assert.IsFalse(result, "Lists were determined equal even though the middle items were different.");
             TestHelper.CheckHeaderAndFooter(list1);
             TestHelper.CheckHeaderAndFooter(list2);

@@ -44,7 +44,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSortCopy_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             list.Sort();
         }
 
@@ -55,7 +55,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSortCopy_WithComparer_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             IComparer<int> comparer = Comparer<int>.Default;
             list.Sort(comparer);
         }
@@ -67,7 +67,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSortCopy_WithComparison_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, int, int> comparison = Comparer<int>.Default.Compare;
             list.Sort(comparison);
         }
@@ -79,7 +79,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSortCopy_NullComparer_Throws()
         {
-            var list = new List<int>().ToSublist();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             IComparer<int> comparer = null;
             list.Sort(comparer);
         }
@@ -91,7 +91,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSortCopy_NullComparison_Throws()
         {
-            var list = new List<int>().ToSublist();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int, int> comparison = null;
             list.Sort(comparison);
         }
@@ -103,8 +103,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSortCopy_DestinationNull_Throws()
         {
-            var list = new List<int>().ToSublist();
-            Sublist<int[], int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<int[], int> destination = null;
             list.Sort().CopyTo(destination);
         }
 
@@ -116,7 +116,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSortCopy_EmptyList()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
             var result = list.Sort().CopyTo(destination);
@@ -133,10 +133,10 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSortCopy_Reversed()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(200, i => 199 - i).AddTo(list);
+            list = Sublist.Generate(200, i => 199 - i).AddTo(TestHelper.Populate(list));
             destination = Sublist.Generate(200, 0).AddTo(destination);
 
             var result = list.Sort(Comparer<int>.Default).CopyTo(destination);
@@ -155,11 +155,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSortCopy_PipeOrganed()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(100, i => i * 2).AddTo(list);
-            list = Sublist.Generate(200, i => 199 - (i - 100) * 2).AddTo(list);
+            list = Sublist.Generate(100, i => i * 2).AddTo(TestHelper.Populate(list));
+            list = Sublist.Generate(200, i => 199 - (i - 100) * 2).AddTo(TestHelper.Populate(list));
             destination = Sublist.Generate(300, 0).AddTo(destination);
 
             var result = list.Sort(Comparer<int>.Default.Compare).CopyTo(destination);
@@ -178,10 +178,10 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSortCopy_Interweaved()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(200, i => i % 2 == 0 ? i : 199 - (i - 1)).AddTo(list);
+            list = Sublist.Generate(200, i => i % 2 == 0 ? i : 199 - (i - 1)).AddTo(TestHelper.Populate(list));
             destination = Sublist.Generate(200, 0).AddTo(destination);
 
             var result = list.Sort().CopyTo(destination);
@@ -200,11 +200,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSortCopy_LastMisplaced()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(200, i => i + 1).AddTo(list);
-            list = new int[] { 0 }.AddTo(list);
+            list = Sublist.Generate(200, i => i + 1).AddTo(TestHelper.Populate(list));
+            list = new int[] { 0 }.AddTo(TestHelper.Populate(list));
             destination = Sublist.Generate(201, 0).AddTo(destination);
 
             var result = list.Sort().CopyTo(destination);
@@ -223,11 +223,11 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSortCopy_FirstMisplaced()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = new int[] { 200 }.AddTo(list);
-            list = Sublist.Generate(201, i => i - 1).AddTo(list);
+            list = new int[] { 200 }.AddTo(TestHelper.Populate(list));
+            list = Sublist.Generate(201, i => i - 1).AddTo(TestHelper.Populate(list));
             destination = Sublist.Generate(202, 0).AddTo(destination);
 
             var result = list.Sort().CopyTo(destination);
@@ -247,10 +247,10 @@ namespace NDex.Tests
         [TestMethod]
         public void TestSortCopy_DestinationTooSmall_SortsEncounteredItems()
         {
-            var list = TestHelper.Wrap(new List<int>());
+            var list = TestHelper.WrapReadOnly(new List<int>());
             var destination = TestHelper.Wrap(new List<int>());
 
-            list = Sublist.Generate(100, i => i).AddTo(list);
+            list = Sublist.Generate(100, i => i).AddTo(list.List.ToSublist());
             destination = Sublist.Generate(50, 0).AddTo(destination);
 
             var result = list.Sort().CopyTo(destination);

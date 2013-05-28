@@ -39,7 +39,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestWhereAdd_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IReadOnlySublist<List<int>, int> list = null;
             Func<int, bool> predicate = i => true; // always true
             list.Where(predicate);
         }
@@ -51,8 +51,8 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestWhereAdd_NullDestination_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> destination = null;
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> destination = null;
             Func<int, bool> predicate = i => true; // always true
             list.Where(predicate).AddTo(destination);
         }
@@ -64,7 +64,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestWhereAdd_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IReadOnlySublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, bool> predicate = null; // always true
             list.Where(predicate);
         }
@@ -77,7 +77,7 @@ namespace NDex.Tests
         [TestMethod]
         public void TestWhereAdd_CopyEvenItems_AddsToDestination()
         {
-            var list = TestHelper.Wrap(new List<int>() { 1, 2, });
+            var list = TestHelper.WrapReadOnly(new List<int>() { 1, 2, });
             var destination = TestHelper.Wrap(new List<int>());
             Func<int, bool> predicate = i => i % 2 == 0; // always true
             destination = list.Where(predicate).AddTo(destination);

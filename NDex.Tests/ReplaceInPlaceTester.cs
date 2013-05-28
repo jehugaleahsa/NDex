@@ -76,7 +76,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             int replacement = 0;
             Func<int, bool> predicate = i => true;
             list.Replace(predicate, replacement);
@@ -89,7 +89,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithGenerator_NullList_Throws()
         {
-            Sublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> list = null;
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = i => true;
             list.Replace(predicate, generator);
@@ -102,7 +102,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int replacement = 0;
             Func<int, bool> predicate = null;
             list.Replace(predicate, replacement);
@@ -115,7 +115,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithGenerator_NullPredicate_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int> generator = i => i;
             Func<int, bool> predicate = null;
             list.Replace(predicate, generator);
@@ -128,7 +128,7 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_NullGenerator_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             Func<int, int> generator = null;
             Func<int, bool> predicate = i => true;
             list.Replace(predicate, generator);
@@ -141,9 +141,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_ListNull_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             list.Replace(sequence, replacement);
         }
 
@@ -154,9 +154,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_SequenceNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = null;
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = null;
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             list.Replace(sequence, replacement);
         }
 
@@ -167,9 +167,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void TestReplace_SequenceEmpty_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>();
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             list.Replace(sequence, replacement);
         }
 
@@ -180,9 +180,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_ReplacementNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = null;
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = null;
             list.Replace(sequence, replacement);
         }
 
@@ -193,9 +193,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithComparer_ListNull_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Replace(sequence, replacement, comparer);
         }
@@ -207,9 +207,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithComparer_SequenceNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = null;
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = null;
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Replace(sequence, replacement, comparer);
         }
@@ -221,9 +221,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void TestReplace_WithComparer_SequenceEmpty_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>();
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Replace(sequence, replacement, comparer);
         }
@@ -235,9 +235,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithComparer_ReplacementNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = null;
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = null;
             IEqualityComparer<int> comparer = EqualityComparer<int>.Default;
             list.Replace(sequence, replacement, comparer);
         }
@@ -249,9 +249,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithComparer_ComparerNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             IEqualityComparer<int> comparer = null;
             list.Replace(sequence, replacement, comparer);
         }
@@ -263,9 +263,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithComparison_ListNull_Throws()
         {
-            Sublist<List<int>, int> list = null;
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = null;
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Replace(sequence, replacement, comparison);
         }
@@ -277,9 +277,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithComparison_SequenceNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = null;
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = null;
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Replace(sequence, replacement, comparison);
         }
@@ -291,9 +291,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentException))]
         public void TestReplace_WithComparison_SequenceEmpty_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>();
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Replace(sequence, replacement, comparison);
         }
@@ -305,9 +305,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithComparison_ReplacementNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = null;
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = null;
             Func<int, int, bool> comparison = EqualityComparer<int>.Default.Equals;
             list.Replace(sequence, replacement, comparison);
         }
@@ -319,9 +319,9 @@ namespace NDex.Tests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestReplace_WithComparison_ComparerNull_Throws()
         {
-            Sublist<List<int>, int> list = new List<int>();
-            Sublist<List<int>, int> sequence = new List<int>() { 1 };
-            Sublist<List<int>, int> replacement = new List<int>();
+            IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
+            IExpandableSublist<List<int>, int> sequence = new List<int>() { 1 }.ToSublist();
+            IExpandableSublist<List<int>, int> replacement = new List<int>().ToSublist();
             Func<int, int, bool> comparison = null;
             list.Replace(sequence, replacement, comparison);
         }
