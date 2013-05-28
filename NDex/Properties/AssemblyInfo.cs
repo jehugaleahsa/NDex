@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -11,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Truncon")]
 [assembly: AssemblyProduct("NDex")]
-[assembly: AssemblyCopyright("Copyright ©  2013")]
+[assembly: AssemblyCopyright("Copyright © 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -37,3 +38,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("3.0.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("en-US")]
 [assembly: InternalsVisibleTo("NDex.Tests")]
+[assembly: CLSCompliant(true)]
