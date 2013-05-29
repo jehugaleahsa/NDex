@@ -174,10 +174,10 @@ The code above will essentially do nothing. Without calling `InPlace`, NDex does
 
     values.Replace(i => i < 0, i => -1).InPlace();  // 1, 2, 3, 4, 5
     
-When you call the `Replace` function you are creating an intermediate object. Most intermediate objects implement `IEnumerable<T>`, so you can use them in a `foreach` loop or intermix their use with LINQ:
+When you call the `Replace` function you are creating an intermediate object. Intermediate objects supply an `AsEnumerable` method, so you can use them in a `foreach` loop or intermix their use with LINQ:
 
     Random random = new Random();
-    foreach (int value in values.RandomShuffle(random))
+    foreach (int value in values.Replace(i => i < 0, i => -i).AsEnumerable())
     {
         // do something with value
     }
