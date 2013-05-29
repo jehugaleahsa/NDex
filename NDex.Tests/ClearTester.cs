@@ -27,7 +27,7 @@ namespace NDex.Tests
             Sublist.Generate(100, i => random.Next(100)).AddTo(list.ToSublist());
 
             // overwrite if an odd number
-            int index = list.ToSublist().Where(i => i % 2 == 1).InPlace();
+            int index = list.ToSublist().Where(i => i % 2 == 0).InPlace();
 
             // now eliminate garbage at the end
             var remaining = list.ToSublist(index);

@@ -10,7 +10,7 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TDestination">The type of the items in the destination sublist.</typeparam>
     /// <typeparam name="TResult">The type of result returned by the CopyTo operation.</typeparam>
-    public abstract class Source<TDestination, TResult> : IEnumerable<TDestination>
+    public abstract class Source<TDestination, TResult>
     {
         /// <summary>
         /// Initializes a new instance of an Source.
@@ -72,19 +72,22 @@ namespace NDex
             where TDestinationList : IList<TDestination>;
 
         /// <summary>
-        /// Gets a collection holding the results of applying the operation.
+        /// Gets an enumerator over a collection holding the results of applying the operation.
         /// </summary>
-        /// <returns>A collection holding the results of applying the operation.</returns>
-        public IEnumerator<TDestination> GetEnumerator()
+        /// <returns>An enumerator.</returns>
+        public IEnumerable<TDestination> AsEnumerable()
         {
-            List<TDestination> destination = new List<TDestination>();
-            SafeAddTo(destination.ToSublist());
-            return destination.GetEnumerator();
+            return AsSublist();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        /// <summary>
+        /// Gets a Sublist wrapping the results of applying the operation.
+        /// </summary>
+        /// <returns>The Sublist.</returns>
+        public IExpandableSublist<List<TDestination>, TDestination> AsSublist()
         {
-            return GetEnumerator();
+            List<TDestination> destination = new List<TDestination>();
+            return SafeAddTo(destination.ToSublist());
         }
     }
 }

@@ -26,12 +26,12 @@ namespace NDex.Tests
             // build a list
             var array = Enumerable.Range(0, 100).Select(i => random.Next(100)).ToArray();
 
-            // overwrite even numbers
+            // overwrite odd numbers
             int index = array.ToSublist().Where(i => i % 2 == 0).InPlace();
 
-            // now check that every number is odd
-            var odds = array.ToSublist(0, index);
-            Assert.IsFalse(odds.Find(i => i % 2 == 0), "Even numbers were found.");
+            // now check that every number is even
+            var evens = array.ToSublist(0, index);
+            Assert.IsFalse(evens.Find(i => i % 2 != 0), "Odds numbers were found.");
         }
 
         #endregion
@@ -72,7 +72,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 6, 8 });
             int index = list.Where(i => i % 2 == 0).InPlace();
-            Assert.AreEqual(0, index, "The wrong index was returned.");
+            Assert.AreEqual(list.Count, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -84,7 +84,7 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 7, 9 });
             int index = list.Where(i => i % 2 == 0).InPlace();
-            Assert.AreEqual(list.Count, index, "The wrong index was returned.");
+            Assert.AreEqual(0, index, "The wrong index was returned.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -96,7 +96,9 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 3, 5, 4, 6 });
             int index = list.Where(i => i % 2 == 0).InPlace();
-            Assert.AreEqual(3, index, "The wrong index was returned.");
+            Assert.AreEqual(2, index, "The wrong index was returned.");
+            int[] expected = { 4, 6 };
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items were not where they were expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
 
@@ -108,8 +110,8 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 2, 4, 1, 3, 5, });
             int index = list.Where(i => i % 2 == 0).InPlace();
-            Assert.AreEqual(3, index, "The wrong index was returned.");
-            int[] expected = { 1, 3, 5 };
+            Assert.AreEqual(2, index, "The wrong index was returned.");
+            int[] expected = { 2, 4 };
             Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items were not where they were expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -122,8 +124,8 @@ namespace NDex.Tests
         {
             var list = TestHelper.Wrap(new List<int>() { 1, 2, 3, 4, 5 });
             int index = list.Where(i => i % 2 == 0).InPlace();
-            Assert.AreEqual(3, index, "The wrong index was returned.");
-            int[] expected = { 1, 3, 5 };
+            Assert.AreEqual(2, index, "The wrong index was returned.");
+            int[] expected = { 2, 4 };
             Assert.IsTrue(expected.ToSublist().IsEqualTo(list.Nest(0, index)), "The items were not where they were expected.");
             TestHelper.CheckHeaderAndFooter(list);
         }

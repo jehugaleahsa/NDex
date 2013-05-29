@@ -147,7 +147,7 @@ namespace NDex
     /// </summary>
     /// <typeparam name="TSourceList">The type of the underlying list of the source.</typeparam>
     /// <typeparam name="TSource">The type of the items in the source.</typeparam>
-    public class PartitionSource<TSourceList, TSource> : IEnumerable<TSource>
+    public class PartitionSource<TSourceList, TSource>
         where TSourceList : IList<TSource>
     {
         internal PartitionSource(
@@ -259,17 +259,23 @@ namespace NDex
         /// that the items satisfying the predicate appear first.
         /// </summary>
         /// <returns>The enumerator.</returns>
-        public IEnumerator<TSource> GetEnumerator()
+        public IEnumerable<TSource> AsEnumerable()
+        {
+            return AsSublist();
+        }
+
+        /// <summary>
+        /// Gets a Sublist over the source list's items such
+        /// that the items satisfying the predicate appear first.
+        /// </summary>
+        /// <returns>The Sublist.</returns>
+        public IExpandableSublist<List<TSource>, TSource> AsSublist()
         {
             List<TSource> destination1 = new List<TSource>();
             List<TSource> destination2 = new List<TSource>();
             safeAddTo<List<TSource>, List<TSource>>(destination1.ToSublist(), destination2.ToSublist());
-            return destination1.Concat(destination2).GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
+            destination1.AddRange(destination2);
+            return destination1.ToSublist();
         }
     }
 

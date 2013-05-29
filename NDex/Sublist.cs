@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using NDex.Properties;
 
 namespace NDex
@@ -262,6 +263,22 @@ namespace NDex
         private const int _sortMax = 32;
 
         #region ToSublist
+
+        /// <summary>
+        /// Evaluates and wraps the given collection.
+        /// </summary>
+        /// <typeparam name="T">The type of the items in the list.</typeparam>
+        /// <param name="collection">The collection to evaluate and wrap.</param>
+        /// <returns>A Sublist wrapping the given collection.</returns>
+        public static IExpandableSublist<List<T>, T> ToSublist<T>(this IEnumerable<T> collection)
+        {
+            Sublist<List<T>, T> result = collection as Sublist<List<T>, T>;
+            if (result == null)
+            {
+                result = new Sublist<List<T>, T>(collection.ToList());
+            }
+            return result;
+        }
 
         /// <summary>
         /// Wraps the given list such that the entirety of the list is visible.
@@ -5871,7 +5888,7 @@ namespace NDex
         {
             for (int position = first; position != past; ++position)
             {
-                if (!predicate(list[position]))
+                if (predicate(list[position]))
                 {
                     list[first] = list[position];
                     ++first;

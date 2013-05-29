@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace NDex.Tests
 {
@@ -13,6 +14,32 @@ namespace NDex.Tests
     public class SublistTester
     {
         #region ToSublist
+
+        /// <summary>
+        /// If we call ToSublist on an IEnumerable, the entire, evaluated collection
+        /// is wrapped.
+        /// </summary>
+        [TestMethod]
+        public void TestToSublist_OnIEnumerable_EvaluatesAndWraps()
+        {
+            var evens = Enumerable.Range(0, 10).Where(i => i % 2 == 0);
+            var sublist = evens.ToSublist();
+            int[] expected = new int[] { 0, 2, 4, 6, 8 };
+            Assert.IsTrue(expected.ToSublist().IsEqualTo(sublist), "The wrong items were wrapped.");
+        }
+
+        /// <summary>
+        /// If we call ToSublist on an IEnumerable that is a Sublist, the original Sublist
+        /// is returned.
+        /// </summary>
+        [TestMethod]
+        public void TestToSublist_OnIEnumerable_IsSublist_CastToSublist()
+        {
+            var original = new List<int>() { 1, 2, 3 }.ToSublist();
+            IEnumerable<int> enumerable = original;
+            var sublist = enumerable.ToSublist();
+            Assert.AreSame(original, sublist, "The original sublist was not returned.");
+        }
 
         /// <summary>
         /// If we just call ToSublist with no parameters, it wraps the entire list.
