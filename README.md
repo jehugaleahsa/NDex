@@ -225,8 +225,6 @@ You can use `LowerAndUpperBound` to get the indexes surrounding all occurrences 
     int count = result.UpperBound - result.LowerBound;
     var occurrences = values.ToSublist(result.LowerBound, count);
     occurrences.Clear();  // 1, 1, 2, 2, 2, 4, 5, 5
-    
-The `BinarySearch` algorithm is similar to `LowerBound` in that it will find the first occurrence of a value. It returns a result class, providing an `Index` property. It also provides an `Exists` property that says whether the item was found. The result class automatically converts to a `Boolean` or an `Int32`, representing the `Exists` or the `Index` properties, respectively.
 
 ### Comparison Algorithms
 If you need to compare two lists, you should use the `IsEqualTo`, `CompareTo` and `Mismatch` methods.
