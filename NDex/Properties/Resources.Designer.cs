@@ -88,6 +88,15 @@ namespace NDex.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to An attempt was made to copy to a destination that was too small..
+        /// </summary>
+        internal static string DestinationTooSmall {
+            get {
+                return ResourceManager.GetString("DestinationTooSmall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An attempt was made to edit a read-only list..
         /// </summary>
         internal static string EditReadonlyList {

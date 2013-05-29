@@ -43,6 +43,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ItemAtCopyTester.cs" />
+    <Compile Include="ItemAtAddTester.cs" />
     <Compile Include="StableSortAddTester.cs" />
     <Compile Include="StableSortCopyTester.cs" />
     <Compile Include="MakeSetCopyTester.cs" />
@@ -110,7 +112,7 @@
     <Compile Include="IsPartitionedTester.cs" />
     <Compile Include="IsSetTester.cs" />
     <Compile Include="IsSortedTester.cs" />
-    <Compile Include="ItemAtTester.cs" />
+    <Compile Include="ItemAtInPlaceTester.cs" />
     <Compile Include="LowerAndUpperBoundResultTester.cs" />
     <Compile Include="LowerAndUpperBoundTester.cs" />
     <Compile Include="LowerBoundTester.cs" />

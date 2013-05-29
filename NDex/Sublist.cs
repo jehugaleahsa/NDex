@@ -3195,106 +3195,52 @@ namespace NDex
 
         #region ItemAt
 
-        /// <summary>
-        /// Arranges the items in a list such that the item at the given index is the same had the list been sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to rearrange.</param>
-        /// <param name="index">The index into the list to move the expected item.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- outside the bounds of the list.</exception>
-        public static void ItemAt<TList, T>(this IMutableSublist<TList, T> list, int index)
-            where TList : IList<T>
+        internal static int AddItemAt<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int middle, int past, 
+            TDestinationList destination, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
         {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (index < 0 || index >= list.Count)
-            {
-                throw new ArgumentOutOfRangeException("index", index, Resources.IndexOutOfRange);
-            }
-            itemAt<TList, T>(list, index, Comparer<T>.Default.Compare);
+            int count = past - first;
+            growAndShift<TDestinationList, TSource>(destination, destinationPast, count);
+            CopyItemAt<TSourceList, TDestinationList, TSource>(
+                source, first, middle, past,
+                destination, destinationPast, destinationPast + count,
+                comparison);
+            return destinationPast + count;
         }
 
-        /// <summary>
-        /// Arranges the items in a list such that the item at the given index is the same had the list been sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to rearrange.</param>
-        /// <param name="index">The index into the list to move the expected item.</param>
-        /// <param name="comparer">The comparer to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- outside the bounds of the list.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparer is null.</exception>
-        public static void ItemAt<TList, T>(this IMutableSublist<TList, T> list, int index, IComparer<T> comparer)
-            where TList : IList<T>
+        internal static Tuple<int, int> CopyItemAt<TSourceList, TDestinationList, TSource>(
+            TSourceList source, int first, int middle, int past,
+            TDestinationList destination, int destinationFirst, int destinationPast,
+            Func<TSource, TSource, int> comparison)
+            where TSourceList : IList<TSource>
+            where TDestinationList : IList<TSource>
         {
-            if (list == null)
+            int destinationCount = destinationPast - destinationFirst;
+            int middleCount = middle - first;
+            Tuple<int, int> indexes = copyTo<TSourceList, TDestinationList, TSource>(source, first, past, destination, destinationFirst, destinationPast);
+            if (indexes.Item2 > destinationFirst + middleCount)
             {
-                throw new ArgumentNullException("list");
+                ItemAt<TDestinationList, TSource>(destination, destinationFirst, destinationFirst + middleCount, indexes.Item2, comparison);
             }
-            if (index < 0 || index >= list.Count)
-            {
-                throw new ArgumentOutOfRangeException("index", index, Resources.IndexOutOfRange);
-            }
-            if (comparer == null)
-            {
-                throw new ArgumentNullException("comparer");
-            }
-            itemAt<TList, T>(list, index, comparer.Compare);
+            return indexes;
         }
 
-        /// <summary>
-        /// Arranges the items in a list such that the item at the given index is the same had the list been sorted.
-        /// </summary>
-        /// <typeparam name="TList">The type of the list.</typeparam>
-        /// <typeparam name="T">The type of the items in the list.</typeparam>
-        /// <param name="list">The list to rearrange.</param>
-        /// <param name="index">The index into the list to move the expected item.</param>
-        /// <param name="comparison">The comparison delegate to use to compare items in the list.</param>
-        /// <exception cref="System.ArgumentNullException">The list is null.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The index is negative -or- outside the bounds of the list.</exception>
-        /// <exception cref="System.ArgumentNullException">The comparison delegate is null.</exception>
-        public static void ItemAt<TList, T>(this IMutableSublist<TList, T> list, int index, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            if (list == null)
-            {
-                throw new ArgumentNullException("list");
-            }
-            if (index < 0 || index >= list.Count)
-            {
-                throw new ArgumentOutOfRangeException("index", index, Resources.IndexOutOfRange);
-            }
-            if (comparison == null)
-            {
-                throw new ArgumentNullException("comparison");
-            }
-            itemAt<TList, T>(list, index, comparison);
-        }
-
-        private static void itemAt<TList, T>(IMutableSublist<TList, T> list, int index, Func<T, T, int> comparison)
-            where TList : IList<T>
-        {
-            itemAt<TList, T>(list.List, list.Offset, list.Offset + index, list.Offset + list.Count, comparison);
-        }
-
-        private static void itemAt<TList, T>(TList list, int first, int n, int past, Func<T, T, int> comparison)
+        internal static void ItemAt<TList, T>(TList list, int first, int middle, int past, Func<T, T, int> comparison)
             where TList : IList<T>
         {
             while (past - first > _sortMax)
             {
-                int middle = partition<TList, T>(list, first, past, comparison);
-                if (middle <= n)
+                int pivot = partition<TList, T>(list, first, past, comparison);
+                if (pivot <= middle)
                 {
-                    first = middle;
+                    first = pivot;
                 }
                 else
                 {
-                    past = middle;
+                    past = pivot;
                 }
             }
             insertionSort<TList, T>(list, first, past, comparison);

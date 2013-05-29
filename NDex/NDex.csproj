@@ -39,6 +39,7 @@
     <Compile Include="ExceptSource.cs" />
     <Compile Include="GenerateSource.cs" />
     <Compile Include="IntersectSource.cs" />
+    <Compile Include="ItemAtSource.cs" />
     <Compile Include="MakeHeapSource.cs" />
     <Compile Include="MakeSetSource.cs" />
     <Compile Include="MergeSource.cs" />

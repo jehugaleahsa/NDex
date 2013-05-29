@@ -5,10 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace NDex.Tests
 {
     /// <summary>
-    /// Tests the ItemAt methods.
+    /// Tests the ItemAtInPlace methods.
     /// </summary>
     [TestClass]
-    public class ItemAtTester
+    public class ItemAtInPlaceTester
     {
         #region Real World Example
 
@@ -18,7 +18,7 @@ namespace NDex.Tests
         /// use ItemAt to find 3rd place in a list of numbers.
         /// </summary>
         [TestMethod]
-        public void TestItemAt_Find3rdPlace()
+        public void TestItemAtInPlace_Find3rdPlace()
         {
             Random random = new Random();
 
@@ -32,7 +32,7 @@ namespace NDex.Tests
             list.Insert(random.Next(0, list.Count + 1), 2);
 
             // now find what item belongs in the second position, as if the list was sorted
-            list.ToSublist().ItemAt(2);
+            list.ToSublist().ItemAt(2).InPlace();
             int actual = list[2];
             Assert.AreEqual(2, actual, "The 2 was not moved to the second position.");
         }
@@ -46,7 +46,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestItemAt_NullList_Throws()
+        public void TestItemAtInPlace_NullList_Throws()
         {
             IExpandableSublist<List<int>, int> list = null;
             int index = 0;
@@ -58,7 +58,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestItemAt_WithComparer_NullList_Throws()
+        public void TestItemAtInPlace_WithComparer_NullList_Throws()
         {
             IExpandableSublist<List<int>, int> list = null;
             int index = 0;
@@ -71,7 +71,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestItemAt_WithComparison_NullList_Throws()
+        public void TestItemAtInPlace_WithComparison_NullList_Throws()
         {
             IExpandableSublist<List<int>, int> list = null;
             int index = 0;
@@ -84,7 +84,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestItemAt_NegativeIndex_Throws()
+        public void TestItemAtInPlace_NegativeIndex_Throws()
         {
             IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = -1;
@@ -96,7 +96,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestItemAt_WithComparer_NegativeIndex_Throws()
+        public void TestItemAtInPlace_WithComparer_NegativeIndex_Throws()
         {
             IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = -1;
@@ -109,7 +109,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestItemAt_WithComparison_NegativeIndex_Throws()
+        public void TestItemAtInPlace_WithComparison_NegativeIndex_Throws()
         {
             IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = -1;
@@ -122,7 +122,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestItemAt_IndexTooBig_Throws()
+        public void TestItemAtInPlace_IndexTooBig_Throws()
         {
             IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = 0;
@@ -134,7 +134,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestItemAt_WithComparer_IndexTooBig_Throws()
+        public void TestItemAtInPlace_WithComparer_IndexTooBig_Throws()
         {
             IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = 0;
@@ -147,7 +147,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void TestItemAt_WithComparison_IndexTooBig_Throws()
+        public void TestItemAtInPlace_WithComparison_IndexTooBig_Throws()
         {
             IExpandableSublist<List<int>, int> list = new List<int>().ToSublist();
             int index = 0;
@@ -160,7 +160,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestItemAt_NullComparer_Throws()
+        public void TestItemAtInPlace_NullComparer_Throws()
         {
             IExpandableSublist<List<int>, int> list = new List<int>() { 1 }.ToSublist();
             int index = 0;
@@ -173,7 +173,7 @@ namespace NDex.Tests
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void TestItemAt_NullComparison_Throws()
+        public void TestItemAtInPlace_NullComparison_Throws()
         {
             IExpandableSublist<List<int>, int> list = new List<int>() { 1 }.ToSublist();
             int index = 0;
@@ -187,11 +187,11 @@ namespace NDex.Tests
         /// We should be able to find the item in the front even if the list is reversed.
         /// </summary>
         [TestMethod]
-        public void TestItemAt_Reversed_ItemInFront()
+        public void TestItemAtInPlace_Reversed_ItemInFront()
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => 100 - i).AddTo(list);
-            list.ItemAt(0, Comparer<int>.Default);
+            list.ItemAt(0, Comparer<int>.Default).InPlace();
             Assert.AreEqual(1, list[0], "The wrong item was moved to the front.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -200,11 +200,11 @@ namespace NDex.Tests
         /// We should be able to find the item in the back even if the list is reversed.
         /// </summary>
         [TestMethod]
-        public void TestItemAt_Reversed_ItemInBack()
+        public void TestItemAtInPlace_Reversed_ItemInBack()
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => 100 - i).AddTo(list);
-            list.ItemAt(list.Count - 1, Comparer<int>.Default);
+            list.ItemAt(list.Count - 1, Comparer<int>.Default).InPlace();
             Assert.AreEqual(100, list[list.Count - 1], "The wrong item was moved to the back.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -213,11 +213,11 @@ namespace NDex.Tests
         /// We should be able to find the item in the middle even if the list is reversed.
         /// </summary>
         [TestMethod]
-        public void TestItemAt_Reversed_ItemInMiddle()
+        public void TestItemAtInPlace_Reversed_ItemInMiddle()
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(100, i => 100 - i).AddTo(list);
-            list.ItemAt(49, Comparer<int>.Default);
+            list.ItemAt(49, Comparer<int>.Default).InPlace();
             Assert.AreEqual(50, list[49], "The wrong item was moved to the middle.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -226,12 +226,12 @@ namespace NDex.Tests
         /// We should be able to find the item in the front even if the list is pipe-organed.
         /// </summary>
         [TestMethod]
-        public void TestItemAt_PipeOrganed_ItemInFront()
+        public void TestItemAtInPlace_PipeOrganed_ItemInFront()
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(50, i => i * 2).AddTo(list);
             list = Sublist.Generate(50, i => 100 - (i * 2 + 1)).AddTo(list);
-            list.ItemAt(0, Comparer<int>.Default.Compare);
+            list.ItemAt(0, Comparer<int>.Default.Compare).InPlace();
             Assert.AreEqual(0, list[0], "The wrong item was moved to the front.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -240,12 +240,12 @@ namespace NDex.Tests
         /// We should be able to find the item in the back even if the list is pipe-organed.
         /// </summary>
         [TestMethod]
-        public void TestItemAt_PipeOrganed_ItemInBack()
+        public void TestItemAtInPlace_PipeOrganed_ItemInBack()
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(50, i => i * 2).AddTo(list);
             list = Sublist.Generate(50, i => 100 - (i * 2 + 1)).AddTo(list);
-            list.ItemAt(list.Count - 1, Comparer<int>.Default.Compare);
+            list.ItemAt(list.Count - 1, Comparer<int>.Default.Compare).InPlace();
             Assert.AreEqual(99, list[list.Count - 1], "The wrong item was moved to the back.");
             TestHelper.CheckHeaderAndFooter(list);
         }
@@ -254,13 +254,13 @@ namespace NDex.Tests
         /// We should be able to find the item in the middle even if the list is pipe-organed.
         /// </summary>
         [TestMethod]
-        public void TestItemAt_PipeOrganed_ItemInMiddle()
+        public void TestItemAtInPlace_PipeOrganed_ItemInMiddle()
         {
             var list = TestHelper.Wrap(new List<int>());
             list = Sublist.Generate(50, i => i * 2).AddTo(list);
             list = Sublist.Generate(50, i => 100 - (i * 2 + 1)).AddTo(list);
-            list.ItemAt(49, Comparer<int>.Default.Compare);
-            Assert.AreEqual(49, 49, "The wrong item was moved to the middle.");
+            list.ItemAt(49, Comparer<int>.Default.Compare).InPlace();
+            Assert.AreEqual(49, list[49], "The wrong item was moved to the middle.");
             TestHelper.CheckHeaderAndFooter(list);
         }
     }

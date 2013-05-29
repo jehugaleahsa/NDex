@@ -126,6 +126,9 @@
   <data name="CountOutOfRange" xml:space="preserve">
     <value>The given count was negative or too large.</value>
   </data>
+  <data name="DestinationTooSmall" xml:space="preserve">
+    <value>An attempt was made to copy to a destination that was too small.</value>
+  </data>
   <data name="EditReadonlyList" xml:space="preserve">
     <value>An attempt was made to edit a read-only list.</value>
   </data>
