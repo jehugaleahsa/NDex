@@ -9,6 +9,15 @@ There are a lot of classes in .NET that implement the `IList<T>` interface, incl
 
 NDex is a heavily tested and efficient algorithms library for working with indexed collections in-place. Not only does it provide access to algorithms not otherwise available in .NET, it has useful overloads of those algorithms you're already familiar with.
 
+## Who This Library Is For
+This library is for advanced programmers, those with a background in computer science or with a fundamental understanding of data structures and algorithms. It assumes the programmer is responsible for using algorithms correctly. This allows for some performance advantages over the built-in .NET algorithms. For instance, it does nothing to prevent you from using set algorithms on non-sets. It also expects that the programmer understands the pre- and post-conditions of each algorithm. It's important to understand what the algorithm does and what the state of your lists will be after each call.
+
+NDex is an optimization tool. In general, you should rely on built-in .NET classes because a larger audience will be familiar with them. However, if profiling indicates a chunk of code that needs optimized, NDex can be easily integrated. Keep in mind that most inefficient code is the result of choosing the *wrong* algorithms to begin with. Shaving a few seconds off using the same algorithm in NDex is probably not a sufficient solution. NDex provides more algorithms than are available via LINQ or even the container methods. Exploring them, you may find more appropriate, more direct analogs to the code you are trying to write.
+
+Internally, LINQ uses [.NET iterators](http://msdn.microsoft.com/en-us/library/vstudio/dscyy5s0.aspx) to create new collections that are built [lazily](http://en.wikipedia.org/wiki/Lazy_evaluation). Internally, .NET is creating implementations of `IEnumerator<T>` that use state machines to track their progress. This comes at a small price, which can be significant when working with enormous data sets. NDex is not lazy - it will calculate the entire result immediately. You might think that this means NDex uses more memory - however, this is not always the case. Typically, a LINQ expression will eventually evaluate and store the result in an array or a `List<T>`. NDex code will often involve a single collection up-front that is manipulated in-place. The power of NDex is that you can choose what code you want to optimize and integrate it with LINQ and the rest of .NET as you see fit.
+
+For programmers who really want to push their code to the limit, try compiling [natively](http://msdn.microsoft.com/en-us/library/6t9t5wcf.aspx).
+
 ## Sublist
 In order to access the algorithms provided by NDex, you must wrap your list with a `Sublist`. `Sublist` allows you to specify a range over a list in which you want to apply operations. There are occasions when you only want to work in part of a list. Instead of providing a dozen overloads of each algorithm accepting a `startIndex` and `count` argument, you just always pass in a `Sublist`. NDex is smart and will work against the underlying list, so there's no overhead for wrapping a list.
 
