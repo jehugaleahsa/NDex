@@ -290,3 +290,8 @@ Removing an item from a heap is similar. First you call `HeapRemove` to move the
     values.RemoveAt(values.Count - 1);
 
 Anytime you have a heap, you can call `HeapSort` on it - `HeapSort` won't work on a list that isn't a proper heap. A benefit to `HeapSort` is that it has guaranteed runtime performance and can run faster than `StableSort` in some cases.
+
+## Licence
+If you are looking for a licence, you won't find one. The software in this project is free, as in "free as air". Feel free to use my software anyway you like. Use it to build up your evil war machine, swindle old people out of their social security or crush the souls of the innocent.
+
+I love to hear how people are using my code, so drop me a line. Feel free to contribute any enhancements or documentation you may come up with, but don't feel obligated. I just hope this code makes someone's life just a little bit easier.
