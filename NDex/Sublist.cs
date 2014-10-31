@@ -143,6 +143,14 @@ namespace NDex
         }
 
         /// <summary>
+        /// Gets the number of items with the lower and upper bound.
+        /// </summary>
+        public int Count
+        {
+            get { return UpperBound - LowerBound; }
+        }
+
+        /// <summary>
         /// Gets the string representation of the result.
         /// </summary>
         /// <returns>The string representation of the result.</returns>
