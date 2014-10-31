@@ -204,19 +204,20 @@ When a .NET search algorithm can't find a value, it returns `-1`. NDex does some
     
 You can always check to see if the match was a success by checking if the returned index equals the `Count` of the `Sublist`.
 
-Returning an index past the end of the list actually makes for cleaner code. Returning `-1`, your code would need to ask two questions: 1) am I past the end of the list? and 2) did I find the value? With NDex, you just need to ask whether you're past the end of the list. Here's an example that removes every occurrence of a sequence from a list:
+Returning an index past the end of the list actually makes for cleaner code. When you perform multiple operations on the same underlying list, you can simply stop once the index goes past the end. While the algorithm is still working its way through the list, your index will be exactly where it needs to be. If `-1` was returned, you have to perform a check after each search to make sure you're still in-bounds. Consider the following example, which removed all occurrences of a sub-sequence:
 
     List<int> values = new List<int> { 1, 2, 3, 4, 5, 4, 1, 2, 3, 4, 5, 2, 3, 1, 2, 4 };
     int[] sequence = new int[] { 1, 2, 3 };
     int index = 0;
     while (index < values.Count)
     {
-        var sublist = values.ToSublist(index);
         index += values.ToSublist(index).FindSequence(sequence.ToSublist());
         var garbage = values.ToSublist(index, 0);  // avoid assuming length
         garbage = garbage.Resize(sequence.Length, false);  // will do nothing if at end
         garbage.Clear();
     }
+    
+The sub-sequence (`1, 2, 3`) appears 2 times in the list. I can avoid checking the index by initially creating an empty `Sublist`. Then I use the safe `Resize` overload to grow the `Sublist` if possible. If the index is past the end of the list, `Resize` will return another empty `Sublist`. Calling `Clear` will, therefore, either remove the elements from the underlying list or do nothing. Had `FindSequence` returned `-1`, I couldn't simply add the return value to the index or blindly build my garbage `Sublist`.
     
 All of the `Find*` algorithms return a `SearchResult` object. This object contains two properties: `Index` and `Exists`. These will tell you where the search value was found and whether it was found at all. The `SearchResult` class will automatically convert to an `int` or a `bool` representing the two properties.
     
@@ -231,18 +232,17 @@ You can use `LowerAndUpperBound` to get the indexes surrounding all occurrences 
 
     List<int> values = new List<int>() { 1, 1, 2, 2, 2, 3, 3, 3, 4, 5, 5 };
     var result = values.ToSublist().LowerAndUpperBound(3);
-    int count = result.UpperBound - result.LowerBound;
-    var occurrences = values.ToSublist(result.LowerBound, count);
+    var occurrences = values.ToSublist(result.LowerBound, result.Count);
     occurrences.Clear();  // 1, 1, 2, 2, 2, 4, 5, 5
 
 ### Comparison Algorithms
 If you need to compare two lists, you should use the `IsEqualTo`, `CompareTo` and `Mismatch` methods.
 
-`IsEqualTo` returns `true` if the two lists have the same items and are the same length.
+`IsEqualTo` returns `true` if the two lists have the same items in the same locations (and are, of course, the same length).
 
-The `CompareTo` method will compare two lists in the same way `string`s are compared, using a [lexicographical comparison](http://en.wikipedia.org/wiki/Lexicographical_order). It will return `-1` if the first list is smaller or has an item smaller than what's in same position in the second list. It will return `1` if the first list is larger or has an item larger than what's in the same position in the second list. If the two lists are the same length and have the same items, it will return `0`.
+The `CompareTo` method will compare two lists in the same way `string`s are compared, using a [lexicographical comparison](http://en.wikipedia.org/wiki/Lexicographical_order). It will return `0` if the two lists are equal. It will return `-1` if, from front to back, an item in the first list is smaller than the item at the same index in the second list *or* it gets to the end of the first list and there are still more items in the second list. Otherwise, it will return `1`.
 
-Finally, `Mismatch` will return the index where two lists differ. If one list is shorter than the other, it will return the index past the end of the shorter list. If the items at a particular index are different, that index is returned. If all the items are the same and the lists are the same length, an index past the end of both lists will be returned.
+Finally, `Mismatch` will return the index where two lists differ. If, from front to back, the items at a particular index are different, that index is returned. If it gets to the end of one of the lists, it will return the index past the end of the shorter list. Therefore, if all the items are the same and the lists are the same length (a.k.a., the lists are equal), an index past the end of both lists will be returned.
 
 ### Sorting Algorithms
 The sorting algorithms are pretty straight-forward. What might surprise you is that there are multiple sort algorithms. Sorting algorithms have multiple properties:
