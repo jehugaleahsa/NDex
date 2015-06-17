@@ -6111,7 +6111,7 @@ namespace NDex
         /// </summary>
         /// <param name="shift">The amount to shift the sublist to the right.</param>
         /// <param name="isChecked">If checked, an exception will be thrown if the sublist would extend beyond the list.</param>
-        /// <returns>True if the sublist remained the size; otherwise, false if the sublist shrank.</returns>
+        /// <returns>True if the sublist remained the same size; otherwise, false if the sublist shrank.</returns>
         public Sublist<TList, T> Shift(int shift, bool isChecked)
         {
             int newOffset = _offset + shift;

@@ -165,7 +165,7 @@ namespace NDex
         /// </summary>
         /// <param name="shift">The amount to shift the sublist to the right.</param>
         /// <param name="isChecked">If checked, an exception will be thrown if the sublist would extend beyond the list.</param>
-        /// <returns>True if the sublist remained the size; otherwise, false if the sublist shrank.</returns>
+        /// <returns>True if the sublist remained the same size; otherwise, false if the sublist shrank.</returns>
         public Substring Shift(int shift, bool isChecked)
         {
             return new Substring(_list.Shift(shift, isChecked));
