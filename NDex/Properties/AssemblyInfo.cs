@@ -1,24 +1,3 @@
-﻿using System;
-using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("NDex")]
-[assembly: AssemblyDescription("Unified algorithm support for indexed .NET collections.")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Truncon")]
-[assembly: AssemblyProduct("NDex")]
-[assembly: AssemblyCopyright("Copyright © 2013")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-
-[assembly: ComVisible(false)]
-
-[assembly: Guid("54fb5613-d63b-499b-a85a-8f39252c99d7")]
-
-[assembly: AssemblyVersion("3.0.2.0")]
-[assembly: AssemblyFileVersion("3.0.2.0")]
-[assembly: NeutralResourcesLanguageAttribute("en-US")]
-[assembly: InternalsVisibleTo("NDex.Tests")]
-[assembly: CLSCompliant(true)]
+[assembly: InternalsVisibleTo("NDex.Tests,PublicKey=002400000480000094000000060200000024000052534131000400000100010081847ea6a60171a89403a22e8f2a3ccdb8cce053d013871283f32946fa43f86069e4242f993cb664fa4e23697cb962c248c4e368acdb7b4040fe695aedb3d1c59e368b7ff75c9397896725b7d374e919f07665919c4bc102a460ac5254fab37249e905fc8b9a132e983e946c80874d4a667612b0325a048daec0c9bc372b5bf1")]

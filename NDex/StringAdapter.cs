@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using NDex.Properties;
 
 namespace NDex
@@ -130,7 +131,7 @@ namespace NDex
         /// <returns>The enumerator.</returns>
         public IEnumerator<char> GetEnumerator()
         {
-            return value.GetEnumerator();
+            return value.Cast<char>().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
