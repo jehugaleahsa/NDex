@@ -398,7 +398,7 @@ namespace NDex
         {
             return new Sublist<Collection<T>, T>(collection, offset, count);
         }
-
+#if NET45
         /// <summary>
         /// Wraps the given typed list such that the entirety of the collection is visible.
         /// </summary>
@@ -441,7 +441,7 @@ namespace NDex
         {
             return new Sublist<TypedList<TList, T>, T>(list, offset, count);
         }
-
+#endif
         /// <summary>
         /// Wraps the given read-only list such that the entirety of the list is visible.
         /// </summary>
@@ -485,9 +485,9 @@ namespace NDex
             return new Sublist<ReadOnlyList<TList, T>, T>(list, offset, count);
         }
 
-        #endregion
+#endregion
 
-        #region AddTo
+#region AddTo
 
         /// <summary>
         /// Adds the items from a list onto a destination list.
@@ -585,9 +585,9 @@ namespace NDex
             return past + (destination.Count - pivot);
         }
 
-        #endregion
+#endregion
 
-        #region AdjustHeap
+#region AdjustHeap
 
         private static void adjustHeap<TList, T>(
             TList list,
@@ -618,9 +618,9 @@ namespace NDex
             heapAdd<TList, T>(list, first, hole, top, value, comparison);
         }
 
-        #endregion
+#endregion
 
-        #region Aggregate
+#region Aggregate
 
         /// <summary>
         /// Aggregates the values in the list using the given operation.
@@ -697,9 +697,9 @@ namespace NDex
             return result;
         }
 
-        #endregion
+#endregion
 
-        #region BinarySearch
+#region BinarySearch
 
         /// <summary>
         /// Finds the index of the value in a sorted list.
@@ -813,9 +813,9 @@ namespace NDex
             return lowerBound;
         }
 
-        #endregion
+#endregion
 
-        #region Clear
+#region Clear
 
         /// <summary>
         /// Removes all of the items in the range defined by a Sublist.
@@ -871,9 +871,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region CompareTo
+#region CompareTo
 
         /// <summary>
         /// Compares the items in two lists returning the first non-zero result, 
@@ -1028,9 +1028,9 @@ namespace NDex
             return first1 == past1 ? first2 == past2 ? 0 : -1 : 1;
         }
 
-        #endregion
+#endregion
 
-        #region CopyBackward
+#region CopyBackward
 
         private static int copyBackward<TList, TDestinationList, T>(
             TList list, int first, int past,
@@ -1047,9 +1047,9 @@ namespace NDex
             return destinationPast;
         }
 
-        #endregion
+#endregion
 
-        #region CopyTo
+#region CopyTo
 
         /// <summary>
         /// Copies items from a list to a destination list.
@@ -1144,9 +1144,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region CopyWhile
+#region CopyWhile
 
         private static Tuple<int, int> copyWhile<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
@@ -1180,9 +1180,9 @@ namespace NDex
             return new Tuple<int, int>(first, destinationFirst);
         }
 
-        #endregion
+#endregion
 
-        #region CountIf
+#region CountIf
 
         /// <summary>
         /// Counts the items in a list that satisfy the predicate.
@@ -1221,9 +1221,9 @@ namespace NDex
             return count;
         }
 
-        #endregion
+#endregion
 
-        #region Distinct
+#region Distinct
 
         internal static int AddDistinct<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
@@ -1295,9 +1295,9 @@ namespace NDex
             return past;
         }
 
-        #endregion
+#endregion
 
-        #region Except
+#region Except
 
         internal static int AddExcept<TSourceList1, TSourceList2, TDestinationList, TSource>(
             TSourceList1 source1, int first1, int past1,
@@ -1368,9 +1368,9 @@ namespace NDex
             return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
-        #endregion
+#endregion
 
-        #region Find
+#region Find
 
         /// <summary>
         /// Gets the index of the given value within a list.
@@ -1505,9 +1505,9 @@ namespace NDex
             return first;
         }
 
-        #endregion
+#endregion
 
-        #region FindAny
+#region FindAny
 
         /// <summary>
         /// Finds the first index in a list of a value that appears in another list.
@@ -1654,9 +1654,9 @@ namespace NDex
             return first1;
         }
 
-        #endregion
+#endregion
 
-        #region FindDuplicates
+#region FindDuplicates
 
         /// <summary>
         /// Finds the index of the first occurrence of equivilent, adjacent items in a list.
@@ -1760,9 +1760,9 @@ namespace NDex
             return past;
         }
 
-        #endregion
+#endregion
 
-        #region FindNot
+#region FindNot
 
         private static int findNot<TList, T>(TList list, int first, int past, Func<T, bool> predicate)
             where TList : IList<T>
@@ -1774,9 +1774,9 @@ namespace NDex
             return first;
         }
 
-        #endregion
+#endregion
 
-        #region FindSequence
+#region FindSequence
 
         /// <summary>
         /// Finds the index in a list of the first occurrence of the given sequence.
@@ -1930,9 +1930,9 @@ namespace NDex
             return past1;
         }
 
-        #endregion
+#endregion
 
-        #region ForEach
+#region ForEach
 
         /// <summary>
         /// Performs the given action on each item in a list.
@@ -1967,9 +1967,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region Generate
+#region Generate
 
         internal static void AddGenerate<TSourceList, TSource>(TSourceList list, int first, int past, TSource value)
             where TSourceList : IList<TSource>
@@ -2033,9 +2033,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region Grow
+#region Grow
 
         private static int growAndShift<TList, T>(TList list, int middle, int growBy)
             where TList : IList<T>
@@ -2055,9 +2055,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region HeapAdd
+#region HeapAdd
 
         /// <summary>
         /// Moves an item after the end of a heap to its appropriate location.
@@ -2160,9 +2160,9 @@ namespace NDex
             list[first + hole] = value;
         }
 
-        #endregion
+#endregion
 
-        #region HeapRemove
+#region HeapRemove
 
         /// <summary>
         /// Moves the item at the top of the heap to the end of the list, maintaining the heap.
@@ -2249,9 +2249,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region HeapSort
+#region HeapSort
 
         /// <summary>
         /// Sorts a list representing a heap.
@@ -2335,9 +2335,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region InsertionSort
+#region InsertionSort
 
         private static void insertionSort<TList, T>(TList list, int first, int past, Func<T, T, int> comparison)
             where TList : IList<T>
@@ -2366,9 +2366,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region Intersect
+#region Intersect
 
         internal static int AddIntersect<TSourceList1, TSourceList2, TDestinationList, TSource>(
             TSourceList1 source1, int first1, int past1,
@@ -2433,9 +2433,9 @@ namespace NDex
             return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
-        #endregion
+#endregion
 
-        #region IsEqualTo
+#region IsEqualTo
 
         /// <summary>
         /// Determines whether two lists have all the same items in the same order.
@@ -2568,9 +2568,9 @@ namespace NDex
             return indexes.Item1 == past1 && indexes.Item2 == past2;
         }
 
-        #endregion
+#endregion
 
-        #region IsHeap
+#region IsHeap
 
         /// <summary>
         /// Finds the index in which the list stops being a valid heap.
@@ -2674,9 +2674,9 @@ namespace NDex
             return past;
         }
 
-        #endregion
+#endregion
 
-        #region IsOverlapping
+#region IsOverlapping
 
         /// <summary>
         /// Gets whether the two lists share any items.
@@ -2817,9 +2817,9 @@ namespace NDex
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region IsPartitioned
+#region IsPartitioned
 
         /// <summary>
         /// Finds the index in which the list stops being partitioned.
@@ -2860,9 +2860,9 @@ namespace NDex
             return first;
         }
 
-        #endregion
+#endregion
 
-        #region IsSet
+#region IsSet
 
         /// <summary>
         /// Finds the index in which the list stops being a valid set.
@@ -2964,9 +2964,9 @@ namespace NDex
             return past;
         }
 
-        #endregion
+#endregion
 
-        #region IsSorted
+#region IsSorted
 
         /// <summary>
         /// Finds the index in which the list stops being sorted.
@@ -3061,9 +3061,9 @@ namespace NDex
             return past;
         }
 
-        #endregion
+#endregion
 
-        #region IsSubset
+#region IsSubset
 
         /// <summary>
         /// Determines whether all of the items in the first list appear in the second list.
@@ -3216,9 +3216,9 @@ namespace NDex
             return first1;
         }
 
-        #endregion
+#endregion
 
-        #region ItemAt
+#region ItemAt
 
         internal static int AddItemAt<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int middle, int past, 
@@ -3271,9 +3271,9 @@ namespace NDex
             insertionSort<TList, T>(list, first, past, comparison);
         }
 
-        #endregion
+#endregion
 
-        #region LowerAndUpperBound
+#region LowerAndUpperBound
 
         /// <summary>
         /// Gets the range of the items in a list that are equal to the given value.
@@ -3407,9 +3407,9 @@ namespace NDex
             return new Tuple<int, int>(first, first);
         }
 
-        #endregion
+#endregion
 
-        #region LowerBound
+#region LowerBound
 
         /// <summary>
         /// Finds the first index in a sorted list where the given value would belong.
@@ -3523,9 +3523,9 @@ namespace NDex
             return first;
         }
 
-        #endregion
+#endregion
 
-        #region MakeHeap
+#region MakeHeap
 
         internal static void MakeHeap<TSourceList, TSource>(TSourceList list, int first, int past, Func<TSource, TSource, int> comparison)
             where TSourceList : IList<TSource>
@@ -3563,9 +3563,9 @@ namespace NDex
             return indexes;
         }
 
-        #endregion
+#endregion
 
-        #region MakeSet
+#region MakeSet
 
         internal static int AddMakeSet<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past, 
@@ -3634,9 +3634,9 @@ namespace NDex
             return past;
         }
 
-        #endregion
+#endregion
 
-        #region Maximum
+#region Maximum
 
         /// <summary>
         /// Finds the index of the largest item in a list.
@@ -3730,9 +3730,9 @@ namespace NDex
             return maxIndex;
         }
 
-        #endregion
+#endregion
 
-        #region Merge
+#region Merge
 
         internal static int AddMerge<TSourceList1, TSourceList2, TDestinationList, TSource>(
             TSourceList1 source1, int first1, int past1,
@@ -3888,9 +3888,9 @@ namespace NDex
             return destinationPast;
         }
 
-        #endregion
+#endregion
 
-        #region Minimum
+#region Minimum
 
         /// <summary>
         /// Finds the index of the smallest item in a list.
@@ -3984,9 +3984,9 @@ namespace NDex
             return minIndex;
         }
 
-        #endregion
+#endregion
 
-        #region MinimumMaximum
+#region MinimumMaximum
 
         /// <summary>
         /// Finds the indexes of the smallest and largest items in a list.
@@ -4095,9 +4095,9 @@ namespace NDex
             return new Tuple<int, int>(minIndex, maxIndex);
         }
 
-        #endregion
+#endregion
 
-        #region Mismatch
+#region Mismatch
 
         /// <summary>
         /// Finds the offset into the given lists where they differ.
@@ -4242,9 +4242,9 @@ namespace NDex
             return new Tuple<int, int>(first1, first2);
         }
 
-        #endregion
+#endregion
 
-        #region NextPermutation
+#region NextPermutation
 
         /// <summary>
         /// Arranges the items in a list to the next lexicographic permutation and returns true. 
@@ -4374,9 +4374,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region PartialSort
+#region PartialSort
 
         internal static int AddPartialSort<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int middle, int past,
@@ -4449,9 +4449,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region Partition
+#region Partition
 
         internal static Tuple<int, int> AddPartition<TSourceList, TDestinationList1, TDestinationList2, TSource>(
             TSourceList source, int first, int past,
@@ -4551,9 +4551,9 @@ namespace NDex
             return first;
         }
 
-        #endregion
+#endregion
 
-        #region PreviousPermutation
+#region PreviousPermutation
 
         /// <summary>
         /// Arranges the items in a list to the previous lexicographic permutation and returns true. 
@@ -4682,9 +4682,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region Sort
+#region Sort
 
         internal static void Sort<TList, T>(TList list, int first, int past, int ideal, Func<T, T, int> comparison)
             where TList : IList<T>
@@ -4832,9 +4832,9 @@ namespace NDex
             return indexes;
         }
 
-        #endregion
+#endregion
 
-        #region StableSort
+#region StableSort
 
         internal static void StableSort<TSourceList, TBufferList, TSource>(
             TSourceList source, int first, int past,
@@ -4956,9 +4956,9 @@ namespace NDex
             return indexes;
         }
 
-        #endregion
+#endregion
 
-        #region RandomSamples
+#region RandomSamples
 
         internal static int AddRandomSamples<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
@@ -5002,9 +5002,9 @@ namespace NDex
             return destinationPast;
         }
 
-        #endregion
+#endregion
 
-        #region RandomShuffle
+#region RandomShuffle
 
         internal static void RandomShuffle<TList, T>(TList list, int first, int past, Func<int> generator)
             where TList : IList<T>
@@ -5064,9 +5064,9 @@ namespace NDex
             return new Tuple<int, int>(first, destinationFirst + total);
         }
 
-        #endregion
+#endregion
 
-        #region Replace
+#region Replace
 
         internal static int AddReplace<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
@@ -5275,9 +5275,9 @@ namespace NDex
             return past;
         }
 
-        #endregion
+#endregion
 
-        #region Reverse
+#region Reverse
 
         internal static int AddReversed<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
@@ -5328,9 +5328,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region RotateLeft
+#region RotateLeft
 
         internal static int AddRotatedLeftUnreduced<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
@@ -5480,9 +5480,9 @@ namespace NDex
             }
         }
 
-        #endregion
+#endregion
 
-        #region Select
+#region Select
 
         internal static int AddSelect<TSourceList, TSource, TDestinationList, TDestination>(
             TSourceList source, int first, int past,
@@ -5515,9 +5515,9 @@ namespace NDex
             return new Tuple<int, int>(first, destinationFirst);
         }
 
-        #endregion
+#endregion
 
-        #region SwapWith
+#region SwapWith
 
         /// <summary>
         /// Swaps the items between two lists.
@@ -5567,9 +5567,9 @@ namespace NDex
             return new Tuple<int, int>(first1, first2);
         }
 
-        #endregion
+#endregion
 
-        #region SymmetricExcept
+#region SymmetricExcept
 
         internal static int AddSymmetricExcept<TSourceList1, TSourceList2, TDestinationList, TSource>(
             TSourceList1 source1, int first1, int past1,
@@ -5649,9 +5649,9 @@ namespace NDex
             return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
-        #endregion
+#endregion
 
-        #region Union
+#region Union
 
         internal static int AddUnion<TSourceList1, TSourceList2, TDestinationList, TSource>(
             TSourceList1 source1, int first1, int past1,
@@ -5734,9 +5734,9 @@ namespace NDex
             return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
-        #endregion
+#endregion
 
-        #region UpperBound
+#region UpperBound
 
         /// <summary>
         /// Finds the last index in a sorted list where the given value would belong.
@@ -5844,9 +5844,9 @@ namespace NDex
             return first;
         }
 
-        #endregion
+#endregion
 
-        #region Where
+#region Where
 
         internal static int AddWhere<TSourceList, TDestinationList, TSource>(
             TSourceList source, int first, int past,
@@ -5905,9 +5905,9 @@ namespace NDex
             return first;
         }
 
-        #endregion
+#endregion
 
-        #region Zip
+#region Zip
 
         internal static int AddZip<TSourceList1, TSource1, TSourceList2, TSource2, TDestinationList, TDestination>(
             TSourceList1 source1, int first1, int past1,
@@ -5947,7 +5947,7 @@ namespace NDex
             return new Tuple<int, int, int>(first1, first2, destinationFirst);
         }
 
-        #endregion
+#endregion
     }
 
     /// <summary>

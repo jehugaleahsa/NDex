@@ -157,7 +157,7 @@ namespace NDex.Tests
             Assert.AreEqual(1, sublist.Offset, "The offset was not zero.");
             Assert.AreEqual(1, sublist.Count, "The count was wrong.");
         }
-
+#if NET45
         /// <summary>
         /// If we call ToSublist without an offset or count, the entire list should be wrapped.
         /// </summary>
@@ -199,7 +199,7 @@ namespace NDex.Tests
             Assert.AreEqual(1, sublist.Offset, "The offset was not zero.");
             Assert.AreEqual(1, sublist.Count, "The count was wrong.");
         }
-
+#endif
         /// <summary>
         /// If we call ToSublist without an offset or count, the entire list should be wrapped.
         /// </summary>
@@ -242,9 +242,9 @@ namespace NDex.Tests
             Assert.AreEqual(1, sublist.Count, "The count was wrong.");
         }
 
-        #endregion
+#endregion
 
-        #region Ctor
+#region Ctor
 
         /// <summary>
         /// An exception should be thrown if the list is null.
@@ -403,9 +403,9 @@ namespace NDex.Tests
             Assert.IsTrue(expected.ToSublist().IsEqualTo(sublist), "The sublist did not contain the expected items.");
         }
 
-        #endregion
+#endregion
 
-        #region Nest
+#region Nest
 
         /// <summary>
         /// An exception should be thrown if the offset is negative.
@@ -617,9 +617,9 @@ namespace NDex.Tests
             Assert.IsFalse(odds.Find(i => i % 2 == 0), "Not all odds in the second nested list.");
         }
 
-        #endregion
+#endregion
 
-        #region Shift
+#region Shift
 
         /// <summary>
         /// If we try to shift a sublist, making its offset negative, an exception should be thrown.
@@ -731,9 +731,9 @@ namespace NDex.Tests
             sublist.Shift(0, true);
         }
 
-        #endregion
+#endregion
 
-        #region Resize
+#region Resize
 
         /// <summary>
         /// It is an error to resize to a negative.
@@ -831,9 +831,9 @@ namespace NDex.Tests
             sublist.Resize(sublist.Count, true);
         }
 
-        #endregion
+#endregion
 
-        #region Indexer
+#region Indexer
 
         /// <summary>
         /// An exception should be thrown if the index is negative.
@@ -904,9 +904,9 @@ namespace NDex.Tests
             Assert.IsTrue(expected.ToSublist().IsEqualTo(list.List.ToSublist()), "The item was not set as expected.");
         }
 
-        #endregion
+#endregion
 
-        #region GetEnumerator
+#region GetEnumerator
 
         /// <summary>
         /// Enumeration should move through the items in the sublist.
@@ -940,6 +940,6 @@ namespace NDex.Tests
             Assert.IsTrue(expected.ToSublist().IsEqualTo(list.ToSublist()), "The correct values were not enumerated.");
         }
 
-        #endregion
+#endregion
     }
 }

@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard1.3;NET451</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>NDex.snk</AssemblyOriginatorKeyFile>
-    <Version>3.1.0</Version>
+    <Version>3.2.0</Version>
     <Description>Unified algorithm support for indexed .NET collections.</Description>
     <Copyright>Copyright © 2013</Copyright>
     <PackageLicenseUrl>https://github.com/jehugaleahsa/NDex/blob/master/UNLICENSE.txt</PackageLicenseUrl>
@@ -12,8 +12,12 @@
     <RepositoryUrl>https://github.com/jehugaleahsa/NDex.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>algorithm array ilist list reversed stl sublist convert substitution readonly reverse substring combine transform set difference intersection merge sort partition random replace rotate union unique disjoint binary search contains duplicates sequence copy sample count fill foreach heap nth-element lowerbound observablecollection collection upperbound permutation overwrite shuffle shell stable swap index sort</PackageTags>
-    <PackageReleaseNotes>Upgrade to .NET Standard</PackageReleaseNotes>
+    <PackageReleaseNotes>Only support TypedList for .NET Framework.</PackageReleaseNotes>
     <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net451' ">
+    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,10 +27,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>bin\Release\netstandard1.3\NDex.xml</DocumentationFile>
   </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

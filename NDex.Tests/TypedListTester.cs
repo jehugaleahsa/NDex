@@ -5,14 +5,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace NDex.Tests
 {
+#if NET45
     /// <summary>
     /// Tests the TypedList class.
     /// </summary>
     [TestClass]
     public class TypedListTester
     {
-        #region Typed
-
+#region Typed
         /// <summary>
         /// We can make a typed interface around an array.
         /// </summary>
@@ -34,15 +34,14 @@ namespace NDex.Tests
             var typed = list.Typed<int>();
             Assert.AreSame(list, typed.List, "The list was not wrapped.");
         }
+#endregion
 
-        #endregion
+#region Ctor
 
-        #region Ctor
-
-        /// <summary>
-        /// An exception should be thrown if the list to wrap is null.
-        /// </summary>
-        [TestMethod]
+    /// <summary>
+    /// An exception should be thrown if the list to wrap is null.
+    /// </summary>
+    [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestCtor_NullList_Throws()
         {
@@ -64,9 +63,9 @@ namespace NDex.Tests
             Assert.AreEqual(arrayList.IsReadOnly, ((ICollection<int>)list).IsReadOnly, "The read-only property didn't match.");
         }
 
-        #endregion
+#endregion
 
-        #region Indexer
+#region Indexer
 
         /// <summary>
         /// If the item at the index is of the correct type, it should cast without problem.
@@ -101,9 +100,9 @@ namespace NDex.Tests
             Assert.AreEqual(0, list.List[0]);
         }
 
-        #endregion
+#endregion
 
-        #region Add
+#region Add
 
         /// <summary>
         /// Calling add should add the item to the end of the list.
@@ -119,9 +118,9 @@ namespace NDex.Tests
             Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item wa not added as expected.");
         }
 
-        #endregion
+#endregion
 
-        #region Clear
+#region Clear
 
         /// <summary>
         /// Clear should remove every item.
@@ -135,9 +134,9 @@ namespace NDex.Tests
             Assert.AreEqual(0, list.Count, "The count was not zero after clearing");
         }
 
-        #endregion
+#endregion
 
-        #region Contains
+#region Contains
 
         /// <summary>
         /// Contains should return true if the item is in the list.
@@ -161,9 +160,9 @@ namespace NDex.Tests
             Assert.IsFalse(result);
         }
 
-        #endregion
+#endregion
 
-        #region CopyTo
+#region CopyTo
 
         /// <summary>
         /// An exception should be thrown if the array is null.
@@ -245,9 +244,9 @@ namespace NDex.Tests
             list.CopyTo(array, arrayIndex);
         }
 
-        #endregion
+#endregion
 
-        #region IndexOf
+#region IndexOf
 
         /// <summary>
         /// IndexOf should return negative one if the given value isn't found.
@@ -305,9 +304,9 @@ namespace NDex.Tests
             Assert.AreEqual(1, index);
         }
 
-        #endregion
+#endregion
 
-        #region Insert
+#region Insert
 
         /// <summary>
         /// An exception should be thrown if the index is negative.
@@ -370,9 +369,9 @@ namespace NDex.Tests
             Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not inserted as expected.");
         }
 
-        #endregion
+#endregion
 
-        #region Remove
+#region Remove
 
         /// <summary>
         /// Remove should return false if the given value isn't found.
@@ -413,9 +412,9 @@ namespace NDex.Tests
             Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not removed from the list.");
         }
 
-        #endregion
+#endregion
 
-        #region RemoveAt
+#region RemoveAt
 
         /// <summary>
         /// An exception should be thrown if the index is negative.
@@ -478,9 +477,9 @@ namespace NDex.Tests
             Assert.IsTrue(expected.ToSublist().IsEqualTo(actual.ToSublist()), "The item was not removed as expected.");
         }
 
-        #endregion
+#endregion
 
-        #region GetEnumerable
+#region GetEnumerable
 
         /// <summary>
         /// Enumeration should move through the items.
@@ -529,7 +528,7 @@ namespace NDex.Tests
             }
         }
 
-        #endregion
+#endregion
 
         private static int[] toTypedArray(ArrayList list)
         {
@@ -538,4 +537,5 @@ namespace NDex.Tests
             return array;
         }
     }
+#endif
 }

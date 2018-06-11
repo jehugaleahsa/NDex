@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 namespace NDex
 {
+#if NET45
     internal class TypedListDebugView<TList, T>
         where TList : IList
     {
@@ -22,4 +23,5 @@ namespace NDex
             }
         }
     }
+#endif
 }

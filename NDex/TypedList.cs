@@ -6,6 +6,7 @@ using NDex.Properties;
 
 namespace NDex
 {
+#if NET45
     /// <summary>
     /// Provides extension methods for creating typed lists.
     /// </summary>
@@ -242,4 +243,5 @@ namespace NDex
             return GetEnumerator();
         }
     }
+#endif
 }
